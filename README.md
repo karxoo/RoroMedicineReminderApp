@@ -40,6 +40,11 @@
   </section>
 
   <section>
+  <h2>🤝 Contributing</h2>
+  <p>Contributions are welcome! Please fork the repository and create a pull request.</p>
+  </section>
+  
+  <section>
     <h2>🚀 Getting Started</h2>
     <p>This project is a starting point for a Flutter application.</p>
     <p>Helpful resources if this is your first Flutter project:</p>
@@ -50,5 +55,8 @@
     </ul>
   </section>
   
+
+  
 </body>
 </html>
+
