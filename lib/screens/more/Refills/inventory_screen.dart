@@ -8,23 +8,24 @@ import '../../../../components/navBar.dart';
 import '../../../../models/tracker.dart';
 
 class InventoryScreen extends StatefulWidget {
+  const InventoryScreen({Key? key}) : super(key: key);
+
   @override
-  _InventoryScreenState createState() =>
-      _InventoryScreenState();
+  _InventoryScreenState createState() => _InventoryScreenState();
 }
 
 class _InventoryScreenState extends State<InventoryScreen> {
-  getCurrentUser() async {
-    User user = await FirebaseAuth.instance.currentUser;
+  getCurrentUser() {
+    User? user = FirebaseAuth.instance.currentUser;
     setState(() {
-      userId = user.uid;
+      userId = user?.uid;
     });
   }
 
-  QuerySnapshot snapshot;
-  String userId;
-  double averageValue;
-  BloodSugarTracker bloodSugar;
+  late QuerySnapshot snapshot;
+  late String? userId;
+  late double averageValue;
+  late BloodSugarTracker bloodSugar;
   getDocumentList() async {
     bloodSugar = BloodSugarTracker();
     snapshot = await FirebaseFirestore.instance
@@ -37,10 +38,12 @@ class _InventoryScreenState extends State<InventoryScreen> {
 
     List<BloodSugar> list = bloodSugar.loadData(snapshot);
     for (var s in list) {
-      totalValue += s.bloodSugar;
+      totalValue += s.bloodSugar ?? 0;
     }
 
-    setState(() {  averageValue = totalValue / list.length;});
+    setState(() {
+      averageValue = totalValue / list.length;
+    });
 
     return snapshot;
   }
@@ -59,8 +62,8 @@ class _InventoryScreenState extends State<InventoryScreen> {
         children: <Widget>[
           Center(
             child: Container(
-              margin: EdgeInsets.fromLTRB(20, 8, 20, 0),
-              child: Text(
+              margin: const EdgeInsets.fromLTRB(20, 8, 20, 0),
+              child: const Text(
                 'Inventory',
                 style: TextStyle(
                   fontSize: 25,
@@ -69,52 +72,57 @@ class _InventoryScreenState extends State<InventoryScreen> {
               ),
             ),
           ),
-          FutureBuilder(
-              future: getDocumentList(),
+         StreamBuilder<QuerySnapshot>(
+  stream: FirebaseFirestore.instance.collection('profile').snapshots(),
               builder: (context, snapshot) {
                 if (snapshot.hasData) {
+                   final docs = snapshot.data!.docs;
+  if (docs.isEmpty) {
+    return const Center(child: Text("No data available"));
+  }
                   return Column(
                     children: <Widget>[
                       SingleChildScrollView(
                         scrollDirection: Axis.horizontal,
                         child: Container(
-                          margin: EdgeInsets.all(15),
+                          margin: const EdgeInsets.all(15),
                           constraints: BoxConstraints(
                             maxHeight: MediaQuery.of(context).size.height / 1.7,
                             maxWidth: MediaQuery.of(context).size.width *
-                                (snapshot.data.docs.length / 2.5),
+                                (docs.length / 2.5),
                           ),
                           child: Card(
                             shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(10)),
+                            margin: const EdgeInsets.all(8),
                             child: Padding(
                               padding: const EdgeInsets.all(8.0),
                               child: BloodSugarChart(
                                 animate: true,
-                                userID: userId,
+                                userID: userId ?? '0',
                               ),
                             ),
-                            margin: EdgeInsets.all(8),
                           ),
                         ),
                       ),
                       Card(
-                        margin: EdgeInsets.only(left: 8, right: 8),
+                        margin: const EdgeInsets.only(left: 8, right: 8),
                         child: ListTile(
-                          subtitle: Text('Inventory'),
+                          subtitle: const Text('Inventory'),
                           title: Text(averageValue.toStringAsFixed(2)),
                         ),
                       )
                     ],
                   );
-                } else
-                  return SizedBox();
+                } else {
+                  return const SizedBox();
+                }
               }),
         ],
       ),
-      appBar: ROROAppBar(),
-      drawer: AppDrawer(),
-      bottomNavigationBar: MyBottomNavBar(),
+      appBar: const ROROAppBar(),
+      drawer: const AppDrawer(),
+      bottomNavigationBar: const MyBottomNavBar(),
     );
   }
 }

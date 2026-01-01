@@ -9,14 +9,13 @@ import 'package:roro_medicine_reminder/screens/more/trackers/health_tracker.dart
 import 'package:roro_medicine_reminder/widgets/app_default.dart';
 
 import '../../components/navBar.dart';
-import '../more/Refills/add_inventory.dart';
 import '../more/about.dart';
 import '../more/notes/note_page.dart';
 import '../reminder/appoinment_reminder/appoinment_reminder_screen.dart';
 import 'Settings/settings.dart';
 
 class More extends StatefulWidget {
-  const More({Key key}) : super(key: key);
+  const More({Key? key}) : super(key: key);
 
   @override
   State<More> createState() => _MoreState();
@@ -30,7 +29,7 @@ class _MoreState extends State<More> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Row(
+          title: const Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               Text(
@@ -47,40 +46,40 @@ class _MoreState extends State<More> {
           elevation: 1,
           backgroundColor: Colors.blueGrey,
             actions: [IconButton(
-                icon: Icon(Icons.settings),
+                icon: const Icon(Icons.settings),
                 onPressed: ()  {
                   Navigator.of(context).push(MaterialPageRoute(
-                      builder: (BuildContext context) => SettingsPage()));
+                      builder: (BuildContext context) => const SettingsPage()));
                 }
             ),
             ],
         ),
-        drawer: AppDrawer(),
+        drawer: const AppDrawer(),
         body: ListView(
           children: [
             ListTile(
-              leading: Icon(Icons.arrow_forward_ios),
-              title: Text('Notes',
+              leading: const Icon(Icons.arrow_forward_ios),
+              title: const Text('Notes',
                   style: TextStyle(fontFamily: "Mulish", fontSize: 18, fontWeight: FontWeight.bold)),
               //subtitle: Text('Add notes.'),
-              trailing: Icon(Icons.note_add, color: Colors.blueGrey),
+              trailing: const Icon(Icons.note_add, color: Colors.blueGrey),
               onTap: () =>
                 Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (context) => NotePage()),
+                        builder: (context) => const NotePage()),
                 )
             ),
             ListTile(
-              leading: Icon(Icons.arrow_forward_ios),
-              title: Text('Health Tracker',
+              leading: const Icon(Icons.arrow_forward_ios),
+              title: const Text('Health Tracker',
                   style: TextStyle(fontFamily: "Mulish", fontSize: 18, fontWeight: FontWeight.bold)),
-              trailing: Icon(LineIcons.heartbeat, color: Colors.blueGrey),
+              trailing: const Icon(LineIcons.heartbeat, color: Colors.blueGrey),
               onTap: () =>
                 Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (context) => TrackerHome()),
+                        builder: (context) => const TrackerHome()),
                 )
             ),
             /*ListTile(
@@ -96,56 +95,56 @@ class _MoreState extends State<More> {
                 )
             ),*/
             ListTile(
-              leading: Icon(Icons.arrow_forward_ios),
-              title: Text('Appointments',
+              leading: const Icon(Icons.arrow_forward_ios),
+              title: const Text('Appointments',
                   style: TextStyle(fontFamily: "Mulish", fontSize: 18, fontWeight: FontWeight.bold)),
-              trailing: Icon(LineIcons.calendarWithDayFocus, color: Colors.blueGrey),
+              trailing: const Icon(LineIcons.calendarWithDayFocus, color: Colors.blueGrey),
               onTap: () =>
                 Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (context) => AppoinmentReminder()),
+                        builder: (context) => const AppoinmentReminder()),
                 )
             ),
             ListTile(
-              leading: Icon(Icons.arrow_forward_ios),
-              title: Text('Additional Info',
+              leading: const Icon(Icons.arrow_forward_ios),
+              title: const Text('Additional Info',
                   style: TextStyle(fontFamily: "Mulish", fontSize: 18, fontWeight: FontWeight.bold)),
-              trailing: Icon(Icons.info_outline, color: Colors.blueGrey),
+              trailing: const Icon(Icons.info_outline, color: Colors.blueGrey),
               onTap: () =>
                 Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (context) => ExtraInfo()),
+                        builder: (context) => const ExtraInfo()),
                 )
             ),
             ListTile(
-              leading: Icon(Icons.arrow_forward_ios),
-              title: Text('Help & Support',
+              leading: const Icon(Icons.arrow_forward_ios),
+              title: const Text('Help & Support',
                   style: TextStyle(fontFamily: "Mulish", fontSize: 18, fontWeight: FontWeight.bold)),
-              trailing: Icon(Icons.live_help_outlined, color: Colors.blueGrey),
+              trailing: const Icon(Icons.live_help_outlined, color: Colors.blueGrey),
               onTap: () =>
                 Navigator.push(
                     context,
                     MaterialPageRoute(
-                    builder: (context) => helpSupport()),
+                    builder: (context) => const helpSupport()),
                 )
             ),
             ListTile(
-              leading: Icon(Icons.arrow_forward_ios),
-              title: Text('About',
+              leading: const Icon(Icons.arrow_forward_ios),
+              title: const Text('About',
                   style: TextStyle(fontFamily: "Mulish", fontSize: 18, fontWeight: FontWeight.bold)),
-              trailing: Icon(LineIcons.shapes, color: Colors.blueGrey),
+              trailing: const Icon(LineIcons.shapes, color: Colors.blueGrey),
               onTap: () =>
                 Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (context) => About()),
+                        builder: (context) => const About()),
                 )
             ),
           ],
         ),
-        bottomNavigationBar: MyBottomNavBar(),
+        bottomNavigationBar: const MyBottomNavBar(),
     );
   }
 }

@@ -1,8 +1,7 @@
-
 import 'JagaMe.dart';
 
 class UserProfile {
-  String allergies,
+  String? allergies,
       userName,
       age,
       gender,
@@ -15,42 +14,41 @@ class UserProfile {
       phoneNumber,
       picture,
       uid;
-  List<Relative> relatives;
+  List<Relative> relatives = [];
   UserProfile(this.uid);
   setData(Map<String, dynamic> data) {
-    this.uid = data['uid'];
-    this.phoneNumber = data['phoneNumber'];
-    this.age = data['age'];
-    this.bloodGroup = data['bloodGroup'];
-    this.bloodPressure = data['bloodPressure'];
-    this.bloodSugar = data['bloodSugar'];
-    this.email = data['email'];
-    this.gender = data['gender'];
-    this.height = data['height'];
-    this.picture = data['picture'];
-    this.weight = data['weight'];
-    this.userName = data['userName'];
-    this.allergies = data['allergies'];
+    uid = data['uid'] as String?;
+    phoneNumber = data['phoneNumber'] as String?;
+    age = data['age'] as String?;
+    bloodGroup = data['bloodGroup'] as String?;
+    bloodPressure = data['bloodPressure'] as String?;
+    bloodSugar = data['bloodSugar'] as String?;
+    email = data['email'] as String?;
+    gender = data['gender'] as String?;
+    height = data['height'] as String?;
+    picture = data['picture'] as String?;
+    weight = data['weight'] as String?;
+    userName = data['userName'] as String?;
+    allergies = data['allergies'] as String?;
     return this;
   }
 
   getAllRelatives(var data) {
-    this.relatives = List<Relative>();
+    relatives = <Relative>[];
     for (var relative in data) {
-      Relative _relative = Relative();
-      _relative.getData(relative);
-      this.relatives.add(_relative);
+      Relative relative = Relative();
+      relative.getData(relative);
+      relatives.add(relative);
     }
   }
 
   deleteRelative(String documentID) {
-    Relative _relative = Relative();
-    bool found = false;
-    for (var r in this.relatives) {
-      if (r.documentID == documentID) _relative = r;
+    Relative? relative;
+    for (var r in relatives) {
+      if (r.documentID == documentID) relative = r;
     }
-    if (found) {
-      this.relatives.remove(_relative);
+    if (relative != null) {
+      relatives.remove(relative);
     }
   }
 }

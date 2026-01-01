@@ -1,58 +1,46 @@
-
-
-
 import 'JagaMe.dart';
 
 class DependantProfile {
-  String Dallergies,
-      DuserName,
-      Dage,
-      Dgender,
-      DbloodGroup,
-      DbloodPressure,
-      DbloodSugar,
-      Dheight,
-      Dweight,
-      DphoneNumber,
-      Dpicture,
-      dependantUid;
+  String dependantUid;
+  String? dAllergies;
+  String? dUserName;
+  int? dAge;
+  String? dGender;
+  String? dBloodGroup;
+  String? dBloodPressure;
+  String? dBloodSugar;
+  double? dHeight;
+  double? dWeight;
+  String? dPhoneNumber;
+  String? dPicture;
 
-  List<Relative> relatives ;
+  List<Relative> relatives = [];
 
   DependantProfile(this.dependantUid);
-  setData (Map<String, dynamic> data) {
-    this.dependantUid = data['uidD'];
-    this.DphoneNumber = data['phoneNumberD'];
-    this.Dage = data['ageD'];
-    this.DbloodGroup = data['bloodGroupD'];
-    this.DbloodPressure = data['bloodPressureD'];
-    this.DbloodSugar = data['bloodSugarD'];
-    this.Dgender = data['genderD'];
-    this.Dheight = data['heightD'];
-    this.Dpicture = data['pictureD'];
-    this.Dweight = data['weightD'];
-    this.DuserName = data['userNameD'];
-    this.Dallergies = data['allergiesD'];
-    return this;
+
+  DependantProfile.fromMap(Map<String, dynamic> data)
+      : dependantUid = data['uidD'],
+        dPhoneNumber = data['phoneNumberD'],
+        dAge = data['ageD'],
+        dBloodGroup = data['bloodGroupD'],
+        dBloodPressure = data['bloodPressureD'],
+        dBloodSugar = data['bloodSugarD'],
+        dGender = data['genderD'],
+        dHeight = data['heightD'],
+        dPicture = data['pictureD'],
+        dWeight = data['weightD'],
+        dUserName = data['userNameD'],
+        dAllergies = data['allergiesD'];
+
+  void getAllRelatives(List<Map<String, dynamic>> data) {
+    relatives = data.map((relData) {
+      final relative = Relative();
+      relative.getData(relData);
+      return relative;
+    }).toList();
   }
 
-  getAllRelatives(var data) {
-    this.relatives = [];
-    for (var relative in data) {
-      Relative _relative = Relative();
-      _relative.getData(relative);
-      this.relatives.add(_relative);
-    }
-  }
-
-  deleteRelative(String documentID) {
-    Relative _relative = Relative();
-    bool found = false;
-    for (var r in this.relatives) {
-      if (r.documentID == documentID) _relative = r;
-    }
-    if (found) {
-      this.relatives.remove(_relative);
-    }
+  void deleteRelative(String documentID) {
+    relatives.removeWhere((r) => r.documentID == documentID);
   }
 }

@@ -12,17 +12,19 @@ import '../../components/navBar.dart';
 
 class AddDocuments extends StatefulWidget {
   static const String routeName = 'Add_Documents_Screen';
+
+  const AddDocuments({Key? key}) : super(key: key);
   @override
   _AddDocumentsState createState() => _AddDocumentsState();
 }
 
 class _AddDocumentsState extends State<AddDocuments> {
-  TextEditingController nameController;
-  bool imageLoaded, imageUploading;
-  File _image;
+  late TextEditingController nameController;
+  late bool imageLoaded, imageUploading;
+  late File _image;
   final picker = ImagePicker();
-  String userId;
-  Map<String, dynamic> allImages;
+  late String userId;
+  Map<String, dynamic> allImages = {};
   @override
   void initState() {
     nameController = TextEditingController();
@@ -30,25 +32,39 @@ class _AddDocumentsState extends State<AddDocuments> {
     super.initState();
     imageLoaded = false;
     imageUploading = false;
-    allImages = Map<String, dynamic>();
+    allImages = <String, dynamic>{};
   }
 
   Future getImage(String method) async {
-    var pickedFile;
-    if (method == 'camera')
+    XFile? pickedFile;
+    if (method == 'camera') {
       pickedFile = await picker.pickImage(source: ImageSource.camera);
-    else
+    } else {
       pickedFile = await picker.pickImage(source: ImageSource.gallery);
+    }
 
+    if (pickedFile != null) {
     setState(() {
-      _image = File(pickedFile.path);
+      _image = File(pickedFile!.path);
       imageLoaded = true;
     });
+  } else {
+    // Handle cancel case gracefully
+    setState(() {
+      imageLoaded = false;
+    });
+    // Optionally show a message/snackbar
+    // ScaffoldMessenger.of(context).showSnackBar(
+    //   const SnackBar(content: Text('No image selected')),
+    // );
+  }
   }
 
   getAllImageData() async {
-    var imageData =
-        await FirebaseFirestore.instance.collection('documents').doc(userId).get();
+    var imageData = await FirebaseFirestore.instance
+        .collection('documents')
+        .doc(userId)
+        .get();
     setState(() {
       allImages = imageData.data as Map<String, dynamic>;
     });
@@ -57,19 +73,20 @@ class _AddDocumentsState extends State<AddDocuments> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      drawer: AppDrawer(),
-      appBar: ROROAppBar(),
+      drawer: const AppDrawer(),
+      appBar: const ROROAppBar(),
       body: !imageUploading
           ? ListView(children: <Widget>[
               Stack(
-                clipBehavior: Clip.none, alignment: Alignment.bottomCenter,
+                clipBehavior: Clip.none,
+                alignment: Alignment.bottomCenter,
                 children: <Widget>[
                   Container(
                     height: MediaQuery.of(context).size.height / 2.5,
-                    decoration: BoxDecoration(
+                    decoration: const BoxDecoration(
                       color: Color(0xff42495D),
                     ),
-                    child: Column(
+                    child: const Column(
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: <Widget>[
                         SizedBox(
@@ -88,7 +105,7 @@ class _AddDocumentsState extends State<AddDocuments> {
                               fontWeight: FontWeight.bold),
                         ),
                         Padding(
-                          padding: const EdgeInsets.all(12.0),
+                          padding: EdgeInsets.all(12.0),
                           child: Text(
                             'Add your documents here and have them everywhere you go.',
                             textAlign: TextAlign.center,
@@ -104,29 +121,29 @@ class _AddDocumentsState extends State<AddDocuments> {
                       onPressed: () async {
                         await getImage('camera');
                       },
-                      style: ElevatedButton.styleFrom(elevation: 2,
-                        primary: Color(0xffff9987),
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20),
-                            side: BorderSide(
-                              color: Colors.redAccent[100],
-                            ))),
-                      icon: Icon(Icons.camera_alt, color: Colors.white),
-                      label: Text(
+                      style: ElevatedButton.styleFrom(
+                          elevation: 2,
+                          backgroundColor: const Color(0xffff9987),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20),
+                              side: BorderSide(
+                                color: Colors.redAccent[100]!,
+                              ))),
+                      icon: const Icon(Icons.camera_alt, color: Colors.white),
+                      label: const Text(
                         'Use Camera',
                         style: TextStyle(
                             fontWeight: FontWeight.bold, color: Colors.white),
                       ),
-
                     ),
                   ),
                 ],
               ),
-              SizedBox(
+              const SizedBox(
                 height: 35,
               ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
+              const Padding(
+                padding: EdgeInsets.all(8.0),
                 child: Text(
                   'OR',
                   textAlign: TextAlign.center,
@@ -136,7 +153,7 @@ class _AddDocumentsState extends State<AddDocuments> {
                 onTap: () async {
                   await getImage('gallery');
                 },
-                child: Row(
+                child: const Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   mainAxisSize: MainAxisSize.min,
                   children: <Widget>[
@@ -158,17 +175,17 @@ class _AddDocumentsState extends State<AddDocuments> {
                   ],
                 ),
               ),
-              SizedBox(
+              const SizedBox(
                 height: 8,
               ),
               imageLoaded
                   ? Column(
                       children: <Widget>[
                         Padding(
-                          padding: EdgeInsets.all(10.0),
+                          padding: const EdgeInsets.all(10.0),
                           child: TextField(
-                            style: TextStyle(fontSize: 18),
-                            decoration: InputDecoration(
+                            style: const TextStyle(fontSize: 18),
+                            decoration: const InputDecoration(
                                 contentPadding: EdgeInsets.all(5),
                                 border: OutlineInputBorder(),
                                 enabledBorder: OutlineInputBorder(),
@@ -179,28 +196,30 @@ class _AddDocumentsState extends State<AddDocuments> {
                           ),
                         ),
                         ElevatedButton(
-                          child: Text(
+                          style: ElevatedButton.styleFrom(
+                              elevation: 2,
+                              backgroundColor: const Color(0xffff9987),
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(20),
+                                  side: BorderSide(
+                                    color: Colors.redAccent[100]!,
+                                  ))),
+                          onPressed: () async {
+                            if (nameController.text.isEmpty) {
+                              nameController.value =
+                                  const TextEditingValue(text: 'Document');
+                            }
+                            await uploadFile(nameController.text);
+                          },
+                          child: const Text(
                             'Upload Image',
                             style: TextStyle(
                                 fontSize: 19, fontWeight: FontWeight.bold),
                           ),
-                          style: ElevatedButton.styleFrom(elevation: 2,
-                            primary: Color(0xffff9987),
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(20),
-                                side: BorderSide(
-                                  color: Colors.redAccent[100],
-                                ))),
-                          onPressed: () async {
-                            if (nameController.text.isEmpty)
-                              nameController.value =
-                                  TextEditingValue(text: 'Document');
-                            await uploadFile(nameController.text);
-                          },
                         ),
                       ],
                     )
-                  : Center(
+                  : const Center(
                       child: Padding(
                         padding: EdgeInsets.only(top: 30.0),
                         child: Text(
@@ -210,12 +229,12 @@ class _AddDocumentsState extends State<AddDocuments> {
                       ),
                     ),
             ])
-          : Column(
+          : const Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                 Center(
                   child: Padding(
-                    padding: const EdgeInsets.all(8.0),
+                    padding: EdgeInsets.all(8.0),
                     child: Text('Uploading Document'),
                   ),
                 ),
@@ -224,7 +243,7 @@ class _AddDocumentsState extends State<AddDocuments> {
                 )
               ],
             ),
-      bottomNavigationBar: MyBottomNavBar(),
+      bottomNavigationBar: const MyBottomNavBar(),
     );
   }
 
@@ -236,7 +255,7 @@ class _AddDocumentsState extends State<AddDocuments> {
     if (!allImages.containsKey(name)) {
       String fileName = name, imageUrl;
       Reference reference =
-          FirebaseStorage.instance.ref().child(userId + '/' + fileName);
+          FirebaseStorage.instance.ref().child('$userId/$fileName');
       UploadTask uploadTask = reference.putFile(_image);
       TaskSnapshot storageTaskSnapshot = await uploadTask;
       storageTaskSnapshot.ref.getDownloadURL().then((downloadUrl) async {
@@ -247,7 +266,7 @@ class _AddDocumentsState extends State<AddDocuments> {
         showDialog(
             context: context,
             builder: (context) {
-              return Dialog(
+              return const Dialog(
                 child: Text('Upload Failed'),
               );
             });
@@ -259,7 +278,7 @@ class _AddDocumentsState extends State<AddDocuments> {
       showDialog(
           context: context,
           builder: (context) {
-            return Dialog(
+            return const Dialog(
               child: Text('Document with same name exists.'),
             );
           });
@@ -267,11 +286,12 @@ class _AddDocumentsState extends State<AddDocuments> {
   }
 
   getCurrentUser() async {
-    User user = await FirebaseAuth.instance.currentUser; {
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
       setState(() {
         userId = user.uid;
       });
-    };
+    }
   }
 
   updateData(String name, String value) async {

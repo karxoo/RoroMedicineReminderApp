@@ -10,13 +10,13 @@ import '../../../../models/JagaMe.dart';
 class EditRelativesScreen extends StatefulWidget {
   static const String routeName = 'Edit_Relatives_Screen';
   final String documentID;
-  EditRelativesScreen(this.documentID);
+  const EditRelativesScreen(this.documentID, {Key? key}) : super(key: key);
   @override
   _EditRelativesScreenState createState() => _EditRelativesScreenState();
 }
 
 class _EditRelativesScreenState extends State<EditRelativesScreen> {
-  String userId;
+  String userId = "";
 
   @override
   void initState() {
@@ -25,17 +25,17 @@ class _EditRelativesScreenState extends State<EditRelativesScreen> {
   }
 
   getCurrentUser() async {
-    User user = await FirebaseAuth.instance.currentUser;
+     User? user = FirebaseAuth.instance.currentUser;
     setState(() {
-      userId = user.uid;
+      userId = user?.uid ?? "";
     });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      drawer: AppDrawer(),
-      appBar: ROROAppBar(),
+      drawer: const AppDrawer(),
+      appBar: const ROROAppBar(),
       body: StreamBuilder(
           stream: FirebaseFirestore.instance
               .collection('profile')
@@ -51,8 +51,8 @@ class _EditRelativesScreenState extends State<EditRelativesScreen> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
-                    Padding(
-                      padding: const EdgeInsets.only(top: 25.0, bottom: 10),
+                    const Padding(
+                      padding: EdgeInsets.only(top: 25.0, bottom: 10),
                       child: Center(
                         child: Text(
                           'Edit Relatives Details',
@@ -60,14 +60,14 @@ class _EditRelativesScreenState extends State<EditRelativesScreen> {
                         ),
                       ),
                     ),
-                    SizedBox(
+                    const SizedBox(
                       height: 20,
                     ),
                     Padding(
                         padding: const EdgeInsets.fromLTRB(8.0, 0, 0, 0),
                         child: RelativeTextBox(
                           name: 'name',
-                          value: relative.name,
+                          value: relative?.name ?? '',
                           title: 'Name ',
                           documentID: widget.documentID,
                         )),
@@ -75,7 +75,7 @@ class _EditRelativesScreenState extends State<EditRelativesScreen> {
                         padding: const EdgeInsets.fromLTRB(8.0, 0, 0, 0),
                         child: RelativeTextBox(
                           name: 'email',
-                          value: relative.email,
+                          value: relative.email ?? "",
                           title: 'email address',
                           documentID: widget.documentID,
                         )),
@@ -83,7 +83,7 @@ class _EditRelativesScreenState extends State<EditRelativesScreen> {
                         padding: const EdgeInsets.fromLTRB(8.0, 0, 0, 0),
                         child: RelativeTextBox(
                           name: 'phoneNumber',
-                          value: relative.phoneNumber,
+                          value: relative.phoneNumber ?? "",
                           title: 'phone number',
                           documentID: widget.documentID,
                         )),
@@ -92,12 +92,12 @@ class _EditRelativesScreenState extends State<EditRelativesScreen> {
                           Navigator.pop(context);
                         },
             style: ElevatedButton.styleFrom(
-            primary: Color(0xffff9987),
+            backgroundColor: const Color(0xffff9987),
                         padding:
-                            EdgeInsets.symmetric(vertical: 12, horizontal: 40),
+                            const EdgeInsets.symmetric(vertical: 12, horizontal: 40),
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(20))),
-                        child: Text(
+                        child: const Text(
                           'Save Changes',
                           style: TextStyle(color: Colors.white),
                         )),
@@ -105,10 +105,10 @@ class _EditRelativesScreenState extends State<EditRelativesScreen> {
                 ),
               );
             } else {
-              return SizedBox();
+              return const SizedBox();
             }
           }),
-      bottomNavigationBar: MyBottomNavBar(),
+      bottomNavigationBar: const MyBottomNavBar(),
     );
   }
 }

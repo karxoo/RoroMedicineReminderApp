@@ -9,29 +9,23 @@ import '../../widgets/app_default.dart';
 
 class DocumentDetail extends StatefulWidget {
   final ImageClass image;
-  DocumentDetail(this.image);
+  const DocumentDetail(this.image, {Key? key}) : super(key: key);
 
   @override
   _DocumentDetailState createState() => _DocumentDetailState();
 }
 
 class _DocumentDetailState extends State<DocumentDetail> {
-  ImageClass image = ImageClass();
-  bool isDownloading;
+  late ImageClass image;
+  bool isDownloading = false;
 
   @override
   void initState() {
-    isDownloading = false;
-    image = widget.image;
-    initializeDownloader();
     super.initState();
+    image = widget.image;
   }
 
-  initializeDownloader() async {
-    WidgetsFlutterBinding.ensureInitialized();
-  }
-
-  downloadDocument(String url) async {
+  Future<void> downloadDocument(String url) async {
     setState(() {
       isDownloading = true;
     });
@@ -51,13 +45,20 @@ class _DocumentDetailState extends State<DocumentDetail> {
       print(taskId);
     } catch (e) {
       print(e);
+      setState(() {
+        isDownloading = false;
+      });
     }
   }
 
   Future<bool> checkPermission() async {
     if (await Permission.storage.request().isGranted) {
-
-      String dir = (await getExternalStorageDirectory()).absolute.path + "/documents";
+      final dir = await getExternalStorageDirectory();
+      if (dir != null) {
+        String path = "${dir.path}/documents";
+        // use path here
+        return true;
+      }
     }
     return false;
   }
@@ -65,17 +66,20 @@ class _DocumentDetailState extends State<DocumentDetail> {
   @override
   Widget build(BuildContext context) {
     return Hero(
-      tag: image.name,
+      tag: image.name ?? 'defaultTag',
       child: Scaffold(
+        appBar: const ROROAppBar(),
+        drawer: const AppDrawer(),
+        bottomNavigationBar: const MyBottomNavBar(),
         body: Column(
           children: <Widget>[
             Expanded(
               child: Container(
-                margin: EdgeInsets.all(8),
-                padding: EdgeInsets.all(10),
+                margin: const EdgeInsets.all(8),
+                padding: const EdgeInsets.all(10),
                 child: Center(
                   child: Image.network(
-                    image.url,
+                    image.url ?? '',
                     alignment: Alignment.center,
                     height: MediaQuery.of(context).size.height / 1.5,
                   ),
@@ -85,8 +89,11 @@ class _DocumentDetailState extends State<DocumentDetail> {
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: Text(
-                image.name,
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                image.name ?? 'Unknown',
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
             !isDownloading
@@ -94,12 +101,14 @@ class _DocumentDetailState extends State<DocumentDetail> {
                     children: <Widget>[
                       InkWell(
                         onTap: () async {
-                          await downloadDocument(image.url);
+                          if (image.url != null) {
+                            await downloadDocument(image.url!);
+                          }
                           setState(() {
                             isDownloading = false;
                           });
                         },
-                        child: CircleAvatar(
+                        child: const CircleAvatar(
                           radius: 40,
                           backgroundColor: Colors.grey,
                           child: Center(
@@ -111,28 +120,19 @@ class _DocumentDetailState extends State<DocumentDetail> {
                           ),
                         ),
                       ),
-                      SizedBox(
-                        height: 8,
-                      ),
-                      Text('Download to Device'),
-                      SizedBox(
-                        height: 8,
-                      )
+                      const SizedBox(height: 8),
+                      const Text('Download to Device'),
+                      const SizedBox(height: 8),
                     ],
                   )
-                : Column(
+                : const Column(
                     children: <Widget>[
                       CircularProgressIndicator(),
-                      SizedBox(
-                        height: 8,
-                      )
+                      SizedBox(height: 8),
                     ],
                   ),
           ],
         ),
-        appBar: ROROAppBar(),
-        drawer: AppDrawer(),
-        bottomNavigationBar: MyBottomNavBar(),
       ),
     );
   }

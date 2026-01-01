@@ -2,13 +2,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_sms/flutter_sms.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:rich_alert/rich_alert.dart';
+// replaced rich_alert dialog with standard AlertDialog
 import 'package:roro_medicine_reminder/screens/main/home/JagaMe/edit_relatives.dart';
-
-
 import '../../../../components/navBar.dart';
 import '../../../../models/elder_location.dart';
 import '../../../../models/user.dart';
@@ -18,39 +15,19 @@ import '../../../../widgets/app_default.dart';
 
 class ContactScreen extends StatefulWidget {
   static const String routeName = 'Contact_Screen';
+
+  const ContactScreen({Key? key}) : super(key: key);
   @override
   _ContactScreenState createState() => _ContactScreenState();
 }
 
 class _ContactScreenState extends State<ContactScreen> {
-  ElderLocation elderLocation;
-  String messageText = '', username = 'user', userId;
+  ElderLocation elderLocation = ElderLocation();
+  String messageText = '', username = 'user';
+  String? userId;
   bool relativesFound = false;
-  UserProfile userProfile;
-  getCurrentUser() async {
-    User user = await FirebaseAuth.instance.currentUser;
-    setState(() {
-      userId = user.uid;
-    });
-  }
-
-  getLocationDetails() async {
-    await elderLocation.getLocationData();
-    messageText =
-        'Hey , This is $username find me at ${elderLocation.address} .\n Link to my location : ${elderLocation.url}';
-    return elderLocation;
-  }
-
-  _sendSMS(String message, List<String> recipients) async {
-    String _result = await sendSMS(message: message, recipients: recipients)
-        .catchError((onError) {
-      print(onError);
-    });
-
-    print(_result);
-  }
-
-  List<String> recipients;
+  late UserProfile userProfile;
+  List<String> recipients = [];
 
   @override
   void initState() {
@@ -58,18 +35,44 @@ class _ContactScreenState extends State<ContactScreen> {
     recipients = [];
     getCurrentUser();
     elderLocation = ElderLocation();
-
     getLocationDetails();
+  }
+
+  Future<void> getCurrentUser() async {
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      setState(() {
+        userId = user.uid;
+      });
+    }
+  }
+
+   Future<ElderLocation> getLocationDetails() async {
+    await elderLocation.getLocationData();
+    setState(() {
+      messageText =
+          'Hey, this is $username. Find me at ${elderLocation.address}.\nLink to my location: ${elderLocation.url}';
+    });
+    return elderLocation;
+  }
+
+  Future<void> _sendSMS(String message, List<String> recipients) async {
+    try {
+      String result = await sendSMS(message: message, recipients: recipients);
+      print(result);
+    } catch (e) {
+      print(e);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        drawer: AppDrawer(),
-        appBar: ROROAppBar(),
+        drawer: const AppDrawer(),
+        appBar: const ROROAppBar(),
         body: ListView(
           children: <Widget>[
-            StreamBuilder(
+            StreamBuilder<QuerySnapshot>(
                 stream: FirebaseFirestore.instance
                     .collection('profile')
                     .doc(userId)
@@ -79,29 +82,29 @@ class _ContactScreenState extends State<ContactScreen> {
                   if (snapshot.hasData) {
                     List<Widget> relativesWidget = [];
                     recipients = [];
-                    var data = snapshot.data.docs;
+                    var data = snapshot.data!.docs;
                     if (data != null) {
                       userProfile.getAllRelatives(data);
                       if (data.length > 0) relativesFound = true;
                       for (var relative in userProfile.relatives) {
-                        recipients.add(relative.phoneNumber);
+                        recipients.add(relative?.phoneNumber ?? '');
                         relativesWidget.add(RelativeDetail(
-                          name: relative.name,
-                          email: relative.email,
-                          number: relative.phoneNumber,
-                          documentID: relative.documentID,
-                          userId: userId,
+                          name: relative?.name ?? '',
+                          email: relative?.email ?? '',
+                          number: relative?.phoneNumber ?? '',
+                          documentID: relative?.documentID ?? '',
+                          userId: userId ?? "",
                         ));
                       }
 
                       relativesWidget.add(Padding(
-                        padding: EdgeInsets.all(8.0),
+                        padding: const EdgeInsets.all(8.0),
                         child: ElevatedButton.icon(
-                            icon: Icon(
+                            icon: const Icon(
                               Icons.group_add,
                               color: Colors.white,
                             ),
-                            label: Text(
+                            label: const Text(
                               'Add Relative',
                               style:
                               TextStyle(color: Colors.white, fontSize: 19),
@@ -125,34 +128,34 @@ class _ContactScreenState extends State<ContactScreen> {
                               }));
                             },
                           style: ElevatedButton.styleFrom(
-                              primary: Color(0xffff9987),
-                            padding: EdgeInsets.symmetric(
+                              backgroundColor: const Color(0xffff9987),
+                            padding: const EdgeInsets.symmetric(
                                 vertical: 12, horizontal: 40),
                             shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(20)),
 
                           ))));
-                      relativesWidget.add(SizedBox(
+                      relativesWidget.add(const SizedBox(
                         height: 10,
                       ));
                     } else {
                       relativesFound = false;
                       relativesWidget.add(Center(
                         child: Container(
-                          decoration: BoxDecoration(),
-                          margin: EdgeInsets.all(20),
+                          decoration: const BoxDecoration(),
+                          margin: const EdgeInsets.all(20),
                           child: Column(
                             children: <Widget>[
-                              Padding(
+                              const Padding(
                                 padding: EdgeInsets.only(top: 12, bottom: 12),
                                 child: Text('No relatives added.'),
                               ),
                               ElevatedButton.icon(
-                                  icon: Icon(
+                                  icon: const Icon(
                                     Icons.group_add,
                                     color: Colors.white,
                                   ),
-                                  label: Text(
+                                  label: const Text(
                                     'Add Relative',
                                     style: TextStyle(
                                         color: Colors.white, fontSize: 19)),
@@ -176,8 +179,8 @@ class _ContactScreenState extends State<ContactScreen> {
                                     }));
                                   },
                                   style: ElevatedButton.styleFrom(
-                                    primary: Color(0xffff9987),
-                                  padding: EdgeInsets.symmetric(
+                                    backgroundColor: const Color(0xffff9987),
+                                  padding: const EdgeInsets.symmetric(
                                       vertical: 12, horizontal: 40),
                                   shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(20)),
@@ -193,8 +196,8 @@ class _ContactScreenState extends State<ContactScreen> {
                       children: <Widget>[
                         Center(
                           child: Container(
-                            margin: EdgeInsets.fromLTRB(20, 30, 20, 0),
-                            child: Text(
+                            margin: const EdgeInsets.fromLTRB(20, 30, 20, 0),
+                            child: const Text(
                               'JagaMe Details',
                               style: TextStyle(
                                 fontSize: 32,
@@ -207,28 +210,26 @@ class _ContactScreenState extends State<ContactScreen> {
                         Column(
                           children: relativesWidget,
                         ),
-                        FutureBuilder(
-                            future: getLocationDetails(),
-                            builder: (context, future) {
-                              if (future.hasData) {
-                                ElderLocation _elderLocation = future.data;
-                                if (_elderLocation == null || data.length == 0)
-                                  return SizedBox();
+                        FutureBuilder<ElderLocation>(
+                        future: getLocationDetails(),
+                        builder: (context, snapshot) {
+                          if (snapshot.hasData) {
+                            ElderLocation elderLocation = snapshot.data!;
+                            if (data.isEmpty) {
+                              return const SizedBox();
+                                }
                                 return Center(
                                   child: GestureDetector(
                                     onTap: () async {
                                       showDialog(
                                           context: context,
                                           builder: (BuildContext context) {
-                                            return RichAlertDialog(
-                                              alertTitle:
-                                                  richTitle("Alert Relatives"),
-                                              alertSubtitle:
-                                                  richSubtitle('Are you Sure '),
-                                              alertType: RichAlertType.WARNING,
+                                            return AlertDialog(
+                                              title: const Text('Alert Relatives'),
+                                              content: const Text('Are you sure?'),
                                               actions: <Widget>[
                                                 TextButton(
-                                                  child: Text("Yes"),
+                                                  child: const Text('Yes'),
                                                   onPressed: () async {
                                                     Navigator.pop(context);
                                                     if (relativesFound) {
@@ -239,7 +240,7 @@ class _ContactScreenState extends State<ContactScreen> {
                                                   },
                                                 ),
                                                 TextButton(
-                                                  child: Text("No"),
+                                                  child: const Text('No'),
                                                   onPressed: () {
                                                     Navigator.pop(context);
                                                   },
@@ -249,20 +250,20 @@ class _ContactScreenState extends State<ContactScreen> {
                                           });
                                     },
                                     child: Container(
-                                      padding: EdgeInsets.symmetric(
+                                      padding: const EdgeInsets.symmetric(
                                           vertical: 15.0, horizontal: 55.0),
                                       decoration: BoxDecoration(
                                         borderRadius: BorderRadius.circular(30),
                                         color: Colors.redAccent[100],
                                         boxShadow: [
                                           BoxShadow(
-                                            color: Colors.red[100],
+                                            color: Colors.red[100]!,
                                             blurRadius: 3.0,
-                                            offset: Offset(0, 4.0),
+                                            offset: const Offset(0, 4.0),
                                           ),
                                         ],
                                       ),
-                                      child: Text(
+                                      child: const Text(
                                         'Contact Relatives',
                                         style: TextStyle(
                                             color: Colors.white,
@@ -271,27 +272,29 @@ class _ContactScreenState extends State<ContactScreen> {
                                     ),
                                   ),
                                 );
-                              } else
-                                return LinearProgressIndicator();
+                              } else {
+                                return const LinearProgressIndicator();
+                              }
                             }),
                       ],
                     );
-                  } else
+                  } else {
                     return Container(
                       alignment: Alignment.center,
-                      margin: EdgeInsets.only(top: 50),
-                      child: SpinKitWanderingCubes(
+                      margin: const EdgeInsets.only(top: 50),
+                      child: const SpinKitWanderingCubes(
                         color: Colors.blueGrey,
                         size: 100.0,
                       ),
                     );
+                  }
                 }),
-            SizedBox(
+            const SizedBox(
               height: 20,
             ),
           ],
         ),
-        bottomNavigationBar: MyBottomNavBar(),
+        bottomNavigationBar: const MyBottomNavBar(),
     );
   }
 }
@@ -299,17 +302,22 @@ class _ContactScreenState extends State<ContactScreen> {
 class RelativeDetail extends StatelessWidget {
   final String name, number, email, documentID, userId;
 
-  RelativeDetail(
-      {this.name, this.number, this.email, this.documentID, this.userId});
+  const RelativeDetail(
+      {Key? key, 
+      this.name = "", 
+      this.number = "", 
+      this.email = "", 
+      this.documentID = "", 
+      this.userId = ""}) : super(key: key);
   @override
   Widget build(BuildContext context) {
     return Card(
       elevation: 2,
-      margin: EdgeInsets.all(18),
+      margin: const EdgeInsets.all(18),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       child: ListTile(
         trailing: IconButton(
-          icon: Icon(
+          icon: const Icon(
             Icons.delete_outline,
             color: Colors.red,
           ),
@@ -332,39 +340,39 @@ class RelativeDetail extends StatelessWidget {
           size: 45,
           color: Colors.blueGrey[700],
         ),
-        contentPadding: EdgeInsets.all(8),
+        contentPadding: const EdgeInsets.all(8),
         title: Padding(
-          padding: EdgeInsets.all(8.0),
+          padding: const EdgeInsets.all(8.0),
           child: Text(name),
         ),
         subtitle: Column(
           children: <Widget>[
             Row(
               children: <Widget>[
-                Icon(
+                const Icon(
                   Icons.phone,
                   color: Colors.blueGrey,
                 ),
-                SizedBox(
+                const SizedBox(
                   width: 8,
                 ),
-                Text('Number : '),
+                const Text('Number : '),
                 Expanded(child: Text(number)),
               ],
             ),
-            SizedBox(
+            const SizedBox(
               height: 8,
             ),
             Row(
               children: <Widget>[
-                Icon(
+                const Icon(
                   Icons.email,
                   color: Colors.blueGrey,
                 ),
-                SizedBox(
+                const SizedBox(
                   width: 8,
                 ),
-                Text('Email : '),
+                const Text('Email : '),
                 Expanded(child: Text(email))
               ],
             ),

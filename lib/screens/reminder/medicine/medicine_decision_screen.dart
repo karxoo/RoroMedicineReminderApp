@@ -12,13 +12,13 @@ import '../../../services/database_helper.dart';
 class MedicineDecisionScreen extends StatefulWidget {
   static const String routeName = 'Medicine_decision_screen';
   final Reminder reminder;
-  MedicineDecisionScreen(this.reminder);
+  const MedicineDecisionScreen(this.reminder, {Key? key}) : super(key: key);
   @override
   _MedicineDecisionScreenState createState() => _MedicineDecisionScreenState();
 }
 
 class _MedicineDecisionScreenState extends State<MedicineDecisionScreen> {
-  sendSms() async {
+  Future<void> sendSms() async {
     var cred =
         'AC07a649c710761cf3a0e6b96048accf58:60cfd08bcc74ea581187a048dfd653cb';
 
@@ -46,8 +46,8 @@ class _MedicineDecisionScreenState extends State<MedicineDecisionScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: ROROAppBar(),
-      drawer:AppDrawer(),
+      appBar: const ROROAppBar(),
+      drawer:const AppDrawer(),
       body: Container(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -56,17 +56,17 @@ class _MedicineDecisionScreenState extends State<MedicineDecisionScreen> {
               padding: const EdgeInsets.all(8.0),
               child: Text(
                 'Did you take ${widget.reminder.name} ?',
-                style: TextStyle(fontSize: 30, color: Colors.black),
+                style: const TextStyle(fontSize: 30, color: Colors.black),
               ),
             ),
-            SizedBox(
+            const SizedBox(
               height: 30,
             ),
             Row(
               children: <Widget>[
                 Expanded(
                   child: InkWell(
-                    child: CircleAvatar(
+                    child: const CircleAvatar(
                         radius: 60,
                         backgroundColor: Colors.green,
                         child: Icon(
@@ -81,9 +81,12 @@ class _MedicineDecisionScreenState extends State<MedicineDecisionScreen> {
                       String dateString =
                           (DateFormat('yyyy-MM-dd hh:mm').format(now));
 
-                      r.intakeHistory.addAll({
-                        dateString: {TimeOfDay.now().toString(): true}
-                      });
+                    r.intakeHistory ??= {}; // initialize if null
+
+r.intakeHistory![dateString] = {
+  TimeOfDay.now().toString(): true,
+};
+
 
                       databaseHelper.updateReminder(r);
                       setState(() {});
@@ -93,7 +96,7 @@ class _MedicineDecisionScreenState extends State<MedicineDecisionScreen> {
                 ),
                 Expanded(
                   child: InkWell(
-                    child: CircleAvatar(
+                    child: const CircleAvatar(
                         radius: 60,
                         backgroundColor: Colors.red,
                         child: Icon(
@@ -108,30 +111,35 @@ class _MedicineDecisionScreenState extends State<MedicineDecisionScreen> {
                       String dateString =
                           (DateFormat('yyyy-MM-dd hh:mm').format(now));
 
-                      r.intakeHistory.addAll({
-                        dateString: {TimeOfDay.now().toString(): false}
-                      });
+                     r.intakeHistory ??= {}; // initialize if null
+
+r.intakeHistory![dateString] = {
+  TimeOfDay.now().toString(): true,
+};
+
                       print(r.intakeHistory);
                       databaseHelper.updateReminder(r);
                       setState(() {});
+                      final navigator = Navigator.of(context);
                       await sendSms();
-                      Navigator.pop(context);
+                      if (!mounted) return;
+                      navigator.pop();
                     },
                   ),
                 )
               ],
             ),
-            SizedBox(
+            const SizedBox(
               height: 30,
             ),
-            Padding(
+            const Padding(
                 padding: EdgeInsets.all(10),
                 child: Text(
                     'If you dont respond within 15 minutes information will be sent to your JagaMe.'))
           ],
         ),
       ),
-      bottomNavigationBar: MyBottomNavBar(),
+      bottomNavigationBar: const MyBottomNavBar(),
     );
   }
 }

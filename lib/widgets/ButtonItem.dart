@@ -3,12 +3,12 @@ import 'package:flutter_svg/flutter_svg.dart';
 
 class ButtonItem extends StatelessWidget {
   const ButtonItem(
-      {Key key,
-        this.imagePath,
-        this.onClick,
-        this.text,
-        this.iconData,
-        this.size})
+      {Key? key,
+        required this.imagePath,
+        required this.onClick,
+        required this.text,
+        required this.iconData,
+        required this.size})
       : super(key: key);
   final String text;
   final String imagePath;
@@ -20,13 +20,13 @@ class ButtonItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () {},
-      child: Container(
+      child: SizedBox(
         height: 60,
         width: MediaQuery.of(context).size.width - 60,
         child: Card(
           color: Colors.blueGrey,
           shape: RoundedRectangleBorder(
-            side: BorderSide(color: Colors.blueGrey[50], width: 1),
+            side: BorderSide(color: Colors.blueGrey[50]!, width: 1),
             borderRadius: BorderRadius.circular(15),
           ),
           child: Padding(
@@ -41,7 +41,7 @@ class ButtonItem extends StatelessWidget {
                   // color: Colors.white,
                 ),
                 // Icon(iconData),
-                SizedBox(width: 15),
+                const SizedBox(width: 15),
                 Text(
                   text,
                   style: TextStyle(fontSize: 17, color: Colors.redAccent[100]),

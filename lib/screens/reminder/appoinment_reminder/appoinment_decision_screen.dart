@@ -11,13 +11,13 @@ import '../../../services/database_helper.dart';
 class AppoinmentDecision extends StatefulWidget {
   static const String routeName = 'Appoinment_decision_screen';
   final Appoinment appoinment;
-  AppoinmentDecision(this.appoinment);
+  const AppoinmentDecision(this.appoinment, {Key? key}) : super(key: key);
   @override
   _AppoinmentDecisionState createState() => _AppoinmentDecisionState();
 }
 
 class _AppoinmentDecisionState extends State<AppoinmentDecision> {
-  sendSms() async {
+  Future<void> sendSms() async {
     var cred =
         'AC07a649c710761cf3a0e6b96048accf58:60cfd08bcc74ea581187a048dfd653cb';
 
@@ -42,7 +42,7 @@ class _AppoinmentDecisionState extends State<AppoinmentDecision> {
   }
 
   DatabaseHelper helper = DatabaseHelper();
-  Appoinment appoinment;
+  late Appoinment appoinment;
   @override
   void initState() {
     appoinment = widget.appoinment;
@@ -52,74 +52,81 @@ class _AppoinmentDecisionState extends State<AppoinmentDecision> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: ROROAppBar(),
-      drawer: AppDrawer(),
+      appBar: const ROROAppBar(),
+      drawer: const AppDrawer(),
       body: Container(
+        alignment: Alignment.center,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: Text(
-                'Did you visit ' + appoinment.name,
-                style: TextStyle(fontSize: 30, color: Colors.black),
+                'Did you visit ${appoinment.name}',
+                style: const TextStyle(fontSize: 30, color: Colors.black),
               ),
             ),
-            SizedBox(
-              height: 30,
-            ),
+            const SizedBox(height: 30),
             Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: <Widget>[
                 Expanded(
                   child: InkWell(
-                    child: CircleAvatar(
-                        radius: 60,
-                        backgroundColor: Colors.green,
-                        child: Icon(
-                          Icons.check,
-                          size: 90,
-                          color: Colors.white,
-                        )),
                     onTap: () async {
+                      final navigator = Navigator.of(context);
                       appoinment.done = true;
                       await helper.updateAppoinment(appoinment);
+                      if (!mounted) return;
                       setState(() {});
-                      Navigator.pop(context);
+                      navigator.pop();
                     },
+                    child: const CircleAvatar(
+                      radius: 60,
+                      backgroundColor: Colors.green,
+                      child: Icon(
+                        Icons.check,
+                        size: 90,
+                        color: Colors.white,
+                      ),
+                    ),
                   ),
                 ),
                 Expanded(
                   child: InkWell(
-                    child: CircleAvatar(
-                        radius: 60,
-                        backgroundColor: Colors.red,
-                        child: Icon(
-                          Icons.close,
-                          size: 90,
-                          color: Colors.white,
-                        )),
                     onTap: () async {
+                      final navigator = Navigator.of(context);
                       appoinment.done = false;
                       await helper.updateAppoinment(appoinment);
+                      if (!mounted) return;
                       setState(() {});
                       await sendSms();
-                      Navigator.pop(context);
+                      navigator.pop();
                     },
+                    child: const CircleAvatar(
+                      radius: 60,
+                      backgroundColor: Colors.red,
+                      child: Icon(
+                        Icons.close,
+                        size: 90,
+                        color: Colors.white,
+                      ),
+                    ),
                   ),
-                )
+                ),
               ],
             ),
-            SizedBox(
-              height: 30,
+            const SizedBox(height: 30),
+            const Padding(
+              padding: EdgeInsets.all(10),
+              child: Text(
+                'If you don\'t respond within 15 minutes information will be sent to your JagaMe.',
+                textAlign: TextAlign.center,
+              ),
             ),
-            Padding(
-                padding: EdgeInsets.all(10),
-                child: Text(
-                    'If you dont respond within 15 minutes information will be sent to your JagaMe.'))
           ],
         ),
       ),
-      bottomNavigationBar: MyBottomNavBar(),
+      bottomNavigationBar: const MyBottomNavBar(),
     );
   }
 }

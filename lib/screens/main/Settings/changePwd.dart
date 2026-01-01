@@ -1,5 +1,4 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:roro_medicine_reminder/screens/authenticate/register.dart';
 import 'package:roro_medicine_reminder/screens/authenticate/signin.dart';
@@ -10,7 +9,7 @@ import '../../../widgets/size_config.dart';
 
 
 class changePwd extends StatefulWidget {
-  const changePwd({Key key}) : super(key: key);
+  const changePwd({Key? key}) : super(key: key);
 
   @override
   State<changePwd> createState() => _changePwdState();
@@ -28,7 +27,7 @@ class _changePwdState extends State<changePwd> {
       await FirebaseAuth.instance.sendPasswordResetEmail(email: email.trim());
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
+        const SnackBar(
           content: Text(
             'The code for initialization was sent to you.',
           ),
@@ -39,7 +38,7 @@ class _changePwdState extends State<changePwd> {
         context,
         MaterialPageRoute(
           builder: (context) {
-            return SignInPage();
+            return const SignInPage();
           },
         ),
       );
@@ -48,7 +47,7 @@ class _changePwdState extends State<changePwd> {
         print('User not found!');
 
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
+          const SnackBar(
             content: Text(
               'User not exist!',
             ),
@@ -70,24 +69,24 @@ class _changePwdState extends State<changePwd> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
+        title: const Text(
           'Reset Password',
         ),
-        actions: [],
+        actions: const [],
       ),
       body: Column(
         children: <Widget>[
           Padding(
-            padding: EdgeInsets.all(20.0),
+            padding: const EdgeInsets.all(20.0),
             child: Image.asset( "assets/images/roroicon.png",
               height: SizeConfig.blockV * 35,
             ),
           ),
           Container(
-            margin: EdgeInsets.symmetric(
+            margin: const EdgeInsets.symmetric(
               horizontal: 15.0,
             ),
-            child: Text(
+            child: const Text(
               'A reset link will be sent to your email.',
               style: TextStyle(
                 fontSize: 20.0,
@@ -98,17 +97,17 @@ class _changePwdState extends State<changePwd> {
               child: Form(
                 key: _formKey,
                 child: Padding(
-                  padding: EdgeInsets.symmetric(
+                  padding: const EdgeInsets.symmetric(
                     vertical: 10.0,
                     horizontal: 15.0,
                   ),
                   child: ListView(
                     children: <Widget>[
                       Container(
-                        margin: EdgeInsets.symmetric(vertical: 10.0),
+                        margin: const EdgeInsets.symmetric(vertical: 10.0),
                         child: TextFormField(
                           autofocus: false,
-                          decoration: InputDecoration(
+                          decoration: const InputDecoration(
                             labelText: 'Email',
                             border: OutlineInputBorder(),
                           ),
@@ -130,16 +129,16 @@ class _changePwdState extends State<changePwd> {
                           children: <Widget>[
                             ElevatedButton(
                               onPressed: () {
-                                if (_formKey.currentState.validate()) {
+                                if (_formKey.currentState?.validate() ?? false) {
                                   setState(() {
                                     email = emailController.text;
                                   });
                                   resetPassword();
                                 }
                               },
-                              child: Text('Send Email', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                              child: const Text('Send Email', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                             ),
-                            SizedBox(
+                            const SizedBox(
                               width: 10.0,
                             ),
                             ElevatedButton(
@@ -148,14 +147,14 @@ class _changePwdState extends State<changePwd> {
                                   context,
                                   MaterialPageRoute(
                                     builder: (BuildContext context) {
-                                      return SettingsPage();
+                                      return const SettingsPage();
                                     },
                                   ),
                                 );
                               },
-                              child: Text('Cancel', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                              child: const Text('Cancel', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                             ),
-                            SizedBox(
+                            const SizedBox(
                               width: 10.0,
                             ),
                           ],
@@ -165,7 +164,7 @@ class _changePwdState extends State<changePwd> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Text(
+                            const Text(
                               "Don't have an account? ",
                               style: TextStyle(
                                 color: Colors.blueGrey,
@@ -177,10 +176,10 @@ class _changePwdState extends State<changePwd> {
                                 Navigator.pushAndRemoveUntil(
                                     context,
                                     MaterialPageRoute(
-                                        builder: (builder) => SignUpPage()),
+                                        builder: (builder) => const SignUpPage()),
                                         (route) => false);
                               },
-                              child: Text(
+                              child: const Text(
                                 "SignUp",
                                 style: TextStyle(
                                   color: Colors.blueGrey,

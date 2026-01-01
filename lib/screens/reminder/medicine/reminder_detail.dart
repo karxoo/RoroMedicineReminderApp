@@ -2,25 +2,72 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_material_pickers/helpers/show_time_picker.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_ml_vision/google_ml_vision.dart';
 import 'dart:async';
 import 'package:image_picker/image_picker.dart';
-import 'package:rich_alert/rich_alert.dart';
+// replaced rich_alert dialog with standard AlertDialog
 import 'package:roro_medicine_reminder/widgets/app_default.dart';
 
 import '../../../components/navBar.dart';
 import '../../../models/reminder.dart';
-import '../../../services/auth.dart';
 import '../../../services/database_helper.dart';
 
 import '../../../services/notifications.dart';
 import 'medicine_reminder.dart';
 
+class ReminderFormItem extends StatelessWidget {
+  final String hintText;
+  final String helperText;
+  final Function onChanged;
+  final bool isNumber;
+  final IconData icon;
+  final controller;
+
+  const ReminderFormItem(
+      {Key? key,
+      this.hintText = '',
+      this.helperText = '',
+      required this.onChanged,
+      required this.icon,
+      this.isNumber = false,
+      this.controller})
+      : super(key: key);
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.fromLTRB(10, 10, 10, 0),
+      child: TextField(
+        maxLines: 1,
+        decoration: InputDecoration(
+          border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(5),
+              borderSide: const BorderSide(
+                  color: Color(0xffaf5676), style: BorderStyle.solid)),
+          prefixIcon: Icon(icon, color: Colors.blueGrey),
+          hintText: hintText,
+          focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: const BorderSide(
+                  color: Colors.indigo, style: BorderStyle.solid)),
+          enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: const BorderSide(
+                  color: Color(0xffaf5676), style: BorderStyle.solid)),
+        ),
+        onChanged: (String value) {
+          onChanged(value);
+        },
+        controller: controller,
+        keyboardType: isNumber ? TextInputType.number : TextInputType.text,
+      ),
+    );
+  }
+}
 
 class ReminderDetail extends StatefulWidget {
   static const String routeName = 'Medicine_detail_screen';
@@ -28,40 +75,45 @@ class ReminderDetail extends StatefulWidget {
   final String pageTitle;
   final Reminder reminder;
 
-  ReminderDetail(this.reminder, [this.pageTitle]);
+  const ReminderDetail(this.reminder, [this.pageTitle = '']);
 
   @override
   State<StatefulWidget> createState() {
-    return _ReminderDetailState(this.reminder, this.pageTitle);
+    return _ReminderDetailState(reminder, pageTitle);
   }
 }
 
 class _ReminderDetailState extends State<ReminderDetail> {
   final auth = FirebaseAuth.instance;
-  User loggedInUser;
+  User? loggedInUser;
 
   DatabaseHelper helper = DatabaseHelper();
-  Reminder reminder, tempReminder;
-  String pageTitle;
+  late Reminder reminder, tempReminder;
+  String? pageTitle;
   var rng = Random();
-  NotificationService notificationService;
+  NotificationService? notificationService;
+
+  late String tempTime1, tempTime2, tempTime3;
+  late List<String> timeStringList;
   _ReminderDetailState(this.reminder, this.pageTitle);
 
-  TimeOfDay selectedTime1, selectedTime2, selectedTime3, t1, t2, t3;
+  late TimeOfDay selectedTime1, selectedTime2, selectedTime3, t1, t2, t3;
   TimeOfDay timeNow = TimeOfDay.now();
 
   int times = 2;
 
-  String medicineName = '', tempName = '', medicineType = '';
-  Map<String, dynamic> intakeHistory;
-  File pickedImage;
+  String medicineName = '';
+  String? tempName;
+  String medicineType = '';
+  Map<String, dynamic>? intakeHistory;
+  File? pickedImage;
   bool isImageLoaded = false;
 
   final picker = ImagePicker();
 
   Future getImage() async {
     final pickedFile = await picker.pickImage(source: ImageSource.camera);
-
+    if (pickedFile == null) return;
     setState(() {
       pickedImage = File(pickedFile.path);
       isImageLoaded = true;
@@ -73,21 +125,16 @@ class _ReminderDetailState extends State<ReminderDetail> {
     nameController.dispose();
     typeController.dispose();
     super.dispose();
-    getCurrentUser();
-    notificationService = NotificationService();
-    notificationService.initialize();
   }
-
-  String tempTime1, tempTime2, tempTime3;
-  List<String> timeStringList;
 
   void getCurrentUser() async {
     try {
-      final user = await auth.currentUser;
+      final User? user = auth.currentUser;
       if (user != null) {
         loggedInUser = user;
       }
     } catch (e) {
+      // ignore: avoid_print
       print(e);
     }
   }
@@ -95,31 +142,31 @@ class _ReminderDetailState extends State<ReminderDetail> {
   @override
   void initState() {
     tempReminder = widget.reminder;
-    medicineName = nameController.text = reminder.name;
-    medicineType = typeController.text = reminder.type;
-    times = reminder.times;
+    reminder = widget.reminder;
+    medicineName = nameController.text = reminder.name ?? '';
+    medicineType = typeController.text = reminder.type ?? '';
+    times = reminder.times ?? 1;
 
-    tempTime1 = reminder.time1;
-    intakeHistory = reminder.intakeHistory;
-    tempTime2 = reminder.time2;
+    tempTime1 = reminder.time1 ?? '00:00';
+    intakeHistory = reminder.intakeHistory ?? {};
+    tempTime2 = reminder.time2 ?? '00:00';
 
-    tempTime3 = reminder.time3;
-    selectedTime1 = t1 = TimeOfDay(
-            hour: int.parse(tempTime1.split(":")[0]),
-            minute: int.parse(tempTime1.split(":")[1])) ??
-        TimeOfDay(hour: 0, minute: 0);
-
-    selectedTime2 = t2 = TimeOfDay(
-            hour: int.parse(tempTime2.split(":")[0]),
-            minute: int.parse(tempTime2.split(":")[1])) ??
-        TimeOfDay(hour: 0, minute: 0);
-    selectedTime3 = t3 = TimeOfDay(
-            hour: int.parse(tempTime3.split(":")[0]),
-            minute: int.parse(tempTime3.split(":")[1])) ??
-        TimeOfDay(hour: 0, minute: 0);
+    tempTime3 = reminder.time3 ?? '00:00';
+    selectedTime1 = t1 = _parseTimeOrDefault(tempTime1);
+    selectedTime2 = t2 = _parseTimeOrDefault(tempTime2);
+    selectedTime3 = t3 = _parseTimeOrDefault(tempTime3);
     super.initState();
     notificationService = NotificationService();
-    notificationService.initialize();
+    notificationService?.initialize();
+  }
+
+  TimeOfDay _parseTimeOrDefault(String? s) {
+    if (s == null || !s.contains(':'))
+      return const TimeOfDay(hour: 0, minute: 0);
+    final parts = s.split(':');
+    final h = int.tryParse(parts[0]) ?? 0;
+    final m = int.tryParse(parts[1]) ?? 0;
+    return TimeOfDay(hour: h, minute: m);
   }
 
   final nameController = TextEditingController();
@@ -127,43 +174,96 @@ class _ReminderDetailState extends State<ReminderDetail> {
 
   Future readText() async {
     setState(() {
-      nameController.value = TextEditingValue(text: '');
+      nameController.value = const TextEditingValue(text: '');
       nameController.text = '';
       medicineName = '';
       tempName = null;
       isImageLoaded = false;
     });
 
-    GoogleVisionImage googleVisionImage =
-    GoogleVisionImage.fromFile(pickedImage);
-    TextRecognizer recognizeText = GoogleVision.instance.textRecognizer();
-    VisionText readText = await recognizeText.processImage(googleVisionImage);
+    if (pickedImage != null) {
+      final googleVisionImage = GoogleVisionImage.fromFile(pickedImage!);
 
-    for (TextBlock block in readText.blocks) {
-      for (TextLine line in block.lines) {
-        for (TextElement word in line.elements) {
-          tempName = word.text;
+      final TextRecognizer recognizeText =
+          GoogleVision.instance.textRecognizer();
+      final VisionText readText =
+          await recognizeText.processImage(googleVisionImage);
+
+      for (TextBlock block in readText.blocks) {
+        for (TextLine line in block.lines) {
+          for (TextElement word in line.elements) {
+            tempName = word.text;
+          }
         }
       }
+
+      setState(() {
+        if (medicineName.isEmpty) {
+          medicineName = tempName ?? '';
+          nameController.text = medicineName;
+        } else {
+          medicineName = '';
+          nameController.clear();
+          isImageLoaded = false;
+          tempName = '';
+        }
+      });
     }
-    setState(() {
-      if (medicineName == '') {
-        medicineName = tempName;
-        nameController.text = medicineName;
-      } else {
-        medicineName = '';
-        nameController.clear();
-        isImageLoaded = false;
-        tempName = '';
-      }
-    });
+  }
+
+// Show alert dialog
+  void _showAlertDialog(String title, String message) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(title),
+          content: Text(message),
+          actions: [
+            TextButton(
+              child: const Text("OK"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+// Save data to database
+  Future<void> _save() async {
+    final navigator = Navigator.of(context);
+    int result;
+
+    if (reminder.id != null) {
+      result = await helper.updateReminder(reminder);
+      // ... your update logic
+    } else {
+      reminder.notificationID = rng.nextInt(9999);
+      result = await helper.insertReminder(reminder);
+      // ... your insert logic
+    }
+
+    if (!context.mounted) return; // ✅ Fix for async context usage
+
+    if (result != 0) {
+      _showAlertDialog('Status', 'Reminder Saved Successfully');
+      await navigator.push(MaterialPageRoute(builder: (context) {
+        return MedicineReminder(reminder: reminder);
+      }));
+      navigator.pop();
+    } else {
+      _showAlertDialog('Status', 'Problem Saving Reminder');
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: ROROAppBar(),
-      drawer:AppDrawer(),
+      appBar: const ROROAppBar(),
+      drawer: const AppDrawer(),
       body: WillPopScope(
         onWillPop: () async {
           if (reminder !=
@@ -176,46 +276,49 @@ class _ReminderDetailState extends State<ReminderDetail> {
                   times,
                   reminder.notificationID,
                   intakeHistory)) {
-            return showDialog(
-                context: context,
-                builder: (BuildContext context) {
-                  return RichAlertDialog(
-                    alertTitle: richTitle("Reminder Not Saved"),
-                    alertSubtitle: richSubtitle('Changes will be discarded '),
-                    alertType: RichAlertType.WARNING,
-                    actions: <Widget>[
-                      ElevatedButton(
-                        child: Text("OK"),
-                        onPressed: () {
-                          Navigator.pop(context);
-                          Navigator.pop(context);
-                        },
-                      ),
-                      ElevatedButton(
-                        child: Text("No"),
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
-                      ),
-                    ],
-                  );
-                });
-          } else
+            return (await showDialog<bool>(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        title: const Text('Reminder Not Saved'),
+                        content: const Text('Changes will be discarded'),
+                        actions: <Widget>[
+                          ElevatedButton(
+                            child: const Text('OK'),
+                            onPressed: () {
+                              Navigator.pop(context, true);
+                            },
+                          ),
+                          ElevatedButton(
+                            child: const Text('No'),
+                            onPressed: () {
+                              Navigator.pop(context, false);
+                            },
+                          ),
+                        ],
+                      );
+                    })) ??
+                false;
+          } else {
             return true;
+          }
         },
         child: SingleChildScrollView(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-              Padding(
-                padding: const EdgeInsets.all(8.0),
+              const Padding(
+                padding: EdgeInsets.all(8.0),
                 child: Text(
                   'Add Details',
                   textAlign: TextAlign.center,
-                  style: TextStyle(fontFamily: 'Mulish', fontSize: 30, fontWeight: FontWeight.w100),
+                  style: TextStyle(
+                      fontFamily: 'Mulish',
+                      fontSize: 30,
+                      fontWeight: FontWeight.w100),
                 ),
               ),
-              SizedBox(
+              const SizedBox(
                 height: 15,
               ),
               Row(
@@ -241,7 +344,9 @@ class _ReminderDetailState extends State<ReminderDetail> {
                       child: GestureDetector(
                         child: Icon(
                           Icons.camera,
-                          color: isImageLoaded ? Colors.blue[100] : Colors.blueGrey,
+                          color: isImageLoaded
+                              ? Colors.blue[100]
+                              : Colors.blueGrey,
                           size: 43,
                         ),
                         onTap: () async {
@@ -255,7 +360,7 @@ class _ReminderDetailState extends State<ReminderDetail> {
                   )
                 ],
               ),
-              SizedBox(
+              const SizedBox(
                 height: 20,
               ),
               ReminderFormItem(
@@ -270,11 +375,11 @@ class _ReminderDetailState extends State<ReminderDetail> {
                 isNumber: false,
                 icon: FontAwesomeIcons.prescriptionBottle,
               ),
-              SizedBox(
+              const SizedBox(
                 height: 20,
               ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(8.0, 12.0, 8.0, 10),
+              const Padding(
+                padding: EdgeInsets.fromLTRB(8.0, 12.0, 8.0, 10),
                 child: Text(
                   'Times a day : ',
                   style: TextStyle(fontSize: 20),
@@ -285,40 +390,40 @@ class _ReminderDetailState extends State<ReminderDetail> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
-                    Text('Once : '),
+                    const Text('Once : '),
                     Radio(
                       onChanged: (value) {
                         setState(() {
-                          times = value;
+                          times = value as int;
                         });
                       },
-                      activeColor: Color(0xffff9987),
+                      activeColor: const Color(0xffff9987),
                       value: 1,
                       groupValue: times,
                     ),
-                    SizedBox(
+                    const SizedBox(
                       width: 10,
                     ),
-                    Text('Twice : '),
+                    const Text('Twice : '),
                     Radio(
                       onChanged: (value) {
                         setState(() {
-                          times = value;
+                          times = value as int;
                         });
                       },
-                      activeColor: Color(0xffff9987),
+                      activeColor: const Color(0xffff9987),
                       value: 2,
                       groupValue: times,
                     ),
-                    SizedBox(
+                    const SizedBox(
                       width: 10,
                     ),
-                    Text('Thrice : '),
+                    const Text('Thrice : '),
                     Radio(
-                      activeColor: Color(0xffff9987),
+                      activeColor: const Color(0xffff9987),
                       onChanged: (value) {
                         setState(() {
-                          times = value;
+                          times = value as int;
                         });
                       },
                       value: 3,
@@ -327,16 +432,16 @@ class _ReminderDetailState extends State<ReminderDetail> {
                   ],
                 ),
               ),
-              SizedBox(
+              const SizedBox(
                 height: 20,
               ),
               Row(
                 children: <Widget>[
                   times == 1
-                      ? SizedBox(
+                      ? const SizedBox(
                           width: 80,
                         )
-                      : SizedBox(),
+                      : const SizedBox(),
                   Expanded(
                     child: GestureDetector(
                       onTap: () {
@@ -347,7 +452,7 @@ class _ReminderDetailState extends State<ReminderDetail> {
                               setState(() => selectedTime1 = value),
                         );
                       },
-                      child: CircleAvatar(
+                      child: const CircleAvatar(
                         radius: 40,
                         backgroundColor: Colors.blueGrey,
                         child: Icon(
@@ -368,7 +473,7 @@ class _ReminderDetailState extends State<ReminderDetail> {
                                     setState(() => selectedTime2 = value),
                               );
                             },
-                            child: CircleAvatar(
+                            child: const CircleAvatar(
                               radius: 40,
                               backgroundColor: Colors.blueGrey,
                               child: Icon(
@@ -378,7 +483,7 @@ class _ReminderDetailState extends State<ReminderDetail> {
                             ),
                           ),
                         )
-                      : SizedBox(),
+                      : const SizedBox(),
                   times == 3
                       ? Expanded(
                           child: GestureDetector(
@@ -390,7 +495,7 @@ class _ReminderDetailState extends State<ReminderDetail> {
                                     setState(() => selectedTime3 = value),
                               );
                             },
-                            child: CircleAvatar(
+                            child: const CircleAvatar(
                               radius: 40,
                               backgroundColor: Colors.blueGrey,
                               child: Icon(
@@ -400,213 +505,85 @@ class _ReminderDetailState extends State<ReminderDetail> {
                             ),
                           ),
                         )
-                      : SizedBox(),
+                      : const SizedBox(),
                   times == 1
-                      ? SizedBox(
+                      ? const SizedBox(
                           width: 80,
                         )
-                      : SizedBox(),
+                      : const SizedBox(),
                 ],
               ),
-              SizedBox(
+              const SizedBox(
                 height: 20,
               ),
               Column(
                 children: <Widget>[
-                  times >= 1 && selectedTime1 != TimeOfDay(hour: 0, minute: 0)
-                      ? Text('Time 1 :  ' + selectedTime1.format(context))
-                      : SizedBox(),
-                  times >= 2 && selectedTime2 != TimeOfDay(hour: 0, minute: 0)
-                      ? Text('Time 2 :  ' + selectedTime2.format(context))
-                      : SizedBox(
+                  times >= 1 &&
+                          selectedTime1 != const TimeOfDay(hour: 0, minute: 0)
+                      ? Text('Time 1 :  ${selectedTime1.format(context)}')
+                      : const SizedBox(),
+                  times >= 2 &&
+                          selectedTime2 != const TimeOfDay(hour: 0, minute: 0)
+                      ? Text('Time 2 :  ${selectedTime2.format(context)}')
+                      : const SizedBox(
                           height: 8,
                         ),
-                  times == 3 && selectedTime3 != TimeOfDay(hour: 0, minute: 0)
-                      ? Text('Time 3 :  ' + selectedTime3.format(context))
-                      : SizedBox(
+                  times == 3 &&
+                          selectedTime3 != const TimeOfDay(hour: 0, minute: 0)
+                      ? Text('Time 3 :  ${selectedTime3.format(context)}')
+                      : const SizedBox(
                           height: 8,
                         ),
                 ],
               ),
-              SizedBox(
+              const SizedBox(
                 height: 8,
               ),
               ElevatedButton.icon(
-                style: ElevatedButton.styleFrom(elevation: 2,
-                  primary: Color(0xffff9987),
+                style: ElevatedButton.styleFrom(
+                  elevation: 2,
+                  backgroundColor: const Color(0xffff9987),
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(20),
                       side: BorderSide(
-                        color: Colors.redAccent[100],
+                        color: Colors.redAccent[100]!,
                       )),
-                  padding: EdgeInsets.symmetric(
-                      horizontal: 40, vertical: 10),),
-                label: Text('Save'),
-                icon: Icon(Icons.save),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 40, vertical: 10),
+                ),
+                label: const Text('Save'),
+                icon: const Icon(Icons.save),
                 onPressed: () async {
+                  if (!mounted) return;
                   setState(() {
                     reminder.times = times;
                     reminder.name = medicineName;
                     reminder.type = medicineType;
-                    if (times >= 1)
-                      reminder.time1 = selectedTime1.hour.toString() +
-                          ':' +
-                          selectedTime1.minute.toString();
-                    if (times >= 2)
-                      reminder.time2 = selectedTime2.hour.toString() +
-                          ':' +
-                          selectedTime2.minute.toString();
-                    else
+                    if (times >= 1) {
+                      reminder.time1 =
+                          '${selectedTime1.hour}:${selectedTime1.minute}';
+                    }
+                    if (times >= 2) {
+                      reminder.time2 =
+                          '${selectedTime2.hour}:${selectedTime2.minute}';
+                    } else {
                       reminder.time2 = '00:00';
-                    if (times == 3)
-                      reminder.time3 = selectedTime3.hour.toString() +
-                          ':' +
-                          selectedTime3.minute.toString();
-                    else
+                    }
+                    if (times == 3) {
+                      reminder.time3 =
+                          '${selectedTime3.hour}:${selectedTime3.minute}';
+                    } else {
                       reminder.time3 = '00:00';
+                    }
                   });
-                  _save();
+                  await _save();
                 },
               )
             ],
           ),
         ),
       ),
-      bottomNavigationBar: MyBottomNavBar(),
-    );
-  }
-
-  // Save data to database
-  void _save() async {
-    int result;
-    if (reminder.id != null) {
-      // Case 1: Update operation
-      result = await helper.updateReminder(reminder);
-      if (tempReminder != reminder) {
-        notificationService.removeReminder(reminder.id);
-        if (selectedTime1 != t1) {
-          notificationService.dailyMedicineNotification(
-              id: reminder.notificationID,
-              title: 'Medicine Reminder',
-              body: 'Please take your ' + reminder.name + ' on time! ',
-              time: Time(selectedTime1.hour, selectedTime1.minute, 0));
-        }
-        if (times >= 2) {
-          if (selectedTime2 != t2) {
-            notificationService.dailyMedicineNotification(
-                id: reminder.notificationID,
-                title: 'Medicine Reminder',
-                body: 'Please take your ' + reminder.name + ' on time! ',
-                time: Time(selectedTime2.hour, selectedTime2.minute, 0));
-          }
-        }
-        if (times == 3) {
-          if (selectedTime3 != t3) {
-            notificationService.dailyMedicineNotification(
-                id: reminder.notificationID,
-                title: 'Medicine Reminder',
-                body: 'Please take your ' + reminder.name + ' on time! ',
-                time: Time(selectedTime3.hour, selectedTime3.minute, 0));
-          }
-        }
-      }
-    } else {
-      // Case 2: Insert Operation
-      reminder.notificationID = rng.nextInt(9999);
-      result = await helper.insertReminder(reminder);
-      if (selectedTime1 != t1) {
-        notificationService.dailyMedicineNotification(
-            id: reminder.notificationID,
-            title: 'Medicine Reminder',
-            body: 'Please take your ' + reminder.name + ' on time! ',
-            time: Time(selectedTime1.hour, selectedTime1.minute, 0));
-      }
-      if (times >= 2) {
-        if (selectedTime2 != t2) {
-          notificationService.dailyMedicineNotification(
-              id: reminder.notificationID,
-              title: 'Medicine Reminder',
-              body: 'Please take your ' + reminder.name + ' on time! ',
-              time: Time(selectedTime2.hour, selectedTime2.minute, 0));
-        }
-      }
-      if (times == 3) {
-        if (selectedTime3 != t3) {
-          notificationService.dailyMedicineNotification(
-              id: reminder.notificationID,
-              title: 'Medicine Reminder',
-              body: 'Please take your ' + reminder.name + ' on time! ',
-              time: Time(selectedTime3.hour, selectedTime3.minute, 0));
-        }
-      }
-
-    }
-    if (result != 0) {
-       //Success
-     _showAlertDialog('Status', 'Reminder Saved Successfully');
-      await Navigator.push(context, MaterialPageRoute(builder: (context) {
-        return MedicineReminder();
-      }));
-
-      Navigator.pop(context);
-    } else {
-      // Failure
-      _showAlertDialog('Status', 'Problem Saving Reminder');
-    }
-  }
-
-  void _showAlertDialog(String title, String message) {
-    AlertDialog alertDialog = AlertDialog(
-      title: Text(title),
-      content: Text(message),
-    );
-    showDialog(context: context, builder: (_) => alertDialog);
-  }
-}
-
-class ReminderFormItem extends StatelessWidget {
-  final String hintText;
-  final String helperText;
-  final Function onChanged;
-  final bool isNumber;
-  final IconData icon;
-  final controller;
-
-  ReminderFormItem(
-      {this.hintText,
-      this.helperText,
-      this.onChanged,
-      this.icon,
-      this.isNumber: false,
-      this.controller});
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: EdgeInsets.fromLTRB(10, 10, 10, 0),
-      child: TextField(
-        maxLines: 1,
-        decoration: InputDecoration(
-          border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(5),
-              borderSide: BorderSide(
-                  color: Color(0xffaf5676), style: BorderStyle.solid)),
-          prefixIcon: Icon(icon, color: Colors.blueGrey),
-          hintText: hintText,
-          focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-              borderSide:
-                  BorderSide(color: Colors.indigo, style: BorderStyle.solid)),
-          enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-              borderSide: BorderSide(
-                  color: Color(0xffaf5676), style: BorderStyle.solid)),
-        ),
-        onChanged: (String value) {
-          onChanged(value);
-        },
-        controller: controller,
-        keyboardType: isNumber ? TextInputType.number : TextInputType.text,
-      ),
+      bottomNavigationBar: const MyBottomNavBar(),
     );
   }
 }

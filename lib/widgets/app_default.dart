@@ -2,144 +2,152 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-import 'package:rich_alert/rich_alert.dart';
+// replaced rich_alert dialog with standard AlertDialog
 import '../main.dart';
 import '../screens/main/home/JagaMe/contact_relatives_screen.dart';
 import '../screens/main/home/JagaMe/link_relative.dart';
 import '../screens/main/home/profile/profile_screen.dart';
 import '../services/auth.dart';
 
-
 final auth = FirebaseAuth.instance;
-final user = User;
 AuthClass authClass = AuthClass();
-Future<User> getUser() async {
-  return await auth.currentUser;
+Future<User?> getUser() async {
+  return auth.currentUser;
 }
 
-class AppDrawer extends StatelessWidget {
-  String userId, imageUrl = '';
-  User loggedInUser;
+class AppDrawer extends StatefulWidget {
+  const AppDrawer({Key? key}) : super(key: key);
+
+  @override
+  _AppDrawerState createState() => _AppDrawerState();
+}
+
+class _AppDrawerState extends State<AppDrawer> {
+  String? userId;
+  String imageUrl = '';
+  User? loggedInUser;
 
   @override
   void initState() {
+    super.initState();
     getCurrentUser();
   }
 
   getCurrentUser() async {
-    User user = await FirebaseAuth.instance.currentUser;
-      userId   = user.uid;
-
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      setState(() {
+        userId = user.uid;
+        loggedInUser = user;
+      });
+    }
   }
-
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return SizedBox(
       width: MediaQuery.of(context).size.width / 1.2,
       child: Drawer(
-      child:
-      ListView(
-          children: <Widget>[
-            Container(
-              height: 50.0,
-              color: Color(0xffe3f1f4),
-            ),
-            CircleAvatar(
-              radius: 60.0,
-              backgroundColor: Colors.grey,
-              backgroundImage: NetworkImage("https://platform-static-files.s3.amazonaws.com/premierleague/photos/players/250x250/Photo-Missing.png/150",)),
-            Text(
-             'Hello there!',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 18,
-                  fontFamily: "Mulish"),
-            ),
-            Container(
-              child: Column(
-                children: <Widget>[
-                  Text(''),
-                ],
-              ),
-            ),
-            Column(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-
-                ListTile(
-                    leading: Icon(
-                      Icons.favorite_outline_sharp,
-                    ),
-                    title: const Text('Invite JagaMe',
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 18,
-                            fontFamily: "Mulish")),
-                    onTap: () => Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => LinkRelative()),
-                        )),
-                ListTile(
-                  leading: Icon(
-                    Icons.exit_to_app,
-                  ),
-                  title: const Text('Sign Out',
-                      style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 18,
-                          fontFamily: "Mulish")),
-                  onTap: () async {
-                    showDialog(
-                        context: context,
-                        builder: (BuildContext context) {
-                          return RichAlertDialog(
-                            alertTitle: richTitle("Log out from the App"),
-                            alertSubtitle: richSubtitle('Are you sure? '),
-                            alertType: RichAlertType.WARNING,
-                            actions: <Widget>[
-                              TextButton(
-                                child: Text("Yes"),
-                                onPressed: () async {
-                                  await authClass.signOut();
-                                  Navigator.pushAndRemoveUntil(
-                                      context,
-                                      MaterialPageRoute(builder: (builder) => MyApp()),
-                                          (route) => false);
-                                },
-                              ),
-                              TextButton(
-                                child: Text("No"),
-                                onPressed: () {
-                                  Navigator.pop(context);
-                                },
-                              ),
-                            ],
-                          );
-                        });
-                  },
+          child: ListView(children: <Widget>[
+        Container(
+          height: 50.0,
+          color: const Color(0xffe3f1f4),
+        ),
+        const CircleAvatar(
+            radius: 60.0,
+            backgroundColor: Colors.grey,
+            backgroundImage: NetworkImage(
+                "https://platform-static-files.s3.amazonaws.com/premierleague/photos/players/250x250/Photo-Missing.png/150")),
+        const Text(
+          'Hello there!',
+          textAlign: TextAlign.center,
+          style: TextStyle(
+              fontWeight: FontWeight.bold, fontSize: 18, fontFamily: "Mulish"),
+        ),
+        Container(
+          child: const Column(
+            children: <Widget>[
+              Text(''),
+            ],
+          ),
+        ),
+        Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            ListTile(
+                leading: const Icon(
+                  Icons.favorite_outline_sharp,
                 ),
-              ],
-            )
+                title: const Text('Invite JagaMe',
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                        fontFamily: "Mulish")),
+                onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const LinkRelative()),
+                    )),
+            ListTile(
+              leading: const Icon(
+                Icons.exit_to_app,
+              ),
+              title: const Text('Sign Out',
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                      fontFamily: "Mulish")),
+              onTap: () async {
+                showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        title: const Text('Log out from the App'),
+                        content: const Text('Are you sure?'),
+                        actions: <Widget>[
+                          TextButton(
+                            child: const Text('Yes'),
+                            onPressed: () async {
+                              final navigator = Navigator.of(context);
+                              await authClass.signOut();
+                              navigator.pushAndRemoveUntil(
+                                  MaterialPageRoute(builder: (builder) => MyApp()),
+                                  (route) => false);
+                            },
+                          ),
+                          TextButton(
+                            child: const Text('No'),
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                          ),
+                        ],
+                      );
+                    });
+              },
+            ),
           ],
-        )));
-      }}
-
+        )
+      ])),
+    );
+  }
+}
 
 class ListButtons extends StatelessWidget {
   final String text;
   final icon;
   final onTap;
 
-  ListButtons({this.text, this.icon, this.onTap});
+  const ListButtons({Key? key, 
+  this.text = "", 
+  required this.icon, 
+  required this.onTap}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: EdgeInsets.only(left: MediaQuery.of(context).size.width / 6),
       child: InkWell(
-        splashColor: Color(0xffBA6ABC3),
+        splashColor: const Color(0xffba6abc3),
         onTap: onTap,
         focusColor: Colors.blueGrey,
         child: Padding(
@@ -148,7 +156,7 @@ class ListButtons extends StatelessWidget {
             contentPadding: EdgeInsets.zero,
             title: Text(
               text,
-              style: TextStyle(
+              style: const TextStyle(
                   color: Colors.black,
                   fontWeight: FontWeight.w500,
                   fontSize: 20),
@@ -173,34 +181,35 @@ class FormItem extends StatelessWidget {
   final IconData icon;
   final controller;
 
-  FormItem(
-      {this.hintText,
-      this.helperText,
-      this.onChanged,
-      this.icon,
-      this.isNumber: false,
-      this.controller});
+  const FormItem(
+      {Key? key, 
+      this.hintText = "",
+      this.helperText = "",
+      required this.onChanged,
+      required this.icon,
+      this.isNumber = false,
+      this.controller}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.all(6),
-      margin: EdgeInsets.all(5),
+      padding: const EdgeInsets.all(6),
+      margin: const EdgeInsets.all(5),
       child: TextField(
         decoration: InputDecoration(
           border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(30),
               borderSide: BorderSide(
-                  color: Colors.redAccent[100], style: BorderStyle.solid)),
+                  color: Colors.redAccent[100]!, style: BorderStyle.solid)),
           hintText: hintText,
           focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(30),
               borderSide: BorderSide(
-                  color: Colors.redAccent[100], style: BorderStyle.solid)),
+                  color: Colors.redAccent[100]!, style: BorderStyle.solid)),
           enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(30),
               borderSide: BorderSide(
-                  color: Colors.redAccent[100], style: BorderStyle.solid)),
+                  color: Colors.redAccent[100]!, style: BorderStyle.solid)),
         ),
         onChanged: (String value) {
           onChanged(value);
@@ -215,12 +224,14 @@ class FormItem extends StatelessWidget {
 class ROROAppBar extends StatelessWidget implements PreferredSizeWidget {
   final double height = 56;
 
+  const ROROAppBar({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return Column(
       children: <Widget>[
         AppBar(
-          title: Row(
+          title: const Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               Text(
@@ -241,16 +252,14 @@ class ROROAppBar extends StatelessWidget implements PreferredSizeWidget {
               onTap: () {
                 Navigator.pushNamed(context, ProfileScreen.routeName);
               },
-              child: CircleAvatar(
+              child: const CircleAvatar(
                 radius: 20,
                 backgroundColor: Colors.blueGrey,
-                child: IconButton(
-                  icon: Icon(
-                    Icons.perm_identity,
-                    size: 30,
-                    color: Colors.white,
-                  ),
-                ),
+             child: Icon(
+      Icons.perm_identity,
+      size: 30,
+      color: Colors.white,
+    ),
               ),
             ),
           ],

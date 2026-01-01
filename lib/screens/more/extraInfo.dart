@@ -5,7 +5,7 @@ import '../../components/navBar.dart';
 import '../../widgets/app_default.dart';
 
 class ExtraInfo extends StatefulWidget {
-  const ExtraInfo({Key key}) : super(key: key);
+  const ExtraInfo({Key? key}) : super(key: key);
 
   @override
   State<ExtraInfo> createState() => _ExtraInfoState();
@@ -31,35 +31,39 @@ class _ExtraInfoState extends State<ExtraInfo> {
   }
 
   void _getMetadata(String url) async {
-    bool _isValid = _getUrlValid(url);
-    if (_isValid) {
-      Metadata _metadata = await AnyLinkPreview.getMetadata(
+    bool isValid = _getUrlValid(url);
+    if (isValid) {
+      Metadata? metadata = await AnyLinkPreview.getMetadata(
         link: url,
-        cache: Duration(days: 7),
+        cache: const Duration(days: 7),
         proxyUrl: "https://cors-anywhere.herokuapp.com/", // Needed for web app
       );
-      debugPrint(_metadata?.title);
-      debugPrint(_metadata?.desc);
+     if (metadata != null) {
+      debugPrint(metadata.title);
+      debugPrint(metadata.desc);
+    } else {
+      debugPrint("No metadata found");
+    }
     } else {
       debugPrint("URL is not valid");
     }
   }
 
   bool _getUrlValid(String url) {
-    bool _isUrlValid = AnyLinkPreview.isValidLink(
+    bool isUrlValid = AnyLinkPreview.isValidLink(
       url,
       protocols: ['http', 'https'],
       hostWhitelist: ['https://youtube.com/'],
       hostBlacklist: ['https://facebook.com/'],
     );
-    return _isUrlValid;
+    return isUrlValid;
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: ROROAppBar(),
-      drawer:AppDrawer(),
+      appBar: const ROROAppBar(),
+      drawer:const AppDrawer(),
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 20),
         child: Column(
@@ -68,42 +72,42 @@ class _ExtraInfoState extends State<ExtraInfo> {
             AnyLinkPreview(
               link: _url1,
               displayDirection: UIDirection.uiDirectionHorizontal,
-              cache: Duration(hours: 1),
+              cache: const Duration(hours: 1),
               backgroundColor: Colors.grey[300],
               errorWidget: Container(
                 color: Colors.grey[300],
-                child: Text('Oops!'),
+                child: const Text('Oops!'),
               ),
               errorImage: _errorImage,
             ),
-            SizedBox(height: 25),
+            const SizedBox(height: 25),
             AnyLinkPreview(
               link: _url2,
               displayDirection: UIDirection.uiDirectionHorizontal,
               showMultimedia: false,
               bodyMaxLines: 5,
               bodyTextOverflow: TextOverflow.ellipsis,
-              titleStyle: TextStyle(
+              titleStyle: const TextStyle(
                 color: Colors.black,
                 fontFamily: 'Mulish',
                 fontWeight: FontWeight.bold,
                 fontSize: 15,
               ),
-              bodyStyle: TextStyle(color: Colors.grey, fontSize: 12, fontFamily: 'Mulish',),
+              bodyStyle: const TextStyle(color: Colors.grey, fontSize: 12, fontFamily: 'Mulish',),
             ),
-            SizedBox(height: 25),
+            const SizedBox(height: 25),
             AnyLinkPreview(
               displayDirection: UIDirection.uiDirectionHorizontal,
               link: _url3,
               errorBody: 'Show my custom error body',
               errorTitle: 'Next one is youtube link, error title',
             ),
-            SizedBox(height: 25),
+            const SizedBox(height: 25),
             AnyLinkPreview(link: _url4),
           ],
         ),
       ),
-      bottomNavigationBar: MyBottomNavBar(),
+      bottomNavigationBar: const MyBottomNavBar(),
     );
   }
 }

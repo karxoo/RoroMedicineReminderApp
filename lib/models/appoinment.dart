@@ -1,11 +1,11 @@
 class Appoinment {
-  int _id;
-  String _name;
-  String _place;
-  String _address;
-  String _dateAndTime;
-  int _notificationID;
-  bool _done;
+  int? _id;
+  String? _name;
+  String? _place;
+  String? _address;
+  String? _dateAndTime;
+  int? _notificationID;
+  bool? _done;
 
   Appoinment(this._name, this._place, this._dateAndTime, this._address,
       this._notificationID, this._done);
@@ -13,49 +13,51 @@ class Appoinment {
   Appoinment.withId(this._id, this._name, this._place, this._dateAndTime,
       this._address, this._notificationID, this._done);
 
-  int get id => _id;
-  String get address => _address;
+  int? get id => _id;
+  String? get address => _address;
 
-  String get name => _name;
+  String? get name => _name;
 
-  String get place => _place;
+  String? get place => _place;
 
-  String get dateAndTime => _dateAndTime;
+  String? get dateAndTime => _dateAndTime;
 
-  bool get done => _done;
+  bool? get done => _done;
 
-  int get notificationId => _notificationID;
+  int? get notificationId => _notificationID;
 
-  set name(String newName) {
+  set name(String? newName) {
+    if (newName == null) return;
     if (newName.length <= 255) {
-      this._name = newName;
+      _name = newName;
     }
   }
 
-  set place(String newPlace) {
+  set place(String? newPlace) {
+    if (newPlace == null) return;
     if (newPlace.length <= 255) {
-      this._place = newPlace;
+      _place = newPlace;
     }
   }
 
-  set dateAndTime(String newTime) {
-    this._dateAndTime = newTime;
+  set dateAndTime(String? newTime) {
+    _dateAndTime = newTime;
   }
 
-  set address(String newAddress) {
-    this._address = newAddress;
+  set address(String? newAddress) {
+    _address = newAddress;
   }
 
-  set notificationId(int nId) {
-    this._notificationID = nId;
+  set notificationId(int? nId) {
+    _notificationID = nId;
   }
 
-  set done(bool value) {
-    this._done = value;
+  set done(bool? value) {
+    _done = value;
   }
 
   Map<String, dynamic> toMap() {
-    var map = Map<String, dynamic>();
+    var map = <String, dynamic>{};
     if (_id != null) {
       map['id'] = _id;
     }
@@ -69,12 +71,13 @@ class Appoinment {
   }
 
   Appoinment.fromMapObject(Map<String, dynamic> map) {
-    this._id = map['id'];
-    this._dateAndTime = map['date_time'];
-    this._address = map['address'];
-    this._place = map['place'];
-    this._name = map['name'];
-    this._notificationID = map['notification_id'];
-    this._done = map['done'] == 1;
+    _id = map['id'] as int?;
+    _dateAndTime = map['date_time'] as String?;
+    _address = map['address'] as String?;
+    _place = map['place'] as String?;
+    _name = map['name'] as String?;
+    _notificationID = map['notification_id'] as int?;
+    _done =
+        (map['done'] is int) ? (map['done'] == 1) : (map['done'] as bool?);
   }
 }

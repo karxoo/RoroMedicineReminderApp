@@ -5,7 +5,11 @@ import 'package:flutter/material.dart';
 class RelativeTextBox extends StatefulWidget {
   final String title, value, name, documentID;
 
-  RelativeTextBox({this.title, this.value, this.name, this.documentID});
+  const RelativeTextBox({Key? key, 
+  this.title = "", 
+  this.value = "", 
+  this.name = "", 
+  required this.documentID}) : super(key: key);
 
   @override
   _RelativeTextBoxState createState() => _RelativeTextBoxState();
@@ -20,13 +24,13 @@ class _RelativeTextBoxState extends State<RelativeTextBox> {
     super.initState();
   }
 
-  TextEditingController controller;
+  TextEditingController controller = TextEditingController();
 
-  String currentUserId;
+  String currentUserId = "";
 
   getCurrentUser() async {
-    User user = await FirebaseAuth.instance.currentUser;
-    currentUserId = user.uid;
+    User? user = FirebaseAuth.instance.currentUser;
+    currentUserId = user?.uid ?? "";
   }
 
   @override
@@ -38,7 +42,7 @@ class _RelativeTextBoxState extends State<RelativeTextBox> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.all(15),
+      padding: const EdgeInsets.all(15),
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(10),
@@ -55,16 +59,16 @@ class _RelativeTextBoxState extends State<RelativeTextBox> {
                 .update({widget.name: v});
           },
 
-          style: TextStyle(color: Colors.black), //const Color(0xffeeeff1) ),
+          style: const TextStyle(color: Colors.black), //const Color(0xffeeeff1) ),
           decoration: InputDecoration(
-              contentPadding: EdgeInsets.all(20),
-              focusedBorder: OutlineInputBorder(
+              contentPadding: const EdgeInsets.all(20),
+              focusedBorder: const OutlineInputBorder(
                   borderSide: BorderSide(color: Colors.black),
                   borderRadius: BorderRadius.all(Radius.circular(10))),
-              enabledBorder: OutlineInputBorder(
+              enabledBorder: const OutlineInputBorder(
                   borderSide: BorderSide(color: Color(0xffeeeff1)),
                   borderRadius: BorderRadius.all(Radius.circular(10))),
-              labelStyle: TextStyle(
+              labelStyle: const TextStyle(
                   color: Colors.black,
                   fontWeight: FontWeight.bold,
                   fontSize: 22),

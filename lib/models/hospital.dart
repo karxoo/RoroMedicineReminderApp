@@ -5,15 +5,15 @@ import '../services/network.dart';
 import 'location.dart';
 
 class HospitalData {
-  UserLocation userLocation;
-  List<Hospital> hospitalList;
+  late UserLocation userLocation;
+  late List<Hospital> hospitalList;
   HospitalData();
   getNearbyHospital() async {
-    this.hospitalList = [];
+    hospitalList = [];
     userLocation = UserLocation();
 
     await userLocation.getLocation().then((value) {
-      this.userLocation = value;
+      userLocation = value;
     });
     String url =
         'https://api.tomtom.com/search/2/nearbySearch/.JSON?key=$kTomsApiKey&lat=${userLocation.latitude}&lon=${userLocation.longitude}&radius=2000&limit=10&categorySet=7321';
@@ -23,22 +23,22 @@ class HospitalData {
       data = value;
     });
     var hospitals = data['results'];
-    this.hospitalList = [];
+    hospitalList = [];
     for (var h in hospitals) {
       String locationUrl = '', placeName = '';
       double locationLat = h['position']['lat'];
       double locationLon = h['position']['lon'];
       String uri =
           'https://api.opencagedata.com/geocode/v1/json?q=$locationLat+$locationLon&key=f29cf18b10224e27b8931981380b747a';
-      NetworkHelper _networkHelper = NetworkHelper(uri);
-      var _data = await _networkHelper.getData();
-      var hosData = _data['results'][0];
+      NetworkHelper networkHelper0 = NetworkHelper(uri);
+      var data0 = await networkHelper0.getData();
+      var hosData = data0['results'][0];
       placeName = hosData['components']['road'];
       locationUrl = hosData['annotations']['OSM']['url'];
       uri =
           'https://api.tomtom.com/routing/1/calculateRoute/${userLocation.latitude},${userLocation.longitude}:$locationLat,$locationLon/json?key=G5IOmgbhnBgevPJeglEK2zGJyYv6TG1Z';
-      NetworkHelper _network = NetworkHelper(uri);
-      var distanceData = await _network.getData();
+      NetworkHelper network = NetworkHelper(uri);
+      var distanceData = await network.getData();
       double hospitalDistance =
           distanceData['routes'][0]['summary']['lengthInMeters'] / 1000;
 
@@ -46,7 +46,7 @@ class HospitalData {
           h['position']['lon'], locationUrl, placeName, hospitalDistance);
 
       try {
-        this.hospitalList.add(hospital);
+        hospitalList.add(hospital);
       } catch (e) {
         print(e);
       }
@@ -56,10 +56,17 @@ class HospitalData {
 }
 
 class Hospital {
-  String hospitalName, hospitalLocationUrl, hospitalPlace;
-  double hospitalLocationLatitude, hospitalLocationLongitude, hospitalDistance;
+  String hospitalName;
+  double hospitalLocationLatitude, hospitalLocationLongitude;
+  String? hospitalLocationUrl, hospitalPlace;
+  double? hospitalDistance;
 
-  Hospital(this.hospitalName, this.hospitalLocationLatitude,
-      this.hospitalLocationLongitude,
-      [this.hospitalLocationUrl, this.hospitalPlace, this.hospitalDistance]);
+  Hospital(
+    this.hospitalName,
+    this.hospitalLocationLatitude,
+    this.hospitalLocationLongitude, [
+    this.hospitalLocationUrl,
+    this.hospitalPlace,
+    this.hospitalDistance,
+  ]);
 }

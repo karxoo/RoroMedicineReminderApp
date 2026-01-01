@@ -1,43 +1,43 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class TrackerModel {
-  Sleep sleepTracker;
-  WeightTracker weightTracker;
-  BloodPressureTracker bloodPressureTracker;
-  BloodSugarTracker bloodSugarTracker;
+  Sleep? sleepTracker;
+  WeightTracker? weightTracker;
+  BloodPressureTracker? bloodPressureTracker;
+  BloodSugarTracker? bloodSugarTracker;
   TrackerModel();
 }
 
 class Sleep {
-  int hours, minutes;
-  String notes;
-  DateTime dateTime;
+  int? hours, minutes;
+  String? notes;
+  DateTime? dateTime;
 
   Sleep({this.hours, this.minutes, this.notes, this.dateTime});
 }
 
 class SleepTracker {
-  bool isTracking;
-  Sleep sleepData;
+  bool? isTracking;
+  Sleep? sleepData;
   SleepTracker();
 
   Map<String, dynamic> toMap() {
-    Map<String, dynamic> map = Map<String, dynamic>();
+    Map<String, dynamic> map = <String, dynamic>{};
 
-    map['dateAndTime'] = this.sleepData.dateTime.toString();
-    map['hours'] = this.sleepData.hours.toString();
-    map['minutes'] = this.sleepData.minutes.toString();
-    map['notes'] = this.sleepData.notes;
+    map['dateAndTime'] = sleepData?.dateTime.toString();
+    map['hours'] = sleepData?.hours.toString();
+    map['minutes'] = sleepData?.minutes.toString();
+    map['notes'] = sleepData?.notes;
 
     return map;
   }
 
   fromMap(Map<String, dynamic> map) {
     Sleep sleepTracker = Sleep();
-    sleepTracker.dateTime = DateTime.parse(map['dateAndTime']);
-    sleepTracker.hours = int.parse(map['hours']);
-    sleepTracker.minutes = int.parse(map['minutes']);
-    sleepTracker.notes = map['notes'];
+    sleepTracker.dateTime = DateTime.tryParse(map['dateAndTime'] ?? '') ?? DateTime.now();
+    sleepTracker.hours = int.tryParse(map['hours']?.toString() ?? '') ?? 0;
+    sleepTracker.minutes = int.tryParse(map['minutes']?.toString() ?? '') ?? 0;
+    sleepTracker.notes = map['notes']?.toString() ?? '';
     return sleepTracker;
   }
 
@@ -45,42 +45,42 @@ class SleepTracker {
     final List<DocumentSnapshot> documents = snapshot.docs;
     List<Sleep> sleepList = [];
     for (var data in documents) {
-      Map map = data.data as Map;
-      sleepList.add(this.fromMap(map));
+      Map<String, dynamic> map = data.data() as Map<String, dynamic>;
+
+      sleepList.add(fromMap(map));
     }
     return sleepList;
   }
 }
 
 class Weight {
-  int weight;
-  String notes;
-  DateTime dateTime;
+  int? weight;
+  String? notes;
+  DateTime? dateTime;
 
   Weight({this.weight, this.notes, this.dateTime});
 }
 
 class WeightTracker {
-  bool isTracking;
-  Weight weightData;
+  bool? isTracking;
+  Weight? weightData;
   WeightTracker();
 
   Map<String, dynamic> toMap() {
-    Map<String, dynamic> map = Map<String, dynamic>();
+    Map<String, dynamic> map = <String, dynamic>{};
 
-    map['dateAndTime'] = this.weightData.dateTime.toString();
-    map['weight'] = this.weightData.weight.toString();
-    map['notes'] = this.weightData.notes;
+    map['dateAndTime'] = weightData?.dateTime.toString();
+    map['weight'] = weightData?.weight.toString();
+    map['notes'] = weightData?.notes;
 
     return map;
   }
 
   fromMap(Map<String, dynamic> map) {
     Weight weightTracker = Weight();
-    weightTracker.dateTime = DateTime.parse(map['dateAndTime']);
-    weightTracker.weight = int.parse(map['weight']);
-
-    weightTracker.notes = map['notes'];
+    weightTracker.dateTime = DateTime.tryParse(map['dateAndTime'] ?? '') ?? DateTime.now();
+    weightTracker.weight = int.tryParse(map['weight']?.toString() ?? '') ?? 0;
+    weightTracker.notes = map['notes']?.toString() ?? '';
     return weightTracker;
   }
 
@@ -88,41 +88,40 @@ class WeightTracker {
     List<DocumentSnapshot> documents = snapshot.docs;
     List<Weight> weightList = [];
     for (var data in documents) {
-      Map map = data.data as Map;
-      weightList.add(this.fromMap(map));
+      Map<String, dynamic> map = data.data() as Map<String, dynamic>;
+      weightList.add(fromMap(map));
     }
     return weightList;
   }
 }
 
 class BloodSugar {
-  int bloodSugar;
-  String notes;
-  DateTime dateTime;
+  int? bloodSugar;
+  String? notes;
+  DateTime? dateTime;
   BloodSugar({this.bloodSugar, this.notes, this.dateTime});
 }
 
 class BloodSugarTracker {
-  bool isTracking;
-  BloodSugar bloodSugar;
+  bool? isTracking;
+  BloodSugar? bloodSugar;
   BloodSugarTracker();
 
   Map<String, dynamic> toMap() {
-    Map<String, dynamic> map = Map<String, dynamic>();
+    Map<String, dynamic> map = <String, dynamic>{};
 
-    map['dateAndTime'] = this.bloodSugar.dateTime.toString();
-    map['blood_sugar'] = this.bloodSugar.bloodSugar.toString();
-    map['notes'] = this.bloodSugar.notes;
+    map['dateAndTime'] = bloodSugar?.dateTime.toString();
+    map['blood_sugar'] = bloodSugar?.bloodSugar.toString();
+    map['notes'] = bloodSugar?.notes;
 
     return map;
   }
 
   fromMap(Map<String, dynamic> map) {
     BloodSugar bloodSugar = BloodSugar();
-    bloodSugar.dateTime = DateTime.parse(map['dateAndTime']);
-    bloodSugar.bloodSugar = int.parse(map['blood_sugar']);
-
-    bloodSugar.notes = map['notes'];
+    bloodSugar.dateTime = DateTime.tryParse(map['dateAndTime'] ?? '') ?? DateTime.now();
+    bloodSugar.bloodSugar = int.tryParse(map['blood_sugar']?.toString() ?? '') ?? 0;
+    bloodSugar.notes = map['notes']?.toString() ?? '';
     return bloodSugar;
   }
 
@@ -130,47 +129,44 @@ class BloodSugarTracker {
     List<DocumentSnapshot> documents = snapshot.docs;
     List<BloodSugar> bloodSugarList = [];
     for (var data in documents) {
-      Map map = data.data as Map;
-      bloodSugarList.add(this.fromMap(map));
+      Map<String, dynamic> map = data.data() as Map<String, dynamic>;
+      bloodSugarList.add(fromMap(map));
     }
     return bloodSugarList;
   }
 }
 
 class BloodPressure {
-  int systolic, diastolic, pulse;
-  String notes;
-  DateTime dateTime;
+  int? systolic, diastolic, pulse;
+  String? notes;
+  DateTime? dateTime;
 
-  BloodPressure(
-      {this.systolic, this.diastolic, this.pulse, this.notes, this.dateTime});
+  BloodPressure({this.systolic, this.diastolic, this.pulse, this.notes, this.dateTime});
 }
 
 class BloodPressureTracker {
-  bool isTracking;
-  BloodPressure bloodPressure;
+  bool? isTracking;
+  BloodPressure? bloodPressure;
   BloodPressureTracker();
 
   Map<String, dynamic> toMap() {
-    Map<String, dynamic> map = Map<String, dynamic>();
+    Map<String, dynamic> map = <String, dynamic>{};
 
-    map['dateAndTime'] = this.bloodPressure.dateTime.toString();
-    map['diastolic'] = this.bloodPressure.diastolic.toString();
-    map['systolic'] = this.bloodPressure.systolic.toString();
-    map['pulse'] = this.bloodPressure.pulse.toString();
-    map['notes'] = this.bloodPressure.notes;
-
+    map['dateAndTime'] = bloodPressure?.dateTime.toString();
+    map['diastolic'] = bloodPressure?.diastolic.toString();
+    map['systolic'] = bloodPressure?.systolic.toString();
+    map['pulse'] = bloodPressure?.pulse.toString();
+    map['notes'] = bloodPressure?.notes;
     return map;
   }
 
   fromMap(Map<String, dynamic> map) {
     BloodPressure bloodPressure = BloodPressure();
-    bloodPressure.dateTime = DateTime.parse(map['dateAndTime']);
-    bloodPressure.diastolic = int.parse(map['diastolic']);
-    bloodPressure.systolic = int.parse(map['systolic']);
-    bloodPressure.pulse = int.parse(map['pulse']);
-
-    bloodPressure.notes = map['notes'];
+    bloodPressure.dateTime = DateTime.tryParse(map['dateAndTime'] ?? '') ?? DateTime.now();
+    bloodPressure.diastolic = int.tryParse(map['diastolic']?.toString() ?? '') ?? 0;
+    bloodPressure.systolic = int.tryParse(map['systolic']?.toString() ?? '') ?? 0;
+    bloodPressure.pulse = int.tryParse(map['pulse']?.toString() ?? '') ?? 0;
+    bloodPressure.notes = map['notes']?.toString() ?? '';
     return bloodPressure;
   }
 
@@ -178,8 +174,8 @@ class BloodPressureTracker {
     List<DocumentSnapshot> documents = snapshot.docs;
     List<BloodPressure> bloodPressureList = [];
     for (var data in documents) {
-      Map map = data.data as Map;
-      bloodPressureList.add(this.fromMap(map));
+       Map<String, dynamic> map = data.data() as Map<String, dynamic>;
+      bloodPressureList.add(fromMap(map));
     }
     return bloodPressureList;
   }

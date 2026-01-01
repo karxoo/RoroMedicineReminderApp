@@ -17,7 +17,7 @@ description: FYP2 2021/2022 RORO -Medicine Reminder
 version: 1.0.0+1
 
 environment:
-  sdk: ">=2.6.2 <3.0.0"
+  sdk: ">=2.12.0 <4.0.0"
 
 dependencies:
   flutter:
@@ -28,7 +28,7 @@ dependencies:
   firebase_storage: ^10.2.12
   image_picker: ^0.8.5
   intl: ^0.17.0
-  grouped_buttons: ^1.0.4
+  # grouped_buttons removed - not null-safe (incompatible with Dart SDK >=3)
   device_preview: ^1.0.0
   shared_preferences: ^2.0.13
   flutter_local_notifications: ^9.4.0
@@ -42,18 +42,16 @@ dependencies:
   flutter_neumorphic: ^3.0.3
 
 
-
-
-
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
-  cupertino_icons: ^0.1.2
-  fab_action_menu: ^0.0.1
-  firebase_auth: ^3.3.14
+  cupertino_icons: ^1.0.5
+  # fab_action_menu removed - not null-safe (incompatible with Dart SDK >=3)
+  firebase_auth: ^3.11.2
   cloud_firestore: ^3.1.12
   otp_text_field: ^1.1.2
   flutter_secure_storage: ^5.0.2
   google_sign_in: ^5.3.0
+  firebase_core: ^1.24.0
   otp_autofill: ^2.1.0
   alt_sms_autofill: ^1.0.0
   flutter_datetime_picker: ^1.5.1
@@ -62,11 +60,13 @@ dependencies:
   rxdart: ^0.27.3
   sprintf: ^6.0.0
   flutter_native_timezone: ^2.0.0
-  sweetalert: ^0.0.1
-  charts_flutter: ^0.12.0
-  rich_alert: ^0.1.32
+  # sweetalert removed - not null-safe (Dart SDK >=3 requires null-safety)
+  # charts_flutter removed - incompatible with intl 0.18.1 / Dart 3
+ 
   flutter_spinkit: ^5.1.0
   flutter_sms: ^2.3.2
+  url_launcher: ^6.1.7
+  http: ^0.13.5
   geolocator: ^8.2.1
   sqflite: ^2.0.2+1
   path_provider: ^2.0.10
@@ -98,7 +98,7 @@ dev_dependencies:
     sdk: flutter
   flutter_launcher_icons: ^0.9.2
   path: ^1.7.0
-  http: ^0.13.1
+  flutter_lints: ^2.0.0
 
 
 flutter_icons:
@@ -157,3 +157,6 @@ flutter:
   # see https://flutter.dev/custom-fonts/#from-packages
 flutter_intl:
   enabled: true
+
+dependency_overrides:
+  intl: ^0.17.0

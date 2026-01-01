@@ -1,14 +1,13 @@
 import 'dart:math' as math;
-
 import 'package:flutter/material.dart';
 
 @immutable
 class ExpandableFab extends StatefulWidget {
   const ExpandableFab({
-    Key key,
-     this.initialOpen,
-     this.distance,
-     this.children,
+   Key? key,
+  required this.initialOpen,
+  required this.distance,
+  required this.children,
   }) : super(key: key);
 
   final bool initialOpen;
@@ -20,8 +19,8 @@ class ExpandableFab extends StatefulWidget {
 }
 
 class _ExpandableFabState extends State<ExpandableFab> with SingleTickerProviderStateMixin {
-    AnimationController _controller;
-    Animation<double> _expandAnimation;
+    late AnimationController _controller;
+    late Animation<double> _expandAnimation;
   bool _open = false;
 
   @override
@@ -143,12 +142,13 @@ class _ExpandableFabState extends State<ExpandableFab> with SingleTickerProvider
 
 @immutable
 class _ExpandingActionButton extends StatelessWidget {
-  _ExpandingActionButton({
-    Key key,
-     this.directionInDegrees,
-     this.maxDistance,
-     this.progress,
-     this.child,
+  const _ExpandingActionButton({
+    Key? key,
+    required this.directionInDegrees,
+    required this.maxDistance,
+    required this.progress,
+    required this.child,
+
   }) : super(key: key);
 
   final double directionInDegrees;
@@ -185,10 +185,10 @@ class _ExpandingActionButton extends StatelessWidget {
 @immutable
 class ActionButton extends StatelessWidget {
   const ActionButton({
-    Key key,
-    this.icon,
-    this.tooltip,
-    this.onPressed,
+    Key? key,
+    required this.icon,
+    required this.tooltip,
+    required this.onPressed,
   }) : super(key: key);
 
   final VoidCallback onPressed;

@@ -1,7 +1,5 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:provider/provider.dart';
 
 import '../../components/navBar.dart';
 
@@ -12,13 +10,15 @@ import '../../widgets/app_default.dart';
 class Progress extends StatefulWidget {
   static const routeName = '/logbook';
 
+  const Progress({Key? key}) : super(key: key);
+
   @override
   _ProgressState createState() => _ProgressState();
 }
 
 class _ProgressState extends State<Progress> {
   AuthClass authClass = AuthClass();
-  var _isLoading = false;
+  final _isLoading = false;
   @override
 
 
@@ -26,10 +26,10 @@ class _ProgressState extends State<Progress> {
   Widget build(BuildContext context) {
 
     return Scaffold(
-        drawer: AppDrawer(),
-    appBar: ROROAppBar(),
+        drawer: const AppDrawer(),
+    appBar: const ROROAppBar(),
       body: _isLoading
-          ? Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator())
           : Column(
         children: [
           Padding(
@@ -39,8 +39,8 @@ class _ProgressState extends State<Progress> {
               alignment: AlignmentDirectional.topStart,
               children: [
                 Container(
-                  padding: EdgeInsets.only(top: 5.0),
-                  child: Divider(
+                  padding: const EdgeInsets.only(top: 5.0),
+                  child: const Divider(
                     thickness: 3.0,
                     color: Colors.black45,
                     indent: 55.0,
@@ -48,13 +48,13 @@ class _ProgressState extends State<Progress> {
                 ),
                 Text(
                   DateFormat("dd/MM").format(DateTime.now()),
-                  style: TextStyle(color: Colors.black, fontSize: 20.0),
+                  style: const TextStyle(color: Colors.black, fontSize: 20.0),
                 ),
               ],
             ),
           ),
     ]),
-      bottomNavigationBar: MyBottomNavBar(),
+      bottomNavigationBar: const MyBottomNavBar(),
     );
   }
 }

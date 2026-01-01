@@ -3,12 +3,12 @@ import 'package:flutter/material.dart';
 class CardButton extends StatelessWidget {
   var icon, size, color, borderColor, height, width;
   CardButton(
-      {this.icon,
+      {Key? key, this.icon,
       this.size,
       this.color,
       this.borderColor,
       this.height,
-      this.width});
+      this.width}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -22,10 +22,10 @@ class CardButton extends StatelessWidget {
             BoxShadow(
               color: borderColor,
               blurRadius: 10.0,
-              offset: Offset(0, 8.0),
+              offset: const Offset(0, 8.0),
             ),
           ]),
-      margin: EdgeInsets.all(5.0),
+      margin: const EdgeInsets.all(5.0),
       child: Icon(
         icon,
         size: size,

@@ -1,9 +1,8 @@
-
 import 'package:flutter/material.dart';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:rich_alert/rich_alert.dart';
+// replaced rich_alert dialog with standard AlertDialog
 import 'package:roro_medicine_reminder/screens/main/home/homePage.dart';
 
 import '../../../components/navBar.dart';
@@ -11,21 +10,30 @@ import '../../../widgets/app_default.dart';
 
 class InitialSetupScreen extends StatefulWidget {
   static const String routeName = 'Initial_Screen';
+
+  const InitialSetupScreen({Key? key}) : super(key: key);
   @override
   _InitialSetupScreenState createState() => _InitialSetupScreenState();
 }
 
 class _InitialSetupScreenState extends State<InitialSetupScreen> {
   bool isCompleted = false;
-  final userNameController = new TextEditingController();
-  final relative1Controller = new TextEditingController();
-  final relative2Controller = new TextEditingController();
-  final relative1NumController = new TextEditingController();
-  final relative2NumController = new TextEditingController();
+  final userNameController = TextEditingController();
+  final relative1Controller = TextEditingController();
+  final relative2Controller = TextEditingController();
+  final relative1NumController = TextEditingController();
+  final relative2NumController = TextEditingController();
   final fireStoreDatabase = FirebaseFirestore.instance;
-  String userName, relative1name, relative2name, relative1num, relative2num;
-  int age, gender;
-  String genderValue;
+
+  String userName = '';
+  String relative1name = '';
+  String relative2name = '';
+  String relative1num = '';
+  String relative2num = '';
+  int age = 0;
+  int gender = 0;
+  String genderValue = '';
+
   @override
   void dispose() {
     userNameController.dispose();
@@ -36,18 +44,22 @@ class _InitialSetupScreenState extends State<InitialSetupScreen> {
     super.dispose();
   }
 
-  User loggedInUser;
-  String email, userId;
+  User? loggedInUser;
+  String email = '';
+  String userId = '';
+
   void getCurrentUser() async {
-    try {
-      final user = await auth.currentUser;
+  try {
+    final User? user = auth.currentUser;
+    if (user != null) {
       loggedInUser = user;
-      email = loggedInUser.email;
-      userId = loggedInUser.uid;
-    } catch (e) {
-      print(e);
+      email = user?.email ?? '';   // safe assignment
+      userId = user?.uid ?? '';          // uid is usually non-null
     }
+  } catch (e) {
+    print(e);
   }
+}
 
   final auth = FirebaseAuth.instance;
   @override
@@ -59,21 +71,19 @@ class _InitialSetupScreenState extends State<InitialSetupScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-     drawer: AppDrawer(),
-    appBar: ROROAppBar(),
+      drawer: const AppDrawer(),
+      appBar: const ROROAppBar(),
       body: WillPopScope(
         onWillPop: () async {
           showDialog(
               context: context,
               builder: (BuildContext context) {
-                return RichAlertDialog(
-                  alertTitle: richTitle("Complete the Setup."),
-                  alertSubtitle:
-                      richSubtitle('Please provide details to continue'),
-                  alertType: RichAlertType.WARNING,
+                return AlertDialog(
+                  title: const Text('Complete the Setup.'),
+                  content: const Text('Please provide details to continue'),
                   actions: <Widget>[
                     ElevatedButton(
-                      child: Text("OK"),
+                      child: const Text('OK'),
                       onPressed: () {
                         Navigator.pop(context);
                       },
@@ -87,8 +97,8 @@ class _InitialSetupScreenState extends State<InitialSetupScreen> {
           children: <Widget>[
             Center(
               child: Container(
-                margin: EdgeInsets.only(top: 20, bottom: 10),
-                child: Text(
+                margin: const EdgeInsets.only(top: 20, bottom: 10),
+                child: const Text(
                   'Complete the Initial setup',
                   style: TextStyle(
                     fontSize: 28,
@@ -97,19 +107,19 @@ class _InitialSetupScreenState extends State<InitialSetupScreen> {
                 ),
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
+            const Padding(
+              padding: EdgeInsets.all(8.0),
               child: Text(
                 'The app requires you to give some data during this setup. Kindly enter all required data to all the fields below for best performance.',
-                style: TextStyle(
-                    fontWeight: FontWeight.w200, color: Colors.black),
+                style:
+                    TextStyle(fontWeight: FontWeight.w200, color: Colors.black),
               ),
             ),
             Padding(
               padding: const EdgeInsets.fromLTRB(8.0, 0, 0, 0),
               child: Row(
                 children: <Widget>[
-                  Expanded(child: Text('Name : ')),
+                  const Expanded(child: Text('Name : ')),
                   Expanded(
                     flex: 6,
                     child: FormItem(
@@ -122,13 +132,14 @@ class _InitialSetupScreenState extends State<InitialSetupScreen> {
                         });
                       },
                       isNumber: false,
+                       icon: Icons.person, 
                     ),
                   ),
                 ],
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(8.0, 12.0, 8.0, 0),
+            const Padding(
+              padding: EdgeInsets.fromLTRB(8.0, 12.0, 8.0, 0),
               child: Text(
                 'Gender : ',
                 style: TextStyle(fontSize: 17),
@@ -139,34 +150,34 @@ class _InitialSetupScreenState extends State<InitialSetupScreen> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
-                  Text('Male : '),
+                  const Text('Male : '),
                   Radio(
                     onChanged: (value) {
                       setState(() {
                         gender = 'Male' as int;
-                        genderValue = value;
+                        genderValue = value as String;
                       });
                     },
-                    activeColor: Color(0xffE3952D),
+                    activeColor: const Color(0xffE3952D),
                     value: 0,
                     groupValue: genderValue,
                   ),
-                  SizedBox(
+                  const SizedBox(
                     width: 10,
                   ),
-                  Text('Female : '),
+                  const Text('Female : '),
                   Radio(
                     onChanged: (value) {
                       setState(() {
                         gender = 'Female' as int;
-                        genderValue = value;
+                        genderValue = value as String;
                       });
                     },
-                    activeColor: Color(0xffE3952D),
+                    activeColor: const Color(0xffE3952D),
                     value: 1,
                     groupValue: genderValue,
                   ),
-                  SizedBox(
+                  const SizedBox(
                     width: 10,
                   ),
                 ],
@@ -176,7 +187,7 @@ class _InitialSetupScreenState extends State<InitialSetupScreen> {
               padding: const EdgeInsets.fromLTRB(8.0, 0, 0, 0),
               child: Row(
                 children: <Widget>[
-                  Expanded(child: Text(' JagaMe \nName : ')),
+                  const Expanded(child: Text(' JagaMe \nName : ')),
                   Expanded(
                     flex: 6,
                     child: FormItem(
@@ -189,6 +200,7 @@ class _InitialSetupScreenState extends State<InitialSetupScreen> {
                         });
                       },
                       isNumber: false,
+                       icon: Icons.person,
                     ),
                   ),
                 ],
@@ -198,7 +210,7 @@ class _InitialSetupScreenState extends State<InitialSetupScreen> {
               padding: const EdgeInsets.fromLTRB(8.0, 0, 0, 0),
               child: Row(
                 children: <Widget>[
-                  Expanded(child: Text('JagaMe 1 : ')),
+                  const Expanded(child: Text('JagaMe 1 : ')),
                   Expanded(
                     flex: 6,
                     child: FormItem(
@@ -210,6 +222,7 @@ class _InitialSetupScreenState extends State<InitialSetupScreen> {
                         });
                       },
                       isNumber: true,
+                       icon: Icons.person,
                     ),
                   ),
                 ],
@@ -219,7 +232,7 @@ class _InitialSetupScreenState extends State<InitialSetupScreen> {
               padding: const EdgeInsets.fromLTRB(8.0, 14, 0, 0),
               child: Row(
                 children: <Widget>[
-                  Expanded(child: Text(' JagaMe \nName : ')),
+                  const Expanded(child: Text(' JagaMe \nName : ')),
                   Expanded(
                     flex: 6,
                     child: FormItem(
@@ -232,6 +245,7 @@ class _InitialSetupScreenState extends State<InitialSetupScreen> {
                         });
                       },
                       isNumber: false,
+                       icon: Icons.person,
                     ),
                   ),
                 ],
@@ -241,7 +255,7 @@ class _InitialSetupScreenState extends State<InitialSetupScreen> {
               padding: const EdgeInsets.fromLTRB(8.0, 0, 0, 0),
               child: Row(
                 children: <Widget>[
-                  Expanded(child: Text('JagaMe 2 : ')),
+                  const Expanded(child: Text('JagaMe 2 : ')),
                   Expanded(
                     flex: 6,
                     child: FormItem(
@@ -253,6 +267,7 @@ class _InitialSetupScreenState extends State<InitialSetupScreen> {
                         });
                       },
                       isNumber: true,
+                       icon: Icons.person,
                     ),
                   ),
                 ],
@@ -266,16 +281,16 @@ class _InitialSetupScreenState extends State<InitialSetupScreen> {
                 });
 
                 Navigator.push(context, MaterialPageRoute(builder: (context) {
-                  return HomePage();
+                  return const HomePage();
                 }));
               },
               child: Container(
-                margin: EdgeInsets.fromLTRB(50, 20, 50, 30),
-                padding: EdgeInsets.symmetric(vertical: 15.0, horizontal: 65.0),
+                margin: const EdgeInsets.fromLTRB(50, 20, 50, 30),
+                padding: const EdgeInsets.symmetric(vertical: 15.0, horizontal: 65.0),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(30),
                   color: Colors.redAccent[100],
-                  boxShadow: [
+                  boxShadow: const [
                     BoxShadow(
                       color: Colors.redAccent,
                       blurRadius: 3.0,
@@ -283,7 +298,7 @@ class _InitialSetupScreenState extends State<InitialSetupScreen> {
                     ),
                   ],
                 ),
-                child: Text(
+                child: const Text(
                   'Save Changes',
                   style: TextStyle(color: Colors.white, fontSize: 20.0),
                 ),
@@ -292,7 +307,7 @@ class _InitialSetupScreenState extends State<InitialSetupScreen> {
           ],
         ),
       ),
-      bottomNavigationBar: MyBottomNavBar(),
+      bottomNavigationBar: const MyBottomNavBar(),
     );
   }
 
@@ -328,28 +343,29 @@ class TextInputField extends StatelessWidget {
   var editingController = TextEditingController();
   final String helperText;
   final String hintText;
-  Function valueGetter;
+   final void Function(String) valueGetter;
   IconData icon;
 
   TextInputField(
-      {this.editingController,
-      this.valueGetter,
-      this.helperText,
-      this.hintText,
-      this.icon});
+      {Key? key, 
+      required this.editingController,
+      required this.valueGetter,
+      this.helperText = "",
+      this.hintText = "",
+      required this.icon}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.all(10),
+      margin: const EdgeInsets.all(10),
       child: TextField(
         controller: editingController,
-        style: TextStyle(),
+        style: const TextStyle(),
         keyboardType: TextInputType.emailAddress,
         decoration: InputDecoration(
           border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(30),
-              borderSide: BorderSide(
+              borderSide: const BorderSide(
                   color: Color(0xffaf5676), style: BorderStyle.solid)),
           helperText: helperText,
           icon: Icon(icon, color: Colors.blueGrey),
@@ -357,16 +373,14 @@ class TextInputField extends StatelessWidget {
           focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(30),
               borderSide:
-                  BorderSide(color: Colors.indigo, style: BorderStyle.solid)),
+                  const BorderSide(color: Colors.indigo, style: BorderStyle.solid)),
           enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(30),
-              borderSide: BorderSide(
+              borderSide: const BorderSide(
                   color: Color(0xffaf5676), style: BorderStyle.solid)),
         ),
         onChanged: valueGetter,
       ),
-
     );
-
   }
 }

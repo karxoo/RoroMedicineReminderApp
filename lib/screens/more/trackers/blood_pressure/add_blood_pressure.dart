@@ -1,4 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:roro_medicine_reminder/screens/more/trackers/blood_pressure/blood_pressure_tracker_screen.dart';
@@ -9,14 +8,16 @@ import '../../../../models/tracker.dart';
 import '../../../../widgets/app_default.dart';
 
 class AddBloodPressureScreen extends StatefulWidget {
+  const AddBloodPressureScreen({Key? key}) : super(key: key);
+
   @override
   _AddBloodPressureScreenState createState() => _AddBloodPressureScreenState();
 }
 
 class _AddBloodPressureScreenState extends State<AddBloodPressureScreen> {
   final _trackerKey = GlobalKey<FormState>();
-  TextEditingController diastolic, notes, systolic, pulse;
-  BloodPressureTracker bloodPressureTracker;
+  late TextEditingController diastolic, notes, systolic, pulse;
+  late BloodPressureTracker bloodPressureTracker;
 
   @override
   void initState() {
@@ -38,8 +39,8 @@ class _AddBloodPressureScreenState extends State<AddBloodPressureScreen> {
           children: <Widget>[
             Center(
               child: Container(
-                margin: EdgeInsets.fromLTRB(20, 15, 20, 0),
-                child: Text(
+                margin: const EdgeInsets.fromLTRB(20, 15, 20, 0),
+                child: const Text(
                   'Add Blood Pressure Data',
                   style: TextStyle(
                     fontSize: 25.0,
@@ -50,7 +51,7 @@ class _AddBloodPressureScreenState extends State<AddBloodPressureScreen> {
                 ),
               ),
             ),
-            SizedBox(
+            const SizedBox(
               height: 15,
             ),
             Form(
@@ -58,7 +59,7 @@ class _AddBloodPressureScreenState extends State<AddBloodPressureScreen> {
               child: Column(
                 children: <Widget>[
                   Container(
-                    margin: EdgeInsets.all(15),
+                    margin: const EdgeInsets.all(15),
                     child: TextFormField(
                       keyboardType: TextInputType.number,
                       controller: diastolic,
@@ -74,10 +75,10 @@ class _AddBloodPressureScreenState extends State<AddBloodPressureScreen> {
                             borderRadius: BorderRadius.circular(30.0)),
                       ),
                       onChanged: (v) {
-                        _trackerKey.currentState.validate();
+                        _trackerKey.currentState?.validate();
                       },
                       validator: (value) {
-                        if (value.isEmpty) {
+                        if (value == null || value.isEmpty) {
                           return 'Please enter value';
                         } else {
                           if (!isNumeric(value)) {
@@ -90,7 +91,7 @@ class _AddBloodPressureScreenState extends State<AddBloodPressureScreen> {
                     ),
                   ),
                   Container(
-                    margin: EdgeInsets.all(15),
+                    margin: const EdgeInsets.all(15),
                     child: TextFormField(
                       keyboardType: TextInputType.number,
                       controller: systolic,
@@ -106,10 +107,10 @@ class _AddBloodPressureScreenState extends State<AddBloodPressureScreen> {
                             borderRadius: BorderRadius.circular(30.0)),
                       ),
                       onChanged: (v) {
-                        _trackerKey.currentState.validate();
+                        _trackerKey.currentState?.validate();
                       },
                       validator: (value) {
-                        if (value.isEmpty) {
+                        if (value == null || value.isEmpty) {
                           return 'Please enter value';
                         } else {
                           if (!isNumeric(value)) {
@@ -122,7 +123,7 @@ class _AddBloodPressureScreenState extends State<AddBloodPressureScreen> {
                     ),
                   ),
                   Container(
-                    margin: EdgeInsets.all(15),
+                    margin: const EdgeInsets.all(15),
                     child: TextFormField(
                       keyboardType: TextInputType.number,
                       controller: pulse,
@@ -138,10 +139,10 @@ class _AddBloodPressureScreenState extends State<AddBloodPressureScreen> {
                             borderRadius: BorderRadius.circular(30.0)),
                       ),
                       onChanged: (v) {
-                        _trackerKey.currentState.validate();
+                        _trackerKey.currentState?.validate();
                       },
                       validator: (value) {
-                        if (value.isEmpty) {
+                        if (value == null || value.isEmpty) {
                           return 'Please enter value';
                         } else {
                           if (!isNumeric(value)) {
@@ -154,10 +155,10 @@ class _AddBloodPressureScreenState extends State<AddBloodPressureScreen> {
                     ),
                   ),
                   Container(
-                    margin: EdgeInsets.all(15),
+                    margin: const EdgeInsets.all(15),
                     child: TextFormField(
                       onChanged: (v) {
-                        _trackerKey.currentState.validate();
+                        _trackerKey.currentState?.validate();
                       },
                       controller: notes,
                       decoration: InputDecoration(
@@ -172,7 +173,7 @@ class _AddBloodPressureScreenState extends State<AddBloodPressureScreen> {
                             borderRadius: BorderRadius.circular(30.0)),
                       ),
                       validator: (value) {
-                        if (value.isEmpty) {
+                        if (value == null || value.isEmpty) {
                           return 'Please enter value';
                         }
 
@@ -183,7 +184,7 @@ class _AddBloodPressureScreenState extends State<AddBloodPressureScreen> {
                 ],
               ),
             ),
-            SizedBox(
+            const SizedBox(
               height: 15,
             ),
             Row(
@@ -192,35 +193,44 @@ class _AddBloodPressureScreenState extends State<AddBloodPressureScreen> {
                 children: <Widget>[
                   ElevatedButton(
                     onPressed: () async {
-                      _trackerKey.currentState.validate();
+                      _trackerKey.currentState?.validate();
+                      final navigator = Navigator.of(context);
                       await saveData();
-                      Navigator.pop(context);
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (_) => BloodPressureTrackerScreen()));
+                      if (!mounted) return;
+                      navigator.pop();
+                      navigator.push(MaterialPageRoute(
+                          builder: (_) => const BloodPressureTrackerScreen()));
                     },
                     style: ElevatedButton.styleFrom(
-                        elevation: 2,
-                        primary: Color(0xffff9987),
+                        elevation: 2, backgroundColor: const Color(0xffff9987),
                         padding:
-                            EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                            const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(20))),
-                    child: Text("Add Data",
+                    child: const Text("Add Data",
                         style: TextStyle(fontFamily: 'Mulish', fontSize: 18)),
                   ),
-                  SizedBox(
+                  const SizedBox(
                     width: 25,
                   ),
                   ElevatedButton(
                     onPressed: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => TrackerHome()),
+                        MaterialPageRoute(builder: (context) => const TrackerHome()),
                       );
                     },
-                    child: Text(
+                    style: ElevatedButton.styleFrom(
+                      elevation: 2, backgroundColor: const Color(0xffff9987),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                          side: BorderSide(
+                            color: Colors.redAccent[100]!,
+                          )),
+                      padding:
+                          const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                    ),
+                    child: const Text(
                       'Cancel',
                       style: TextStyle(
                           fontSize: 18,
@@ -228,29 +238,18 @@ class _AddBloodPressureScreenState extends State<AddBloodPressureScreen> {
                           //fontWeight: FontWeight.bold,
                           color: Colors.white),
                     ),
-                    style: ElevatedButton.styleFrom(
-                      elevation: 2,
-                      primary: Color(0xffff9987),
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20),
-                          side: BorderSide(
-                            color: Colors.redAccent[100],
-                          )),
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 40, vertical: 15),
-                    ),
                   )
                 ]),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
+            const Padding(
+              padding: EdgeInsets.all(8.0),
               child: Text(''),
             )
           ],
         ),
       ),
-      appBar: ROROAppBar(),
-      drawer: AppDrawer(),
-      bottomNavigationBar: MyBottomNavBar(),
+      appBar: const ROROAppBar(),
+      drawer: const AppDrawer(),
+      bottomNavigationBar: const MyBottomNavBar(),
     );
   }
 
@@ -269,18 +268,15 @@ class _AddBloodPressureScreenState extends State<AddBloodPressureScreen> {
   }
 
   getCurrentUser() async {
-    User user = await FirebaseAuth.instance.currentUser;
+    User? user = FirebaseAuth.instance.currentUser;
     setState(() {
-      userId = user.uid;
+      userId = user?.uid ?? '';
     });
   }
 
-  String userId;
+  String userId = '';
 }
 
 bool isNumeric(String s) {
-  if (s == null) {
-    return false;
-  }
   return int.tryParse(s) != null;
 }

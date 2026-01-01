@@ -4,7 +4,7 @@ import '../../../components/navBar.dart';
 import '../../../widgets/app_default.dart';
 
 class helpSupport extends StatefulWidget {
-  const helpSupport({Key key}) : super(key: key);
+  const helpSupport({Key? key}) : super(key: key);
 
   @override
   State<helpSupport> createState() => _helpSupportState();
@@ -42,8 +42,8 @@ class _helpSupportState extends State<helpSupport> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: ROROAppBar(),
-      drawer:AppDrawer(),
+      appBar: const ROROAppBar(),
+      drawer:const AppDrawer(),
       body: ListView.separated(
         padding: const EdgeInsets.all(8),
         itemCount: quotes.length,
@@ -52,7 +52,7 @@ class _helpSupportState extends State<helpSupport> {
         },
         separatorBuilder: (BuildContext context, int index) => const Divider(),
       ),
-      bottomNavigationBar: MyBottomNavBar(),
+      bottomNavigationBar: const MyBottomNavBar(),
     );
   }
 }
@@ -61,13 +61,13 @@ Widget _buildExpandableTile(item) {
   return ExpansionTile(
     title: Text(
       item['question'],
-      style: TextStyle(fontWeight: FontWeight.w700, fontFamily: 'Mulish', fontSize: 18),
+      style: const TextStyle(fontWeight: FontWeight.w700, fontFamily: 'Mulish', fontSize: 18),
     ),
     children: <Widget>[
       ListTile(
         title: Text(
           item['answer'],
-          style: TextStyle(fontFamily: 'Mulish', fontSize: 18),
+          style: const TextStyle(fontFamily: 'Mulish', fontSize: 18),
         ),
       )
     ],

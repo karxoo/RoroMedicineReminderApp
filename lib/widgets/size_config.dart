@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 
 class SizeConfig {
-  static MediaQueryData _mediaQueryData;
-  static double screenW;
-  static double screenH;
-  static double blockH;
-  static double blockV;
+  static late MediaQueryData _mediaQueryData;
+  static late double screenW;
+  static late double screenH;
+  static late double blockH;
+  static late double blockV;
 
   void init(BuildContext context) {
     _mediaQueryData = MediaQuery.of(context);

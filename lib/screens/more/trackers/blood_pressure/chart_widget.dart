@@ -1,4 +1,3 @@
-import 'package:charts_flutter/flutter.dart' as charts;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
@@ -7,19 +6,18 @@ import '../../../../models/tracker.dart';
 class BloodPressureChart extends StatefulWidget {
   final bool animate;
   final String userID, type;
-  BloodPressureChart({
-    this.animate,
-    this.userID,
-    this.type,
-  });
+  const BloodPressureChart({Key? key, 
+    required this.animate,
+    required this.userID,
+    required this.type,
+  }) : super(key: key);
 
   @override
   _BloodPressureChartState createState() => _BloodPressureChartState();
 }
 
 class _BloodPressureChartState extends State<BloodPressureChart> {
-  BloodPressureTracker bloodPressure;
-  List<charts.Series> seriesList;
+  late BloodPressureTracker bloodPressure;
 
   @override
   void initState() {
@@ -32,19 +30,18 @@ class _BloodPressureChartState extends State<BloodPressureChart> {
     return FutureBuilder(
         future: _createSampleData(),
         builder: (context, snapshot) {
-          if (snapshot.hasData) {
-            return charts.TimeSeriesChart(
-              snapshot.data,
-              animate: widget.animate,
-              dateTimeFactory: const charts.LocalDateTimeFactory(),
-            );
-          } else
-            return Center(child: CircularProgressIndicator());
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          return Container(
+            height: 200,
+            alignment: Alignment.center,
+            child: const Text('Chart unavailable (charts_flutter removed)'),
+          );
         });
   }
 
-  Future<List<charts.Series<BloodPressure, DateTime>>>
-  _createSampleData() async {
+  Future<List> _createSampleData() async {
     bloodPressure = BloodPressureTracker();
     QuerySnapshot snapshot = await FirebaseFirestore.instance
         .collection('tracker')
@@ -53,38 +50,6 @@ class _BloodPressureChartState extends State<BloodPressureChart> {
         .get();
 
     List list = bloodPressure.loadData(snapshot);
-    if (widget.type == 'diastolic')
-      return [
-        charts.Series<BloodPressure, DateTime>(
-          id: 'Blood Pressure Diastolic Tracking',
-          colorFn: (_, __) => charts.MaterialPalette.blue.shadeDefault,
-          domainFn: (BloodPressure b, _) =>
-              DateTime(b.dateTime.year, b.dateTime.month, b.dateTime.day),
-          measureFn: (BloodPressure b, _) => b.diastolic,
-          data: list,
-        )
-      ];
-    else if (widget.type == 'pulse')
-      return [
-        charts.Series<BloodPressure, DateTime>(
-          id: 'Blood Pressure Pulse Tracking',
-          colorFn: (_, __) => charts.MaterialPalette.blue.shadeDefault,
-          domainFn: (BloodPressure b, _) =>
-              DateTime(b.dateTime.year, b.dateTime.month, b.dateTime.day),
-          measureFn: (BloodPressure b, _) => b.pulse,
-          data: list,
-        )
-      ];
-    else
-      return [
-        charts.Series<BloodPressure, DateTime>(
-          id: 'Blood Pressure Systolic  Tracking',
-          colorFn: (_, __) => charts.MaterialPalette.blue.shadeDefault,
-          domainFn: (BloodPressure b, _) =>
-              DateTime(b.dateTime.year, b.dateTime.month, b.dateTime.day),
-          measureFn: (BloodPressure b, _) => b.systolic,
-          data: list,
-        )
-      ];
+    return list;
   }
 }

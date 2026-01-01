@@ -6,23 +6,25 @@ import '../../../components/navBar.dart';
 import '../../../widgets/app_default.dart';
 
 class AddNote extends StatefulWidget {
+  const AddNote({Key? key}) : super(key: key);
+
   @override
   _AddNoteState createState() => _AddNoteState();
 }
 
 class _AddNoteState extends State<AddNote> {
-  String title;
-  String des;
+  String title = "";
+  String des = "";
 
   @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        appBar: ROROAppBar(),
-        drawer: AppDrawer(),
+        appBar: const ROROAppBar(),
+        drawer: const AppDrawer(),
         body: SingleChildScrollView(
           child: Container(
-            padding: EdgeInsets.all(
+            padding: const EdgeInsets.all(
               12.0,
             ),
             child: Column(
@@ -34,26 +36,37 @@ class _AddNoteState extends State<AddNote> {
                       onPressed: () {
                         Navigator.of(context).pop();
                       },
-                      child: Icon(
-                        Icons.arrow_back_ios_outlined,
-                        size: 18.0,
-                      ),
                       style: ButtonStyle(
                         backgroundColor: MaterialStateProperty.all(
                           Colors.redAccent[100],
                         ),
                         padding: MaterialStateProperty.all(
-                          EdgeInsets.symmetric(
+                          const EdgeInsets.symmetric(
                             horizontal: 25.0,
                             vertical: 8.0,
                           ),
                         ),
                       ),
+                      child: const Icon(
+                        Icons.arrow_back_ios_outlined,
+                        size: 18.0,
+                      ),
                     ),
                     //
                     ElevatedButton(
                       onPressed: add,
-                      child: Text(
+                      style: ButtonStyle(
+                        backgroundColor: MaterialStateProperty.all(
+                          Colors.redAccent[100],
+                        ),
+                        padding: MaterialStateProperty.all(
+                          const EdgeInsets.symmetric(
+                            horizontal: 25.0,
+                            vertical: 8.0,
+                          ),
+                        ),
+                      ),
+                      child: const Text(
                         "Save",
                         style: TextStyle(
                           fontSize: 18.0,
@@ -61,22 +74,11 @@ class _AddNoteState extends State<AddNote> {
                           color: Colors.white,
                         ),
                       ),
-                      style: ButtonStyle(
-                        backgroundColor: MaterialStateProperty.all(
-                          Colors.redAccent[100],
-                        ),
-                        padding: MaterialStateProperty.all(
-                          EdgeInsets.symmetric(
-                            horizontal: 25.0,
-                            vertical: 8.0,
-                          ),
-                        ),
-                      ),
                     ),
                   ],
                 ),
                 //
-                SizedBox(
+                const SizedBox(
                   height: 12.0,
                 ),
                 //
@@ -84,17 +86,17 @@ class _AddNoteState extends State<AddNote> {
                   child: Column(
                     children: [
                       TextFormField(
-                        decoration: InputDecoration.collapsed(
+                        decoration: const InputDecoration.collapsed(
                           hintText: "Title",
                         ),
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 32.0,
                           fontFamily: "Mulish",
                           fontWeight: FontWeight.bold,
                           color: Colors.black,
                         ),
-                        onChanged: (_val) {
-                          title = _val;
+                        onChanged: (val) {
+                          title = val;
                         },
                       ),
                       //
@@ -102,16 +104,16 @@ class _AddNoteState extends State<AddNote> {
                         height: MediaQuery.of(context).size.height * 0.75,
                         padding: const EdgeInsets.only(top: 12.0),
                         child: TextFormField(
-                          decoration: InputDecoration.collapsed(
+                          decoration: const InputDecoration.collapsed(
                             hintText: "Note Description",
                           ),
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: 20.0,
                             fontFamily: "Mulish",
                             color: Colors.grey,
                           ),
-                          onChanged: (_val) {
-                            des = _val;
+                          onChanged: (val) {
+                            des = val;
                           },
                           maxLines: 20,
                         ),
@@ -123,7 +125,7 @@ class _AddNoteState extends State<AddNote> {
             ),
           ),
         ),
-        bottomNavigationBar: MyBottomNavBar(),
+        bottomNavigationBar: const MyBottomNavBar(),
       ),
     );
   }
@@ -132,7 +134,7 @@ class _AddNoteState extends State<AddNote> {
     // save to db
     CollectionReference ref = FirebaseFirestore.instance
         .collection('users')
-        .doc(FirebaseAuth.instance.currentUser.uid)
+        .doc(FirebaseAuth.instance.currentUser?.uid)
         .collection('notes');
 
     var data = {

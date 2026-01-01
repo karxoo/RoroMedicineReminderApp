@@ -1,21 +1,21 @@
 class Relative {
-  String name, email, phoneNumber, uid, documentID;
+  String? name, email, phoneNumber, uid, documentID;
   Relative();
   Relative getData(var data) {
-    this.phoneNumber = data['phoneNumber'];
-    this.email = data['email'];
-    this.uid = data['uid'];
-    this.name = data['name'];
-    this.documentID = data.documentID;
+    phoneNumber = data['phoneNumber'] as String?;
+    email = data['email'] as String?;
+    uid = data['uid'] as String?;
+    name = data['name'] as String?;
+    documentID = data['documentID'] as String?;
     return this;
   }
 
   Map<String, dynamic> toMap() {
-    Map<String, dynamic> data = Map<String, dynamic>();
-    data['phoneNumber'] = this.phoneNumber;
-    data['email'] = this.email;
-    data['uid'] = this.uid;
-    data['name'] = this.name;
+    Map<String, dynamic> data = <String, dynamic>{};
+    data['phoneNumber'] = phoneNumber;
+    data['email'] = email;
+    data['uid'] = uid;
+    data['name'] = name;
     return data;
   }
 }

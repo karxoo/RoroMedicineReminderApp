@@ -1,15 +1,14 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:line_icons/line_icons.dart';
 
 import '../../../components/navBar.dart';
 import '../../../main.dart';
 import '../../../services/auth.dart';
 import '../../../widgets/app_default.dart';
 import '../../authenticate/forgotPwd.dart';
-import '../../more/trackers/health_tracker.dart';
 
 class SettingsPage extends StatefulWidget {
+  const SettingsPage({Key? key}) : super(key: key);
+
   @override
   _SettingsPageState createState() => _SettingsPageState();
 }
@@ -19,20 +18,20 @@ class _SettingsPageState extends State<SettingsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: ROROAppBar(),
-      drawer: AppDrawer(),
+      appBar: const ROROAppBar(),
+      drawer: const AppDrawer(),
       body: Container(
-        padding: EdgeInsets.only(left: 16, top: 25, right: 16),
+        padding: const EdgeInsets.only(left: 16, top: 25, right: 16),
         child: ListView(
           children: [
-            Text(
+            const Text(
               "Settings",
               style: TextStyle(fontFamily: "Mulish", fontSize: 25, fontWeight: FontWeight.w500),
             ),
-            SizedBox(
+            const SizedBox(
               height: 40,
             ),
-            Row(
+            const Row(
               children: [
                 Icon(
                   Icons.person,
@@ -47,24 +46,24 @@ class _SettingsPageState extends State<SettingsPage> {
                 ),
               ],
             ),
-            Divider(
+            const Divider(
               height: 15,
               thickness: 2,
             ),
-            SizedBox(
+            const SizedBox(
               height: 10,
             ),
             ListTile(
 
-                title: Text('Change Password',
+                title: const Text('Change Password',
                     style: TextStyle(fontFamily: "Mulish", fontSize: 18, fontWeight: FontWeight.bold)),
-                leading: Icon(Icons.arrow_forward_ios),
+                leading: const Icon(Icons.arrow_forward_ios),
                 //subtitle: Text('Add notes.'),
                 onTap: () =>
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (context) => forgotPwd()),
+                          builder: (context) => const forgotPwd()),
                     )
             ),
             /*ListTile(
@@ -81,14 +80,14 @@ class _SettingsPageState extends State<SettingsPage> {
                     )
             ),*/
 
-            SizedBox(
+            const SizedBox(
               height: 50,
             ),
             Center(
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                    primary: Color(0xffff9987),
-                    padding: EdgeInsets.symmetric(horizontal: 40),
+                    backgroundColor: const Color(0xffff9987),
+                    padding: const EdgeInsets.symmetric(horizontal: 40),
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(20))),
                 onPressed: () async {
@@ -98,7 +97,7 @@ class _SettingsPageState extends State<SettingsPage> {
                       MaterialPageRoute(builder: (builder) => MyApp()),
                           (route) => false);
                 },
-                child: Text("SIGN OUT",
+                child: const Text("SIGN OUT",
                     style: TextStyle(
                         fontFamily: "Mulish", fontSize: 16, letterSpacing: 2.2, color: Colors.white)),
               ),
@@ -106,7 +105,7 @@ class _SettingsPageState extends State<SettingsPage> {
           ],
         ),
       ),
-      bottomNavigationBar: MyBottomNavBar(),
+      bottomNavigationBar: const MyBottomNavBar(),
     );
   }
 
@@ -119,7 +118,7 @@ class _SettingsPageState extends State<SettingsPage> {
             builder: (BuildContext context) {
               return AlertDialog(
                 title: Text(title),
-                content: Column(
+                content: const Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text("Option 1"),
@@ -132,7 +131,7 @@ class _SettingsPageState extends State<SettingsPage> {
                       onPressed: () {
                         Navigator.of(context).pop();
                       },
-                      child: Text("Close")),
+                      child: const Text("Close")),
                 ],
               );
             });
@@ -150,7 +149,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 color: Colors.grey[600],
               ),
             ),
-            Icon(
+            const Icon(
               Icons.arrow_forward_ios,
               color: Colors.grey,
             ),

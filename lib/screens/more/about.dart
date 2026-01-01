@@ -4,7 +4,7 @@ import '../../components/navBar.dart';
 import '../../widgets/app_default.dart';
 
 class About extends StatefulWidget {
-  const About({Key key}) : super(key: key);
+  const About({Key? key}) : super(key: key);
 
   @override
   State<About> createState() => _AboutState();
@@ -13,7 +13,7 @@ class About extends StatefulWidget {
 class _AboutState extends State<About> {
   PackageInfo _packageInfo = PackageInfo(
     appName: 'Unknown',
-    //packageName: 'Unknown',
+    packageName: 'Unknown',
     version: 'Unknown',
     buildNumber: 'Unknown',
   );
@@ -41,17 +41,17 @@ class _AboutState extends State<About> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: ROROAppBar(),
-      drawer: AppDrawer(),
+      appBar: const ROROAppBar(),
+      drawer: const AppDrawer(),
       body: Container(
-      padding: EdgeInsets.only(left: 16, top: 25, right: 16),
+      padding: const EdgeInsets.only(left: 16, top: 25, right: 16),
         child: ListView(
         children: [
-          Text(
+          const Text(
             "About",
             style: TextStyle(fontFamily: "Mulish", fontSize: 25, fontWeight: FontWeight.w500),
           ),
-          SizedBox(
+          const SizedBox(
             height: 40,
           ),
           _infoTile('App name', _packageInfo.appName),
@@ -60,7 +60,7 @@ class _AboutState extends State<About> {
           _infoTile('Build number', _packageInfo.buildNumber),
         ],
       )),
-      bottomNavigationBar: MyBottomNavBar(),
+      bottomNavigationBar: const MyBottomNavBar(),
     );
   }
 }

@@ -1,4 +1,3 @@
-
 import 'dart:async';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
@@ -13,18 +12,13 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../models/custom_exceptions.dart';
 import '../screens/main/home/homePage.dart';
 
-
-
-
 class AuthClass extends ChangeNotifier {
-  String _token;
-  DateTime _expiryDate;
-  String _userId;
-  Timer authTimer;
-  String get token {
-    if (_expiryDate != null &&
-        _expiryDate.isAfter(DateTime.now()) &&
-        _token != null) {
+  String? _token;
+  DateTime? _expiryDate;
+  String? _userId;
+  Timer? authTimer;
+  String? get token {
+    if (_expiryDate != null && _expiryDate!.isAfter(DateTime.now())) {
       return _token;
     }
     return null;
@@ -34,7 +28,7 @@ class AuthClass extends ChangeNotifier {
     return token != null;
   }
 
-  String get userID {
+  String? get userID {
     return _userId;
   }
 
@@ -46,91 +40,92 @@ class AuthClass extends ChangeNotifier {
     ],
   );
 
-  final storage = new FlutterSecureStorage();
+  final storage = const FlutterSecureStorage();
 
-  Stream<String> get onAuthStateChanged =>
-      _auth.authStateChanges().map((User user) => user?.uid);
+    Stream<String?> get onAuthStateChanged =>
+      _auth.authStateChanges().map((User? user) => user?.uid);
 
   Future<void> inputData() async {
-    final User user = await _auth.currentUser;
-    final uid = user.uid;
+    final User? user = _auth.currentUser;
+    final uid = user?.uid;
   }
 
   Future<void> googleSignIn(BuildContext context) async {
+    final navigator = Navigator.of(context);
+    final messenger = ScaffoldMessenger.of(context);
     try {
-      GoogleSignInAccount googleSignInAccount = await _googleSignIn.signIn();
+      GoogleSignInAccount? googleSignInAccount = await _googleSignIn.signIn();
+      if (googleSignInAccount == null) return; // user cancelled
       GoogleSignInAuthentication googleSignInAuthentication =
-      await googleSignInAccount.authentication;
+          await googleSignInAccount.authentication;
       AuthCredential credential = GoogleAuthProvider.credential(
         accessToken: googleSignInAuthentication.accessToken,
         idToken: googleSignInAuthentication.idToken,
       );
 
+      // Sign in to Firebase with the Google credential
+      UserCredential userCredential =
+          await _auth.signInWithCredential(credential);
 
-      final QuerySnapshot result =
-      await FirebaseFirestore.instance.collection('profile').get();
-      final List<DocumentSnapshot> documents = result.docs;
-      bool userExits = false;
-      for (var document in documents) {
-        if (document.id == _auth.currentUser.uid) userExits = true;
-      }
-      SharedPreferences prefs;
-      prefs = await SharedPreferences.getInstance();
-
-      if (!userExits) {
-        prefs.setBool('first', true);
-        try {
-          await FirebaseFirestore.instance
-              .collection('profile')
-              .doc(_auth.currentUser.uid.toString())
-              .set({
-            'userName': _auth.currentUser.displayName,
-            'email': _auth.currentUser.email,
-            'phoneNumber': _auth.currentUser.phoneNumber ?? 'Not Set',
-            'uid': _auth.currentUser.uid,
-            'picture':
-            _auth.currentUser.photoURL ?? 'https://www.nicepng.com/ourpic/u2q8i1t4t4t4q8a9_group-of-10-guys-login-user-icon-png/',
-            'weight': 'Not Set',
-            'height': 'Not Set',
-            'bloodPressure': 'Not Set',
-            'bloodSugar': 'Not Set',
-            'allergies': 'None',
-            'bloodGroup': 'Not Set',
-            'age': 'Not Set',
-            'gender': 'Not Set',
-          });
-        } catch (e) {
-          print(e.toString());
+      // ensure profile doc exists
+      final uid = userCredential.user?.uid;
+      if (uid != null) {
+        final doc = await FirebaseFirestore.instance
+            .collection('profile')
+            .doc(uid)
+            .get();
+        if (!doc.exists) {
+          try {
+            await FirebaseFirestore.instance
+                .collection('profile')
+                .doc(uid)
+                .set({
+              'userName': userCredential.user?.displayName,
+              'email': userCredential.user?.email,
+              'phoneNumber': userCredential.user?.phoneNumber ?? 'Not Set',
+              'uid': uid,
+              'picture': userCredential.user?.photoURL ??
+                  'https://www.nicepng.com/ourpic/u2q8i1t4t4t4q8a9_group-of-10-guys-login-user-icon-png/',
+              'weight': 'Not Set',
+              'height': 'Not Set',
+              'bloodPressure': 'Not Set',
+              'bloodSugar': 'Not Set',
+              'allergies': 'None',
+              'bloodGroup': 'Not Set',
+              'age': 'Not Set',
+              'gender': 'Not Set',
+            });
+          } catch (e) {
+            print(e.toString());
+          }
         }
       }
-      if (googleSignInAccount != null) {
-        UserCredential userCredential =
-        await _auth.signInWithCredential(credential);
-        storeTokenAndData(userCredential);
-        Navigator.pushAndRemoveUntil(
-            context,
-            MaterialPageRoute(builder: (builder) => HomePage()),
-                (route) => false);
 
-        final snackBar =
-        SnackBar(content: Text(userCredential.user.displayName));
-        ScaffoldMessenger.of(context).showSnackBar(snackBar);
-      }
+        storeTokenAndData(userCredential);
+      navigator.pushAndRemoveUntil(
+          MaterialPageRoute(builder: (builder) => const HomePage()),
+          (route) => false);
+      final snackBar = SnackBar(
+          content: Text(userCredential.user?.displayName ?? 'Signed in'));
+      messenger.showSnackBar(snackBar);
     } catch (e) {
       print("here---->");
       final snackBar = SnackBar(content: Text(e.toString()));
-      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+      messenger.showSnackBar(snackBar);
     }
   }
 
-  Future<void> signOut({BuildContext context}) async {
+  Future<void> signOut({BuildContext? context}) async {
+    final messenger = context != null ? ScaffoldMessenger.of(context) : null;
     try {
       await _googleSignIn.signOut();
       await _auth.signOut();
       await storage.delete(key: "token");
     } catch (e) {
-      final snackBar = SnackBar(content: Text(e.toString()));
-      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+      if (messenger != null) {
+        final snackBar = SnackBar(content: Text(e.toString()));
+        messenger.showSnackBar(snackBar);
+      }
     }
   }
 
@@ -139,8 +134,8 @@ class AuthClass extends ChangeNotifier {
     final url =
         'https://identitytoolkit.googleapis.com/v1/$urlSeg?key=AIzaSyCw-YBHGinNHqpbZW74TpL511-s_p5KJQI';
     try {
-      final response = await http.post(Uri.parse(
-          url),
+      final response = await http.post(
+        Uri.parse(url),
         body: json.encode(
           {
             'email': email,
@@ -150,11 +145,12 @@ class AuthClass extends ChangeNotifier {
         ),
       );
       final QuerySnapshot result =
-      await FirebaseFirestore.instance.collection('profile').get();
+          await FirebaseFirestore.instance.collection('profile').get();
       final List<DocumentSnapshot> documents = result.docs;
       bool userExits = false;
+      final currentUid = _auth.currentUser?.uid;
       for (var document in documents) {
-        if (document.id == _auth.currentUser.uid) userExits = true;
+        if (document.id == currentUid) userExits = true;
       }
       SharedPreferences prefs;
       prefs = await SharedPreferences.getInstance();
@@ -164,14 +160,14 @@ class AuthClass extends ChangeNotifier {
         try {
           await FirebaseFirestore.instance
               .collection('profile')
-              .doc(_auth.currentUser.uid.toString())
+              .doc(_auth.currentUser?.uid.toString() ?? '')
               .set({
-            'userName': _auth.currentUser.displayName,
-            'email': _auth.currentUser.email,
-            'phoneNumber': _auth.currentUser.phoneNumber ?? 'Not Set ',
-            'uid': _auth.currentUser.uid,
-            'picture':
-            _auth.currentUser.photoURL ?? 'https://www.nicepng.com/ourpic/u2q8i1t4t4t4q8a9_group-of-10-guys-login-user-icon-png/',
+            'userName': _auth.currentUser?.displayName,
+            'email': _auth.currentUser?.email,
+            'phoneNumber': _auth.currentUser?.phoneNumber ?? 'Not Set ',
+            'uid': _auth.currentUser?.uid,
+            'picture': _auth.currentUser?.photoURL ??
+                'https://www.nicepng.com/ourpic/u2q8i1t4t4t4q8a9_group-of-10-guys-login-user-icon-png/',
             'weight': 'Not Set',
             'height': 'Not Set',
             'bloodPressure': 'Not Set',
@@ -185,16 +181,17 @@ class AuthClass extends ChangeNotifier {
           print(e.toString());
         }
       }
-      var _responseData = json.decode(response.body);
-      if (_responseData['error'] != null)
-        throw CustomExceptions(_responseData['error']['message']);
+      var responseData = json.decode(response.body);
+      if (responseData['error'] != null) {
+        throw CustomExceptions(responseData['error']['message']);
+      }
 
-      _token = _responseData['idToken'];
-      _userId = _responseData['localId'];
+      _token = responseData['idToken'];
+      _userId = responseData['localId'];
       _expiryDate = DateTime.now().add(
         Duration(
           seconds: int.parse(
-            _responseData['expiresIn'],
+            responseData['expiresIn'],
           ),
         ),
       );
@@ -205,12 +202,12 @@ class AuthClass extends ChangeNotifier {
         {
           'token': _token,
           'userId': _userId,
-          'expiryDate': _expiryDate.toIso8601String(),
+          'expiryDate': _expiryDate?.toIso8601String(),
         },
       );
       prefs.setString('userData', userData);
     } catch (error) {
-      throw error;
+      rethrow;
     }
   }
 
@@ -227,105 +224,102 @@ class AuthClass extends ChangeNotifier {
     if (!prefs.containsKey('userData')) {
       return false;
     }
-    final extractedData =
-    json.decode(prefs.getString('userData')) as Map<String, Object>;
-    final userExpiryDate = DateTime.parse(extractedData['expiryDate']);
-    if (userExpiryDate.isBefore(DateTime.now())) {
-      return false;
-    }
-    _token = extractedData['token'];
-    _userId = extractedData['userId'];
-    _expiryDate = DateTime.parse(extractedData['expiryDate']);
-    notifyListeners();
-    _autoLogout();
-    return true;
+    final userDataString = prefs.getString('userData');
+if (userDataString == null) {
+  return false; // No saved session
+}
+
+final extractedData = json.decode(userDataString) as Map<String, dynamic>;
+
+if (!extractedData.containsKey('expiryDate')) {
+  return false; // Missing expiry date
+}
+
+final userExpiryDate = DateTime.tryParse(extractedData['expiryDate']);
+if (userExpiryDate == null || userExpiryDate.isBefore(DateTime.now())) {
+  return false; // Expired or invalid date
+}
+return true; // Session still valid
   }
 
   Future<void> logout() async {
     _token = null;
     _userId = null;
     _expiryDate = null;
-    if (authTimer != null) {
-      authTimer.cancel();
-      authTimer = null;
-    }
+    authTimer?.cancel();
+    authTimer = null;
     notifyListeners();
     final prefs = await SharedPreferences.getInstance();
     prefs.clear();
   }
 
   void _autoLogout() {
-    if (authTimer != null) {
-      authTimer.cancel();
-    }
-    final expiryTime = _expiryDate.difference(DateTime.now()).inSeconds;
+    authTimer?.cancel();
+    final expiryTime = _expiryDate?.difference(DateTime.now()).inSeconds ?? 0;
     authTimer = Timer(Duration(seconds: expiryTime), logout);
-
-
   }
 
   void storeTokenAndData(UserCredential userCredential) async {
     print("storing token and data");
     await storage.write(
-        key: "token", value: userCredential.credential.token.toString());
+        key: "token", value: userCredential.credential?.token.toString());
     await storage.write(
         key: "usercredential", value: userCredential.toString());
   }
 
-  Future<String> getToken() async {
+  Future<String?> getToken() async {
     return await storage.read(key: "token");
   }
 
   Future<void> verifyPhoneNumber(
       String phoneNumber, BuildContext context, Function setData) async {
-    PhoneVerificationCompleted verificationCompleted =
-        (PhoneAuthCredential phoneAuthCredential) async {
-      showSnackBar(context, "Verification Completed");
-    };
-    PhoneVerificationFailed verificationFailed =
-        (FirebaseAuthException exception) {
-      showSnackBar(context, exception.toString());
-    };
-    PhoneCodeSent codeSent =
-        (String verificationID, [int forceResendingtoken]) {
-      showSnackBar(context, "Verification Code sent on the phone number");
+    final messenger = ScaffoldMessenger.of(context);
+    verificationCompleted(PhoneAuthCredential phoneAuthCredential) async {
+      messenger.showSnackBar(const SnackBar(content: Text("Verification Completed")));
+    }
+    verificationFailed(FirebaseAuthException exception) {
+      messenger.showSnackBar(SnackBar(content: Text(exception.toString())));
+    }
+    codeSent(String verificationID, [int? forceResendingtoken]) {
+      messenger.showSnackBar(const SnackBar(
+          content: Text("Verification Code sent on the phone number")));
       setData(verificationID);
-    };
+    }
 
-    PhoneCodeAutoRetrievalTimeout codeAutoRetrievalTimeout =
-        (String verificationID) {
-      showSnackBar(context, "Time out");
-    };
+    codeAutoRetrievalTimeout(String verificationID) {
+      messenger.showSnackBar(const SnackBar(content: Text("Time out")));
+    }
     try {
       await _auth.verifyPhoneNumber(
-          timeout: Duration(seconds: 60),
+          timeout: const Duration(seconds: 60),
           phoneNumber: phoneNumber,
           verificationCompleted: verificationCompleted,
           verificationFailed: verificationFailed,
           codeSent: codeSent,
           codeAutoRetrievalTimeout: codeAutoRetrievalTimeout);
     } catch (e) {
-      showSnackBar(context, e.toString());
+      messenger.showSnackBar(SnackBar(content: Text(e.toString())));
     }
   }
 
   Future<void> signInwithPhoneNumber(
       String verificationId, String smsCode, BuildContext context) async {
+    final navigator = Navigator.of(context);
+    final messenger = ScaffoldMessenger.of(context);
     try {
       AuthCredential credential = PhoneAuthProvider.credential(
           verificationId: verificationId, smsCode: smsCode);
 
       UserCredential userCredential =
-      await _auth.signInWithCredential(credential);
+          await _auth.signInWithCredential(credential);
       storeTokenAndData(userCredential);
-      Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(builder: (builder) => HomePage()),
-              (route) => false);
+      navigator.pushAndRemoveUntil(
+          MaterialPageRoute(builder: (builder) => const HomePage()),
+          (route) => false);
 
-      showSnackBar(context, "Logged In");
+      messenger.showSnackBar(const SnackBar(content: Text("Logged In")));
     } catch (e) {
-      showSnackBar(context, e.toString());
+      messenger.showSnackBar(SnackBar(content: Text(e.toString())));
     }
   }
 

@@ -13,22 +13,23 @@ import '../../../models/appoinment.dart';
 import 'appoinment_decision_screen.dart';
 import 'appoinment_detail_screen.dart';
 
-
 class AppoinmentReminder extends StatefulWidget {
   static const String routeName = 'Appoinment_Reminder_Screen';
+
+  const AppoinmentReminder({Key? key}) : super(key: key);
   @override
   _AppoinmentReminderState createState() => _AppoinmentReminderState();
 }
 
 class _AppoinmentReminderState extends State<AppoinmentReminder> {
   var rng = Random();
-  var kTextStyle =
-      TextStyle(color: Colors.brown, fontSize: 15, fontWeight: FontWeight.w700);
+  var kTextStyle = const TextStyle(
+      color: Colors.brown, fontSize: 15, fontWeight: FontWeight.w700);
   DatabaseHelper databaseHelper = DatabaseHelper();
-  List<Appoinment> appoinmentList;
-  Appoinment appoinment;
+  List<Appoinment> appoinmentList = [];
+  late Appoinment appoinment;
   int count = 0;
-  int tempDay, tempMonth, tempYear, tempHour, tempMinute;
+  int? tempDay, tempMonth, tempYear, tempHour, tempMinute;
 
   DateTime dateTime = DateTime.now();
   String year = DateTime.now().year.toString();
@@ -50,7 +51,7 @@ class _AppoinmentReminderState extends State<AppoinmentReminder> {
 
   getMonth() {
     int monthDay = dateTime.month;
-    month = months[monthDay];
+    month = months[monthDay] ?? '';
   }
 
   DateTime today = DateTime.now();
@@ -62,12 +63,7 @@ class _AppoinmentReminderState extends State<AppoinmentReminder> {
     upcomingAppoinment = [];
     pastAppoinment = [];
     appoinment = Appoinment(
-        '',
-        '',
-        DateTime(0000, 00, 00, 00, 00, 00).toString(),
-        '',
-        rng.nextInt(99999),
-        false);
+        '', '', DateTime.now().toString(), '', rng.nextInt(99999), false);
     getMonth();
     getTextWidgets();
 
@@ -90,21 +86,22 @@ class _AppoinmentReminderState extends State<AppoinmentReminder> {
         month == 10) {
       endDay = 31;
     } else if (month == 2) {
-      if (year % 4 == 0)
+      if (year % 4 == 0) {
         endDay = 29;
-      else
+      } else {
         endDay = 28;
+      }
     } else {
       endDay = 30;
     }
     Widget today = CircleAvatar(
+      backgroundColor: Colors.redAccent[100],
       child: Text(
         day.toString(),
-        style: TextStyle(
+        style: const TextStyle(
           color: Colors.white,
         ),
       ),
-      backgroundColor: Colors.redAccent[100],
     );
     int start = 1;
     for (var i = day; i <= day + 4; i++) {
@@ -112,28 +109,31 @@ class _AppoinmentReminderState extends State<AppoinmentReminder> {
         textWidgets.add(Text(start.toString()));
         start++;
       } else {
-        if (i == day)
+        if (i == day) {
           textWidgets.add(today);
-        else
+        } else {
           textWidgets.add(Text(i.toString()));
+        }
       }
     }
   }
 
-  List<Appoinment> todayAppoinment;
-  List<Appoinment> upcomingAppoinment;
-  List<Appoinment> pastAppoinment;
+  late List<Appoinment> todayAppoinment;
+  late List<Appoinment> upcomingAppoinment;
+  late List<Appoinment> pastAppoinment;
 
   Future getTodayAppoinment() async {
+    if (appoinmentList.isEmpty) return;
     setState(() {
       todayAppoinment = [];
       for (Appoinment tempAppoinment in appoinmentList) {
-        DateTime date = DateTime.parse(tempAppoinment.dateAndTime);
+        DateTime date = DateTime.parse(
+            tempAppoinment.dateAndTime ?? DateTime.now().toString());
 
         if (today.day == date.day &&
             today.month == date.month &&
             today.year == date.year &&
-            !tempAppoinment.done) {
+            !(tempAppoinment.done ?? false)) {
           todayAppoinment.add(tempAppoinment);
         }
       }
@@ -141,11 +141,13 @@ class _AppoinmentReminderState extends State<AppoinmentReminder> {
   }
 
   Future getUpcomingAppoinment() async {
+    if (appoinmentList.isEmpty) return;
     setState(() {
       upcomingAppoinment = [];
 
       for (Appoinment tempAppoinment in appoinmentList) {
-        DateTime date = DateTime.parse(tempAppoinment.dateAndTime);
+        DateTime date = DateTime.parse(
+            tempAppoinment.dateAndTime ?? DateTime.now().toString());
 
         if (!todayAppoinment.contains(tempAppoinment)) {
           if (today.isBefore(date)) {
@@ -157,11 +159,13 @@ class _AppoinmentReminderState extends State<AppoinmentReminder> {
   }
 
   Future getPastAppoinment() async {
+    if (appoinmentList.isEmpty) return;
     setState(() {
       pastAppoinment = [];
 
       for (Appoinment tempAppoinment in appoinmentList) {
-        DateTime date = DateTime.parse(tempAppoinment.dateAndTime);
+        DateTime date = DateTime.parse(
+            tempAppoinment.dateAndTime ?? DateTime.now().toString());
 
         if (date.isBefore(today) && !todayAppoinment.contains(tempAppoinment)) {
           pastAppoinment.add(tempAppoinment);
@@ -172,26 +176,33 @@ class _AppoinmentReminderState extends State<AppoinmentReminder> {
 
   List<Widget> getPastAppoinmentWidget(BuildContext context) {
     pastAppoinment.sort((a, b) {
-      return b.dateAndTime.compareTo(a.dateAndTime);
-    });
+  // Safely handle nulls when sorting
+  final aDate = a.dateAndTime != null ? DateTime.parse(a.dateAndTime!) : DateTime(1900);
+  final bDate = b.dateAndTime != null ? DateTime.parse(b.dateAndTime!) : DateTime(1900);
+  return bDate.compareTo(aDate);
+});
+
+
     List<Widget> pastAppoinmentWidgetList = [];
 
     for (Appoinment tempAppoinment in pastAppoinment) {
       String date, time;
-      dateTime = DateTime.parse(tempAppoinment.dateAndTime);
 
-      date = dateTime.day.toString() +
-          '/' +
-          dateTime.month.toString() +
-          '/' +
-          dateTime.year.toString();
+if (tempAppoinment.dateAndTime == null) {
+    // Skip appointments without a date
+    continue;
+  }
+
+
+      dateTime = DateTime.parse(tempAppoinment.dateAndTime!);
+
+      date = '${dateTime.day}/${dateTime.month}/${dateTime.year}';
       if (dateTime.minute == 0) {
-        time =
-            dateTime.hour.toString() + ':' + dateTime.minute.toString() + '0';
+        time = '${dateTime.hour}:${dateTime.minute}0';
       } else if (dateTime.minute < 10)
-        time = dateTime.hour.toString() + ':0' + dateTime.minute.toString();
+        time = '${dateTime.hour}:0${dateTime.minute}';
       else
-        time = dateTime.hour.toString() + ':' + dateTime.minute.toString();
+        time = '${dateTime.hour}:${dateTime.minute}';
       pastAppoinmentWidgetList.add(Builder(
         builder: (context) => InkWell(
             onLongPress: () async {
@@ -200,8 +211,8 @@ class _AppoinmentReminderState extends State<AppoinmentReminder> {
             },
             highlightColor: Colors.white70,
             child: OtherAppoinment(
-              name: tempAppoinment.name,
-              type: tempAppoinment.address,
+              name: tempAppoinment.name ?? 'Unknown',
+              type: tempAppoinment.address ?? 'No address',
               time: time,
               date: date,
             )),
@@ -213,25 +224,23 @@ class _AppoinmentReminderState extends State<AppoinmentReminder> {
 
   List<Widget> getUpcomingAppoinmentWidget(BuildContext context) {
     upcomingAppoinment.sort((a, b) {
-      return a.dateAndTime.compareTo(b.dateAndTime);
+      final aDate = a.dateAndTime != null ? DateTime.parse(a.dateAndTime!) : DateTime(1900);
+    final bDate = b.dateAndTime != null ? DateTime.parse(b.dateAndTime!) : DateTime(1900);
+    return bDate.compareTo(aDate);
+
     });
     List<Widget> upcomingAppoinmentWidgetList = [];
 
     for (Appoinment tempAppoinment in upcomingAppoinment) {
       String date, time;
-      dateTime = DateTime.parse(tempAppoinment.dateAndTime);
-      date = dateTime.day.toString() +
-          '/' +
-          dateTime.month.toString() +
-          '/' +
-          dateTime.year.toString();
+      dateTime = DateTime.parse(tempAppoinment.dateAndTime!);
+      date = '${dateTime.day}/${dateTime.month}/${dateTime.year}';
       if (dateTime.minute == 0) {
-        time =
-            dateTime.hour.toString() + ':' + dateTime.minute.toString() + '0';
+        time = '${dateTime.hour}:${dateTime.minute}0';
       } else if (dateTime.minute < 10)
-        time = dateTime.hour.toString() + ':0' + dateTime.minute.toString();
+        time = '${dateTime.hour}:0${dateTime.minute}';
       else
-        time = dateTime.hour.toString() + ':' + dateTime.minute.toString();
+        time = '${dateTime.hour}:${dateTime.minute}';
       upcomingAppoinmentWidgetList.add(Builder(
         builder: (context) => InkWell(
             onTap: () {
@@ -242,8 +251,8 @@ class _AppoinmentReminderState extends State<AppoinmentReminder> {
               _delete(context, tempAppoinment);
             },
             child: OtherAppoinment(
-              name: tempAppoinment.name,
-              type: tempAppoinment.address,
+              name: tempAppoinment.name ?? 'Unknown',
+              type: tempAppoinment.address ?? 'No adress',
               time: time,
               date: date,
             )),
@@ -254,26 +263,27 @@ class _AppoinmentReminderState extends State<AppoinmentReminder> {
   }
 
   List<Widget> getTodayAppoinmentWidget(BuildContext context) {
-    todayAppoinment.sort((a, b) {
-      return b.dateAndTime.compareTo(a.dateAndTime);
-    });
+  todayAppoinment.sort((a, b) {
+  final aDate = a.dateAndTime != null ? DateTime.parse(a.dateAndTime!) : DateTime(1900);
+  final bDate = b.dateAndTime != null ? DateTime.parse(b.dateAndTime!) : DateTime(1900);
+  return bDate.compareTo(aDate);
+});
 
     List<Widget> todayAppoinmentWidgetList = [];
     Color color = Colors.green;
     for (Appoinment tempAppoinment in todayAppoinment) {
-      dateTime = DateTime.parse(tempAppoinment.dateAndTime);
+      dateTime = DateTime.parse(tempAppoinment.dateAndTime!);
 
       String time;
       if (dateTime.minute == 0) {
-        time =
-            dateTime.hour.toString() + ':' + dateTime.minute.toString() + '0';
+        time = '${dateTime.hour}:${dateTime.minute}0';
       } else if (dateTime.minute < 10)
-        time = dateTime.hour.toString() + ':0' + dateTime.minute.toString();
+        time = '${dateTime.hour}:0${dateTime.minute}';
       else
-        time = dateTime.hour.toString() + ':' + dateTime.minute.toString();
+        time = '${dateTime.hour}:${dateTime.minute}';
       todayAppoinmentWidgetList.add(
         Card(
-          margin: EdgeInsets.all(8),
+          margin: const EdgeInsets.all(8),
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
           elevation: 2,
@@ -297,14 +307,14 @@ class _AppoinmentReminderState extends State<AppoinmentReminder> {
               leading: CircleAvatar(
                 backgroundColor: color,
                 radius: 38,
-                child: Icon(
+                child: const Icon(
                   FontAwesomeIcons.userDoctor,
                   size: 40,
                   color: Colors.white,
                 ),
               ),
               title: Text(
-                tempAppoinment.name,
+                tempAppoinment.name ?? 'Unknown',
                 style: kTextStyle.copyWith(
                     letterSpacing: 1,
                     fontWeight: FontWeight.bold,
@@ -312,7 +322,7 @@ class _AppoinmentReminderState extends State<AppoinmentReminder> {
               ),
               trailing: Text(time),
               subtitle:
-                  Text(tempAppoinment.address + ' at ' + tempAppoinment.place),
+                  Text('${tempAppoinment.address} at ${tempAppoinment.place}'),
             ),
           ),
         ),
@@ -324,42 +334,45 @@ class _AppoinmentReminderState extends State<AppoinmentReminder> {
 
   @override
   Widget build(BuildContext context) {
-    if (appoinmentList == null) {
-      appoinmentList = [];
+    if (appoinmentList.isEmpty) {
       updateListView();
     }
 
-    getTodayAppoinment();
-    getUpcomingAppoinment();
-    getPastAppoinment();
+    // update derived lists if we have data
+    if (appoinmentList.isNotEmpty) {
+      getTodayAppoinment();
+      getUpcomingAppoinment();
+      getPastAppoinment();
+    }
     return Scaffold(
       body: WillPopScope(
-        onWillPop: () {
-          return Navigator.push(context, MaterialPageRoute(builder: (context) {
-            return HomePage();
+        onWillPop: () async {
+          await Navigator.push(context, MaterialPageRoute(builder: (context) {
+            return const HomePage();
           }));
+          return false;
         },
         child: ListView(
           children: <Widget>[
-            SizedBox(
+            const SizedBox(
               height: 35,
             ),
             Text(
-              month + '  ' + year,
+              '$month  $year',
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 25, color: Colors.blueGrey),
+              style: const TextStyle(fontSize: 25, color: Colors.blueGrey),
             ),
-            SizedBox(
+            const SizedBox(
               height: 10,
             ),
             Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: textWidgets),
-            SizedBox(
+            const SizedBox(
               height: 20,
             ),
-            todayAppoinment.length == 0
-                ? Center(
+            todayAppoinment.isEmpty
+                ? const Center(
                     child: Text(
                       'No Appointments today',
                     ),
@@ -367,29 +380,29 @@ class _AppoinmentReminderState extends State<AppoinmentReminder> {
                 : Column(
                     children: getTodayAppoinmentWidget(context),
                   ),
-            SizedBox(
+            const SizedBox(
               height: 17,
             ),
-            HeadingText(
+            const HeadingText(
               title: 'Upcoming',
               color: Colors.teal,
             ),
-            SizedBox(
+            const SizedBox(
               height: 8,
             ),
             upcomingAppoinment.isNotEmpty
                 ? Column(
                     children: getUpcomingAppoinmentWidget(context),
                   )
-                : Center(child: Text('No Upcoming Appointments')),
-            SizedBox(
+                : const Center(child: Text('No Upcoming Appointments')),
+            const SizedBox(
               height: 15,
             ),
-            HeadingText(
+            const HeadingText(
               title: 'Past Appointments',
               color: Colors.deepOrangeAccent,
             ),
-            SizedBox(
+            const SizedBox(
               height: 10,
             ),
             pastAppoinment.isNotEmpty
@@ -397,48 +410,49 @@ class _AppoinmentReminderState extends State<AppoinmentReminder> {
                     children: getPastAppoinmentWidget(context),
                   )
                 : Container(
-                    margin: EdgeInsets.only(bottom: 35),
-                    child: Center(
+                    margin: const EdgeInsets.only(bottom: 35),
+                    child: const Center(
                       child: Text('No past Appointments'),
                     ),
                   ),
-            SizedBox(
+            const SizedBox(
               height: 20,
             )
           ],
         ),
       ),
-      drawer: AppDrawer(),
+      drawer: const AppDrawer(),
       floatingActionButton: FloatingActionButton(
-        child: Icon(
-          Icons.add,
-          color: Colors.white,
-        ),
         backgroundColor: Colors.blueGrey,
         onPressed: () {
           navigateToDetail(appoinment, 'Add');
         },
+        child: const Icon(
+          Icons.add,
+          color: Colors.white,
+        ),
       ),
-      appBar: ROROAppBar(),
-
-      bottomNavigationBar: MyBottomNavBar(),
+      appBar: const ROROAppBar(),
+      bottomNavigationBar: const MyBottomNavBar(),
     );
   }
 
   void _delete(BuildContext context, Appoinment appoinment) async {
-    int result = await databaseHelper.deleteAppoinment(appoinment.id);
-    if (result != 0) {
-      updateListView();
-    }
+    int result = await databaseHelper.deleteAppoinment(appoinment.id ?? 0);
+  if (result != 0) {
+    updateListView();
+  }
+
+
   }
 
   void navigateToDetail(Appoinment appoinment, String name) async {
-    bool result =
-        await Navigator.push(context, MaterialPageRoute(builder: (context) {
+    final navigator = Navigator.of(context);
+    final result =
+        await navigator.push<bool>(MaterialPageRoute(builder: (context) {
       return AppoinmentDetail(appoinment, name);
-      //return ReminderDetail();
     }));
-
+    if (!mounted) return;
     if (result == true) {
       updateListView();
     }
@@ -452,7 +466,7 @@ class _AppoinmentReminderState extends State<AppoinmentReminder> {
       appoinmentListFuture.then((appoinmentList) {
         setState(() {
           this.appoinmentList = appoinmentList;
-          this.count = appoinmentList.length;
+          count = appoinmentList.length;
         });
       });
     });
@@ -461,7 +475,7 @@ class _AppoinmentReminderState extends State<AppoinmentReminder> {
   void _showSnackBar(BuildContext context, String message) {
     final snackBar = SnackBar(
       content: Text(message),
-      duration: Duration(seconds: 5),
+      duration: const Duration(seconds: 5),
     );
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
@@ -475,7 +489,7 @@ class _AppoinmentReminderState extends State<AppoinmentReminder> {
 class HeadingText extends StatelessWidget {
   final String title;
   final color;
-  HeadingText({this.color, this.title});
+  const HeadingText({Key? key, this.color, this.title = ""}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -492,25 +506,31 @@ class HeadingText extends StatelessWidget {
 
 class OtherAppoinment extends StatelessWidget {
   final String time, date, type, name;
-  OtherAppoinment({this.name, this.date, this.type, this.time});
+  const OtherAppoinment(
+      {Key? key,
+      required this.name,
+      required this.date,
+      required this.type,
+      required this.time})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.fromLTRB(10, 5, 10, 8),
-      padding: EdgeInsets.all(3),
+      margin: const EdgeInsets.fromLTRB(10, 5, 10, 8),
+      padding: const EdgeInsets.all(3),
       decoration: BoxDecoration(
           border: Border.all(
             color: Colors.grey,
             width: 0.5,
           ),
           //color: Colors.grey,
-          borderRadius: BorderRadius.horizontal(
+          borderRadius: const BorderRadius.horizontal(
               left: Radius.circular(25), right: Radius.circular(25))),
       child: Row(
         //mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
-          SizedBox(
+          const SizedBox(
             width: 25,
           ),
           Expanded(
@@ -518,24 +538,24 @@ class OtherAppoinment extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
-                  SizedBox(
+                  const SizedBox(
                     height: 5,
                   ),
                   Text(
-                    'Dr.' + name,
-                    style: TextStyle(
+                    'Dr.$name',
+                    style: const TextStyle(
                         fontSize: 19,
                         color: Colors.brown,
                         fontWeight: FontWeight.bold),
                   ),
-                  SizedBox(
+                  const SizedBox(
                     height: 15,
                   ),
                   Text(
                     type,
-                    style: TextStyle(color: Colors.brown, fontSize: 16),
+                    style: const TextStyle(color: Colors.brown, fontSize: 16),
                   ),
-                  SizedBox(height: 5)
+                  const SizedBox(height: 5)
                 ],
               )),
           Expanded(
@@ -546,15 +566,15 @@ class OtherAppoinment extends StatelessWidget {
                 children: <Widget>[
                   Text(
                     date,
-                    style: TextStyle(
+                    style: const TextStyle(
                         color: Colors.blue, fontWeight: FontWeight.w600),
                   ),
-                  SizedBox(
+                  const SizedBox(
                     height: 10,
                   ),
                   Text(
                     time,
-                    style: TextStyle(
+                    style: const TextStyle(
                         color: Colors.blue, fontWeight: FontWeight.w600),
                   ),
                 ],
@@ -566,13 +586,14 @@ class OtherAppoinment extends StatelessWidget {
 }
 
 class TodayAppoinment extends StatelessWidget {
-  TodayAppoinment({
-    this.type,
-    this.name,
-    this.place,
-    this.time,
-    @required this.kTextStyle,
-  });
+  const TodayAppoinment({
+    Key? key,
+    required this.kTextStyle,
+    required this.type,
+    required this.name,
+    required this.place,
+    required this.time,
+  }) : super(key: key);
 
   final TextStyle kTextStyle;
   final String time, place, name, type;
@@ -580,10 +601,10 @@ class TodayAppoinment extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.fromLTRB(8, 10, 8, 10),
-      padding: EdgeInsets.fromLTRB(4, 8, 4, 8),
+      margin: const EdgeInsets.fromLTRB(8, 10, 8, 10),
+      padding: const EdgeInsets.fromLTRB(4, 8, 4, 8),
       decoration: BoxDecoration(
-        color: Color(0xfff5f5f5),
+        color: const Color(0xfff5f5f5),
         borderRadius: BorderRadius.circular(20),
       ),
       child: Row(
@@ -592,7 +613,7 @@ class TodayAppoinment extends StatelessWidget {
             flex: 2,
             child: Column(
               children: <Widget>[
-                CircleAvatar(
+                const CircleAvatar(
                   backgroundColor: Colors.blueGrey,
                   radius: 38,
                   child: Icon(
@@ -605,20 +626,20 @@ class TodayAppoinment extends StatelessWidget {
                   padding: const EdgeInsets.fromLTRB(0, 8.0, 0, 8),
                   child: Text(
                     time,
-                    style: TextStyle(
+                    style: const TextStyle(
                         color: Colors.blue, fontWeight: FontWeight.w600),
                   ),
                 ),
               ],
             ),
           ),
-          SizedBox(
+          const SizedBox(
             width: 20,
           ),
           Expanded(
             flex: 3,
             child: Text(
-              'Dr. ' + name,
+              'Dr. $name',
               style: kTextStyle.copyWith(
                   letterSpacing: 1, fontWeight: FontWeight.bold, fontSize: 19),
             ),

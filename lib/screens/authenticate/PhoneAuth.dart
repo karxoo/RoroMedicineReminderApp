@@ -7,7 +7,7 @@ import 'package:roro_medicine_reminder/services/auth.dart';
 
 
 class PhoneAuthPage extends StatefulWidget {
-  PhoneAuthPage({Key key}) : super(key: key);
+  const PhoneAuthPage({Key? key}) : super(key: key);
 
   @override
   _PhoneAuthPageState createState() => _PhoneAuthPageState();
@@ -24,28 +24,28 @@ class _PhoneAuthPageState extends State<PhoneAuthPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xffe3f1f4),
+      backgroundColor: const Color(0xffe3f1f4),
       appBar: AppBar(
         backgroundColor: Colors.blueGrey,
-        title: Text(
+        title: const Text(
           " ",
           style: TextStyle(color: Colors.white, fontSize: 24),
         ),
       ),
-      body: Container(
+      body: SizedBox(
         height: MediaQuery.of(context).size.height,
         width: MediaQuery.of(context).size.width,
         child: SingleChildScrollView(
           child: Column(
             children: [
-              SizedBox(
+              const SizedBox(
                 height: 120,
               ),
               textField(),
-              SizedBox(
+              const SizedBox(
                 height: 30,
               ),
-              Container(
+              SizedBox(
                 width: MediaQuery.of(context).size.width - 30,
                 child: Row(
                   children: [
@@ -53,10 +53,10 @@ class _PhoneAuthPageState extends State<PhoneAuthPage> {
                       child: Container(
                         height: 1,
                         color: Colors.blueGrey[400],
-                        margin: EdgeInsets.symmetric(horizontal: 12),
+                        margin: const EdgeInsets.symmetric(horizontal: 12),
                       ),
                     ),
-                    Text(
+                    const Text(
                       "Enter 6 digit OTP",
                       style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.blueGrey),
                     ),
@@ -64,37 +64,37 @@ class _PhoneAuthPageState extends State<PhoneAuthPage> {
                       child: Container(
                         height: 1,
                         color: Colors.blueGrey[400],
-                        margin: EdgeInsets.symmetric(horizontal: 12),
+                        margin: const EdgeInsets.symmetric(horizontal: 12),
                       ),
                     ),
                   ],
                 ),
               ),
-              SizedBox(
+              const SizedBox(
                 height: 30,
               ),
               otpField(),
-              SizedBox(
+              const SizedBox(
                 height: 40,
               ),
               RichText(
                   text: TextSpan(
                     children: [
-                      TextSpan(
+                      const TextSpan(
                         text: "Send OTP again in ",
                         style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.blueGrey),
                       ),
                       TextSpan(
                         text: "00:$start",
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.red),
+                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.red),
                       ),
-                      TextSpan(
+                      const TextSpan(
                         text: " sec ",
                         style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.blueGrey),
                       ),
                     ],
                   )),
-              SizedBox(
+              const SizedBox(
                 height: 150,
               ),
               InkWell(
@@ -106,9 +106,9 @@ class _PhoneAuthPageState extends State<PhoneAuthPage> {
                   height: 60,
                   width: MediaQuery.of(context).size.width - 60,
                   decoration: BoxDecoration(
-                    color: Color(0xffff9987),
+                    color: const Color(0xffff9987),
                       borderRadius: BorderRadius.circular(50)),
-                  child: Center(
+                  child: const Center(
                     child: Text(
                       "Let's Go!",
                       style: TextStyle(
@@ -128,7 +128,7 @@ class _PhoneAuthPageState extends State<PhoneAuthPage> {
 
   void startTimer() {
     const onsec = Duration(seconds: 1);
-    Timer _timer = Timer.periodic(onsec, (timer) {
+    Timer timer = Timer.periodic(onsec, (timer) {
       if (start == 0) {
         setState(() {
           timer.cancel();
@@ -148,14 +148,14 @@ class _PhoneAuthPageState extends State<PhoneAuthPage> {
       width: MediaQuery.of(context).size.width - 34,
       fieldWidth: 50,
       otpFieldStyle: OtpFieldStyle(
-        backgroundColor: Colors.blueGrey[200],
-        borderColor: Colors.blueGrey[200],
+        backgroundColor: Colors.blueGrey[200]!,
+        borderColor: Colors.blueGrey[200]!,
       ),
       style: TextStyle(fontSize: 17,fontWeight: FontWeight.bold, color: Colors.redAccent[200]),
       textFieldAlignment: MainAxisAlignment.spaceAround,
       fieldStyle: FieldStyle.underline,
       onCompleted: (pin) {
-        print("Completed: " + pin);
+        print("Completed: $pin");
         setState(() {
           smsCode = pin;
         });
@@ -178,11 +178,11 @@ class _PhoneAuthPageState extends State<PhoneAuthPage> {
         decoration: InputDecoration(
           border: InputBorder.none,
           hintText: "Enter your phone Number",
-          hintStyle: TextStyle(color: Colors.blueGrey, fontWeight: FontWeight.bold, fontSize: 17),
+          hintStyle: const TextStyle(color: Colors.blueGrey, fontWeight: FontWeight.bold, fontSize: 17),
           contentPadding:
           const EdgeInsets.symmetric(vertical: 19, horizontal: 8),
-          prefixIcon: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 15),
+          prefixIcon: const Padding(
+            padding: EdgeInsets.symmetric(vertical: 14, horizontal: 15),
             child: Text(
               " (+60) ",
               style: TextStyle(color: Colors.blueGrey, fontWeight: FontWeight.bold, fontSize: 17),

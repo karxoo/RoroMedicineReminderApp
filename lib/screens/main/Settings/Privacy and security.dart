@@ -1,11 +1,9 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:roro_medicine_reminder/screens/authenticate/signin.dart';
 
-
 class privacy extends StatefulWidget {
-  const privacy({Key key}) : super(key: key);
+  const privacy({Key? key}) : super(key: key);
 
   @override
   State<privacy> createState() => _privacyState();
@@ -23,7 +21,7 @@ class _privacyState extends State<privacy> {
       await FirebaseAuth.instance.sendPasswordResetEmail(email: email.trim());
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
+        const SnackBar(
           content: Text(
             'The code for initialization was sent to you.',
           ),
@@ -34,7 +32,7 @@ class _privacyState extends State<privacy> {
         context,
         MaterialPageRoute(
           builder: (context) {
-            return SignInPage();
+            return const SignInPage();
           },
         ),
       );
@@ -43,7 +41,7 @@ class _privacyState extends State<privacy> {
         print('User not found!');
 
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
+          const SnackBar(
             content: Text(
               'User not exist!',
             ),
@@ -65,18 +63,18 @@ class _privacyState extends State<privacy> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
+        title: const Text(
           'Privacy and security',
         ),
-        actions: [],
+        actions: const [],
       ),
       body: Column(
         children: <Widget>[
           Container(
-            margin: EdgeInsets.symmetric(
+            margin: const EdgeInsets.symmetric(
               horizontal: 15.0,
             ),
-            child: Text(
+            child: const Text(
               'A reset link will be sent to your email.',
               style: TextStyle(
                 fontSize: 20.0,
@@ -89,14 +87,14 @@ class _privacyState extends State<privacy> {
                 children: <Widget>[
                   ElevatedButton(
                     onPressed: () {
-                      if (_formKey.currentState.validate()) {
+                      if (_formKey.currentState?.validate() ?? false) {
                         setState(() {
                           email = emailController.text;
                         });
                         resetPassword();
                       }
                     },
-                    child: Text('Send Email',
+                    child: const Text('Send Email',
                         style: TextStyle(
                             fontSize: 18, fontWeight: FontWeight.bold)),
                   ),

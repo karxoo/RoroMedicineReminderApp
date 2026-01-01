@@ -1,26 +1,21 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
-import 'package:roro_medicine_reminder/screens/authenticate/PhoneAuth.dart';
+import 'package:provider/provider.dart';
 import 'package:roro_medicine_reminder/screens/authenticate/signin.dart';
 import '../../services/auth.dart';
 import '../main/home/homePage.dart';
 
-
 class SignUpPage extends StatefulWidget {
-  SignUpPage({Key key}) : super(key: key);
+  const SignUpPage({Key? key}) : super(key: key);
 
   @override
   _SignUpPageState createState() => _SignUpPageState();
 }
 
 class _SignUpPageState extends State<SignUpPage> {
-  firebase_auth.FirebaseAuth firebaseAuth = firebase_auth.FirebaseAuth.instance;
-  TextEditingController _emailController = TextEditingController();
-  TextEditingController _pwdController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _pwdController = TextEditingController();
   bool circular = false;
-  AuthClass authClass = AuthClass();
 
   @override
   Widget build(BuildContext context) {
@@ -29,59 +24,62 @@ class _SignUpPageState extends State<SignUpPage> {
         child: Container(
           height: MediaQuery.of(context).size.height,
           width: MediaQuery.of(context).size.width,
-          color: Color(0xffe3f1f4),
+          color: const Color(0xffe3f1f4),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(
+              const Text(
                 "SIGN UP",
-                style: TextStyle(fontFamily: "Mulish",
+                style: TextStyle(
+                  fontFamily: "Mulish",
                   fontSize: 35,
                   color: Colors.blueGrey,
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              SizedBox(
+              const SizedBox(
                 height: 20,
               ),
               buttonItem("assets/images/google.svg", "Continue with Google", 25,
-                      () async {
-                    await authClass.googleSignIn(context);
-                  }),
-              SizedBox(
+                  () async {
+                final auth = Provider.of<AuthClass>(context, listen: false);
+                await auth.googleSignIn(context);
+              }),
+              const SizedBox(
                 height: 15,
               ),
-              buttonItem("assets/images/phone.svg", "Continue with Mobile", 30, () {
-
-              }),
-              SizedBox(
+              buttonItem(
+                  "assets/images/phone.svg", "Continue with Mobile", 30, () {}),
+              const SizedBox(
                 height: 18,
               ),
-              Text(
+              const Text(
                 "OR",
-                style: TextStyle(fontFamily: "Mulish", color: Colors.blueGrey, fontSize: 18),
+                style: TextStyle(
+                    fontFamily: "Mulish", color: Colors.blueGrey, fontSize: 18),
               ),
-              SizedBox(
+              const SizedBox(
                 height: 18,
               ),
               textItem("Your Email", _emailController, false),
-              SizedBox(
+              const SizedBox(
                 height: 15,
               ),
               textItem("Your Password", _pwdController, true),
-              SizedBox(
+              const SizedBox(
                 height: 40,
               ),
               colorButton(),
-              SizedBox(
+              const SizedBox(
                 height: 20,
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(
+                  const Text(
                     "If you already have an Account? ",
-                    style: TextStyle(fontFamily: "Mulish",
+                    style: TextStyle(
+                      fontFamily: "Mulish",
                       color: Colors.blueGrey,
                       fontSize: 18,
                     ),
@@ -90,12 +88,13 @@ class _SignUpPageState extends State<SignUpPage> {
                     onTap: () {
                       Navigator.pushAndRemoveUntil(
                           context,
-                          MaterialPageRoute(builder: (builder) => SignInPage()),
-                              (route) => false);
+                          MaterialPageRoute(builder: (builder) => const SignInPage()),
+                          (route) => false);
                     },
-                    child: Text(
+                    child: const Text(
                       "Login",
-                      style: TextStyle(fontFamily: "Mulish",
+                      style: TextStyle(
+                        fontFamily: "Mulish",
                         color: Colors.blueGrey,
                         fontSize: 18,
                         fontWeight: FontWeight.w600,
@@ -117,18 +116,16 @@ class _SignUpPageState extends State<SignUpPage> {
         setState(() {
           circular = true;
         });
+        final auth = Provider.of<AuthClass>(context, listen: false);
         try {
-          firebase_auth.UserCredential userCredential =
-          await firebaseAuth.createUserWithEmailAndPassword(
-              email: _emailController.text, password: _pwdController.text);
-          print(userCredential.user.email);
+          await auth.signUp(_emailController.text.trim(), _pwdController.text);
           setState(() {
             circular = false;
           });
           Navigator.pushAndRemoveUntil(
               context,
-              MaterialPageRoute(builder: (builder) => HomePage()),
-                  (route) => false);
+              MaterialPageRoute(builder: (builder) => const HomePage()),
+              (route) => false);
         } catch (e) {
           final snackbar = SnackBar(content: Text(e.toString()));
           ScaffoldMessenger.of(context).showSnackBar(snackbar);
@@ -142,29 +139,29 @@ class _SignUpPageState extends State<SignUpPage> {
         height: 60,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(50),
-          color:
-            Color(0xffff9987),
+          color: const Color(0xffff9987),
         ),
         child: Center(
           child: circular
-              ? CircularProgressIndicator()
-              : Text(
-            "SIGN UP",
-            style: TextStyle(fontFamily: "Mulish",
-              color: Colors.white,
-              fontSize: 18,
-            ),
-          ),
+              ? const CircularProgressIndicator()
+              : const Text(
+                  "SIGN UP",
+                  style: TextStyle(
+                    fontFamily: "Mulish",
+                    color: Colors.white,
+                    fontSize: 18,
+                  ),
+                ),
         ),
       ),
     );
   }
 
   Widget buttonItem(
-      String imagepath, String buttonName, double size, Function onTap) {
+      String imagepath, String buttonName, double size, VoidCallback? onTap) {
     return InkWell(
       onTap: onTap,
-      child: Container(
+      child: SizedBox(
         width: MediaQuery.of(context).size.width - 60,
         height: 60,
         child: Card(
@@ -172,7 +169,7 @@ class _SignUpPageState extends State<SignUpPage> {
           elevation: 8,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(15),
-            side: BorderSide(
+            side: const BorderSide(
               width: 1,
               color: Colors.grey,
             ),
@@ -185,12 +182,12 @@ class _SignUpPageState extends State<SignUpPage> {
                 height: size,
                 width: size,
               ),
-              SizedBox(
+              const SizedBox(
                 width: 15,
               ),
               Text(
                 buttonName,
-                style: TextStyle(
+                style: const TextStyle(
                   color: Colors.white,
                   fontSize: 17,
                 ),
@@ -204,32 +201,32 @@ class _SignUpPageState extends State<SignUpPage> {
 
   Widget textItem(
       String labeltext, TextEditingController controller, bool obscureText) {
-    return Container(
+    return SizedBox(
       width: MediaQuery.of(context).size.width - 70,
       height: 55,
       child: TextFormField(
         controller: controller,
         obscureText: obscureText,
-        style: TextStyle(
+        style: const TextStyle(
           fontSize: 17,
           color: Colors.blueGrey,
         ),
         decoration: InputDecoration(
           labelText: labeltext,
-          labelStyle: TextStyle(
+          labelStyle: const TextStyle(
             fontSize: 17,
             color: Colors.blueGrey,
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(15),
-            borderSide: BorderSide(
+            borderSide: const BorderSide(
               width: 1.5,
               color: Colors.amber,
             ),
           ),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(15),
-            borderSide: BorderSide(
+            borderSide: const BorderSide(
               width: 1,
               color: Colors.grey,
             ),

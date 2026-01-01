@@ -12,18 +12,18 @@ import 'blood_sugar/add_blood_sugar.dart';
 import 'blood_sugar/blood_sugar_tracker_screen.dart';
 
 class TrackerHome extends StatefulWidget {
-  const TrackerHome({Key key}) : super(key: key);
+  const TrackerHome({Key? key}) : super(key: key);
 
   @override
   State<TrackerHome> createState() => _TrackerHomeState();
 }
 
 class _TrackerHomeState extends State<TrackerHome> {
-  Map<String, bool> hideMap, trackMap;
+  late Map<String, bool> hideMap, trackMap;
 
   initializeDisplayMap() {
-    hideMap = Map<String, bool>();
-    trackMap = Map<String, bool>();
+    hideMap = <String, bool>{};
+    trackMap = <String, bool>{};
     hideMap = {'sleep': true, 'weight': true, 'sugar': true, 'pressure': true};
     trackMap = {
       'sleep': false,
@@ -48,14 +48,14 @@ class _TrackerHomeState extends State<TrackerHome> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: ROROAppBar(),
-      drawer: AppDrawer(),
+      appBar: const ROROAppBar(),
+      drawer: const AppDrawer(),
       body: ListView(
         children: <Widget>[
           Center(
             child: Container(
-              padding: EdgeInsets.only(left: 16, top: 25, right: 16),
-              child: Text(
+              padding: const EdgeInsets.only(left: 16, top: 25, right: 16),
+              child: const Text(
                 'Health Trackers',
                 style: TextStyle(
                   fontSize: 25,
@@ -64,7 +64,7 @@ class _TrackerHomeState extends State<TrackerHome> {
               ),
             ),
           ),
-          SizedBox(
+          const SizedBox(
             height: 10,
           ),
           TrackerCard(
@@ -73,16 +73,16 @@ class _TrackerHomeState extends State<TrackerHome> {
                 'How Long did you sleep last night ?\nTrack hours slept to understand sleep patterns.',
             onAdd: () {
               Navigator.push(context, MaterialPageRoute(builder: (_) {
-                return AddSleepScreen();
+                return const AddSleepScreen();
               }));
             },
             onHide: () => onHide('sleep'),
             onView: () {
               Navigator.push(context, MaterialPageRoute(builder: (_) {
-                return SleepTrackerScreen();
+                return const SleepTrackerScreen();
               }));
             },
-            isHidden: hideMap['sleep'],
+            isHidden: hideMap['sleep'] ?? false,
             isTracking: true,
           ),
           TrackerCard(
@@ -91,17 +91,17 @@ class _TrackerHomeState extends State<TrackerHome> {
                 '\nHow much did you weigh ? Track to see progress over time.\n',
             onAdd: () {
               Navigator.push(context, MaterialPageRoute(builder: (_) {
-                return AddWeightScreen();
+                return const AddWeightScreen();
               }));
             },
             onHide: () => onHide('weight'),
             onView: () {
               Navigator.push(context, MaterialPageRoute(builder: (_) {
-                return WeightTrackerScreen();
+                return const WeightTrackerScreen();
               }));
             },
-            isHidden: hideMap['weight'],
-            isTracking: trackMap['weight'],
+            isHidden: hideMap['weight'] ?? false,
+            isTracking: trackMap['weight'] ?? false,
           ),
           TrackerCard(
             title: 'Blood Glucose',
@@ -109,17 +109,17 @@ class _TrackerHomeState extends State<TrackerHome> {
                 '\nWhat\'s your blood sugar level ? Track to chart progress.\n',
             onAdd: () {
               Navigator.push(context, MaterialPageRoute(builder: (_) {
-                return AddBloodSugarScreen();
+                return const AddBloodSugarScreen();
               }));
             },
             onHide: () => onHide('sugar'),
             onView: () {
               Navigator.push(context, MaterialPageRoute(builder: (_) {
-                return BloodSugarTrackerScreen();
+                return const BloodSugarTrackerScreen();
               }));
             },
-            isHidden: hideMap['sugar'],
-            isTracking: trackMap['sugar'],
+            isHidden: hideMap['sugar'] ?? false,
+            isTracking: trackMap['sugar'] ?? false,
           ),
           TrackerCard(
             title: 'Blood Pressure',
@@ -127,21 +127,21 @@ class _TrackerHomeState extends State<TrackerHome> {
                 '\nWhat\'s your blood pressure reading ?Track to see progress over time.\n',
             onAdd: () {
               Navigator.push(context, MaterialPageRoute(builder: (_) {
-                return AddBloodPressureScreen();
+                return const AddBloodPressureScreen();
               }));
             },
             onHide: () => onHide('pressure'),
             onView: () {
               Navigator.push(context, MaterialPageRoute(builder: (_) {
-                return BloodPressureTrackerScreen();
+                return const BloodPressureTrackerScreen();
               }));
             },
-            isHidden: hideMap['pressure'],
-            isTracking: trackMap['pressure'],
+            isHidden: hideMap['pressure'] ?? false,
+            isTracking: trackMap['pressure'] ?? false,
           ),
         ],
       ),
-      bottomNavigationBar: MyBottomNavBar(),
+      bottomNavigationBar: const MyBottomNavBar(),
     );
   }
 }
@@ -151,14 +151,14 @@ class TrackerCard extends StatelessWidget {
   final onHide, onAdd, onView;
   final bool isTracking, isHidden;
 
-  TrackerCard(
-      {this.title,
-      this.isHidden,
-      this.onAdd,
-      this.onHide,
-      this.subTitle,
-      this.onView,
-      this.isTracking});
+  const TrackerCard(
+      {Key? key, this.title = "",
+      required this.isHidden,
+      required this.onAdd,
+      required this.onHide,
+      required this.subTitle,
+      required this.onView,
+      required this.isTracking}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -166,10 +166,10 @@ class TrackerCard extends StatelessWidget {
       return Card(
         elevation: 2,
         color: Colors.grey.shade50,
-        margin: EdgeInsets.all(18),
+        margin: const EdgeInsets.all(18),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         child: Container(
-          padding: EdgeInsets.all(8),
+          padding: const EdgeInsets.all(8),
           width: MediaQuery.of(context).size.width / 1.2,
           height: MediaQuery.of(context).size.height / 3.3,
           child: Column(
@@ -179,7 +179,7 @@ class TrackerCard extends StatelessWidget {
               Align(
                 alignment: Alignment.centerLeft,
                 child: Padding(
-                  padding: EdgeInsets.only(left: 8.0),
+                  padding: const EdgeInsets.only(left: 8.0),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: <Widget>[
@@ -187,12 +187,12 @@ class TrackerCard extends StatelessWidget {
                         FontAwesomeIcons.poll,
                         color: Color(0xff3d5afe),
                       ),*/
-                      SizedBox(
+                      const SizedBox(
                         width: 8,
                       ),
                       Text(
                         title,
-                        style: TextStyle(
+                        style: const TextStyle(
                             fontFamily: 'Mulish',
                             fontWeight: FontWeight.bold,
                             color: Colors.black,
@@ -203,11 +203,11 @@ class TrackerCard extends StatelessWidget {
                 ),
               ),
               Padding(
-                padding: EdgeInsets.only(left: 8.0),
+                padding: const EdgeInsets.only(left: 8.0),
                 child: Text(
                   subTitle,
                   textAlign: TextAlign.left,
-                  style: TextStyle(
+                  style: const TextStyle(
                       fontFamily: 'Mulish',
                       fontWeight: FontWeight.bold,
                       color: Colors.black,
@@ -221,7 +221,17 @@ class TrackerCard extends StatelessWidget {
                   isTracking
                       ? ElevatedButton(
                           onPressed: onView,
-                          child: Text(
+                          style: ElevatedButton.styleFrom(
+                            elevation: 2, backgroundColor: const Color(0xffff9987),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20),
+                                side: BorderSide(
+                                  color: Colors.redAccent[100]!,
+                                )),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 40, vertical: 10),
+                          ),
+                          child: const Text(
                             'View Chart',
                             style: TextStyle(
                                 fontSize: 15,
@@ -229,21 +239,20 @@ class TrackerCard extends StatelessWidget {
                                 fontWeight: FontWeight.bold,
                                 color: Colors.white),
                           ),
-                          style: ElevatedButton.styleFrom(
-                            elevation: 2,
-                            primary: Color(0xffff9987),
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(20),
-                                side: BorderSide(
-                                  color: Colors.redAccent[100],
-                                )),
-                            padding: EdgeInsets.symmetric(
-                                horizontal: 40, vertical: 10),
-                          ),
                         )
                       : ElevatedButton(
                           onPressed: onHide,
-                          child: Text(
+                          style: ElevatedButton.styleFrom(
+                            elevation: 2, backgroundColor: const Color(0xffff9987),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20),
+                                side: BorderSide(
+                                  color: Colors.redAccent[100]!,
+                                )),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 40, vertical: 10),
+                          ),
+                          child: const Text(
                             'Hide',
                             style: TextStyle(
                                 fontSize: 15,
@@ -251,35 +260,23 @@ class TrackerCard extends StatelessWidget {
                                 fontWeight: FontWeight.bold,
                                 color: Colors.white),
                           ),
-                          style: ElevatedButton.styleFrom(
-                            elevation: 2,
-                            primary: Color(0xffff9987),
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(20),
-                                side: BorderSide(
-                                  color: Colors.redAccent[100],
-                                )),
-                            padding: EdgeInsets.symmetric(
-                                horizontal: 40, vertical: 10),
-                          ),
                         ),
-                  SizedBox(
+                  const SizedBox(
                     width: 25,
                   ),
                   ElevatedButton(
                     onPressed: onAdd,
                     style: ElevatedButton.styleFrom(
-                      elevation: 2,
-                      primary: Color(0xffff9987),
+                      elevation: 2, backgroundColor: const Color(0xffff9987),
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(20),
                           side: BorderSide(
-                            color: Colors.redAccent[100],
+                            color: Colors.redAccent[100]!,
                           )),
                       padding:
-                          EdgeInsets.symmetric(horizontal: 40, vertical: 10),
+                          const EdgeInsets.symmetric(horizontal: 40, vertical: 10),
                     ),
-                    child: Text("Add Data",
+                    child: const Text("Add Data",
                         style: TextStyle(
                             fontSize: 15,
                             fontFamily: 'Mulish',
@@ -293,7 +290,7 @@ class TrackerCard extends StatelessWidget {
         ),
       );
     } else {
-      return SizedBox();
+      return const SizedBox();
     }
   }
 }

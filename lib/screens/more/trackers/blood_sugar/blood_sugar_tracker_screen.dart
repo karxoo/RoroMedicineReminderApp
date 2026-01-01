@@ -8,6 +8,8 @@ import '../../../../components/navBar.dart';
 import '../../../../models/tracker.dart';
 
 class BloodSugarTrackerScreen extends StatefulWidget {
+  const BloodSugarTrackerScreen({Key? key}) : super(key: key);
+
   @override
   _BloodSugarTrackerScreenState createState() =>
       _BloodSugarTrackerScreenState();
@@ -15,16 +17,16 @@ class BloodSugarTrackerScreen extends StatefulWidget {
 
 class _BloodSugarTrackerScreenState extends State<BloodSugarTrackerScreen> {
   getCurrentUser() async {
-    User user = await FirebaseAuth.instance.currentUser;
+    User? user = FirebaseAuth.instance.currentUser;
     setState(() {
-      userId = user.uid;
+      userId = user?.uid ?? "";
     });
   }
 
-  QuerySnapshot snapshot;
-  String userId;
-  double averageValue;
-  BloodSugarTracker bloodSugar;
+  late QuerySnapshot snapshot;
+  late String userId;
+  late double averageValue;
+  late BloodSugarTracker bloodSugar;
   getDocumentList() async {
     bloodSugar = BloodSugarTracker();
     snapshot = await FirebaseFirestore.instance
@@ -37,10 +39,12 @@ class _BloodSugarTrackerScreenState extends State<BloodSugarTrackerScreen> {
 
     List<BloodSugar> list = bloodSugar.loadData(snapshot);
     for (var s in list) {
-      totalValue += s.bloodSugar;
+      totalValue += s.bloodSugar ?? 0.00;
     }
 
-    setState(() {  averageValue = totalValue / list.length;});
+    setState(() {
+      averageValue = totalValue / list.length;
+    });
 
     return snapshot;
   }
@@ -55,13 +59,13 @@ class _BloodSugarTrackerScreenState extends State<BloodSugarTrackerScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        child:Column(
+          child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: <Widget>[
           Center(
             child: Container(
-              margin: EdgeInsets.fromLTRB(20, 8, 20, 0),
-              child: Text(
+              margin: const EdgeInsets.fromLTRB(20, 8, 20, 0),
+              child: const Text(
                 'Blood Sugar Tracker',
                 style: TextStyle(
                   fontSize: 25,
@@ -70,24 +74,25 @@ class _BloodSugarTrackerScreenState extends State<BloodSugarTrackerScreen> {
               ),
             ),
           ),
-          FutureBuilder(
-              future: getDocumentList(),
+          StreamBuilder<QuerySnapshot>(
+  stream: FirebaseFirestore.instance.collection('bloodsugar').snapshots(),
               builder: (context, snapshot) {
                 if (snapshot.hasData) {
-                  return
-                      ListView(
-                        shrinkWrap: true,
-                        //scrollDirection: Axis.horizontal,
-                      children: <Widget>[ Container(
-                          margin: EdgeInsets.all(15),
+                  return ListView(
+                      shrinkWrap: true,
+                      //scrollDirection: Axis.horizontal,
+                      children: <Widget>[
+                        Container(
+                          margin: const EdgeInsets.all(15),
                           constraints: BoxConstraints(
                             maxHeight: MediaQuery.of(context).size.height / 1.7,
                             maxWidth: MediaQuery.of(context).size.width *
-                                (snapshot.data.docs.length / 2.5),
+                                (snapshot.data!.docs.length / 2.5),
                           ),
                           child: Card(
                             shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(10)),
+                            margin: const EdgeInsets.all(8),
                             child: Padding(
                               padding: const EdgeInsets.all(8.0),
                               child: BloodSugarChart(
@@ -95,24 +100,25 @@ class _BloodSugarTrackerScreenState extends State<BloodSugarTrackerScreen> {
                                 userID: userId,
                               ),
                             ),
-                            margin: EdgeInsets.all(8),
                           ),
                         ),
-                      Card(
-                        margin: EdgeInsets.only(left: 8, right: 8),
-                        child: ListTile(
-                          subtitle: Text('Average Blood Sugar'),
-                          title: Text(averageValue.toStringAsFixed(2)),
-                        ),
-                      )]);
-                } else
-                  return SizedBox();
+                        Card(
+                          margin: const EdgeInsets.only(left: 8, right: 8),
+                          child: ListTile(
+                            subtitle: const Text('Average Blood Sugar'),
+                            title: Text(averageValue.toStringAsFixed(2)),
+                          ),
+                        )
+                      ]);
+                } else {
+                  return const SizedBox();
+                }
               }),
         ],
       )),
-      appBar: ROROAppBar(),
-      drawer: AppDrawer(),
-      bottomNavigationBar: MyBottomNavBar(),
+      appBar: const ROROAppBar(),
+      drawer: const AppDrawer(),
+      bottomNavigationBar: const MyBottomNavBar(),
     );
   }
 }

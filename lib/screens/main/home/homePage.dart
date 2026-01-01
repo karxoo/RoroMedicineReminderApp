@@ -2,7 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:rich_alert/rich_alert.dart';
+// replaced rich_alert dialog with standard AlertDialog
 import 'package:roro_medicine_reminder/screens/reminder/medicine/medicine_reminder.dart';
 
 import 'package:roro_medicine_reminder/widgets/app_default.dart';
@@ -10,26 +10,24 @@ import 'package:roro_medicine_reminder/widgets/app_default.dart';
 import '../../../components/navBar.dart';
 import '../../../services/notifications.dart';
 import '../../../widgets/home_screen_widgets.dart';
-import '../../document/view_documents_screen.dart';
 import '../../more/notes/note_page.dart';
 import '../../more/trackers/health_tracker.dart';
 import '../../reminder/appoinment_reminder/appoinment_reminder_screen.dart';
-import 'initial_setup_screen.dart';
 
 class HomePage extends StatefulWidget {
-  HomePage({Key key}) : super(key: key);
+  const HomePage({Key? key}) : super(key: key);
 
   @override
   _HomePageState createState() => _HomePageState();
 }
 
 class _HomePageState extends State<HomePage> {
-  NotificationService notificationService;
+  late NotificationService notificationService;
 
   //AuthClass authClass = AuthClass();
 
   final auth = FirebaseAuth.instance;
-  User loggedInUser;
+  User? loggedInUser;
 
   @override
   void initState() {
@@ -41,37 +39,36 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-
     double width = MediaQuery.of(context).size.width;
     double height = MediaQuery.of(context).size.height;
     return Scaffold(
-      drawer: AppDrawer(),
-      appBar: ROROAppBar(),
+      drawer: const AppDrawer(),
+      appBar: const ROROAppBar(),
       body: WillPopScope(
           onWillPop: () async {
-            return showDialog(
+            final shouldExit = await showDialog<bool>(
                 context: context,
                 builder: (BuildContext context) {
-                  return RichAlertDialog(
-                    alertTitle: richTitle("Exit the App"),
-                    alertSubtitle: richSubtitle('Are you Sure '),
-                    alertType: RichAlertType.WARNING,
+                  return AlertDialog(
+                    title: const Text('Exit the App'),
+                    content: const Text('Are you sure?'),
                     actions: <Widget>[
                       ElevatedButton(
-                        child: Text("Yes"),
+                        child: const Text('Yes'),
                         onPressed: () {
-                          SystemNavigator.pop();
+                         Navigator.of(context).pop(true); // return true
                         },
                       ),
                       ElevatedButton(
-                        child: Text("No"),
+                        child: const Text('No'),
                         onPressed: () {
-                          Navigator.pop(context);
+                         Navigator.of(context).pop(false); // return false
                         },
                       ),
                     ],
                   );
                 });
+                  return shouldExit ?? false;
           },
           child: NotificationListener<OverscrollIndicatorNotification>(
             onNotification: (OverscrollIndicatorNotification overScroll) {
@@ -103,7 +100,7 @@ class _HomePageState extends State<HomePage> {
                                   context, AppoinmentReminder.routeName);
                             },
                           ),
-                          Padding(
+                          const Padding(
                             padding: EdgeInsets.only(top: 8.0),
                             child: Text('Appointment Reminder'),
                           ),
@@ -121,13 +118,15 @@ class _HomePageState extends State<HomePage> {
                               icon: FontAwesomeIcons.capsules,
                               size: width * 0.2,
                               color: Colors.yellowAccent[700],
-                              borderColor: Colors.yellowAccent.withOpacity(0.75),
+                              borderColor:
+                                  Colors.yellowAccent.withOpacity(0.75),
                             ),
                             onTap: () {
-                              Navigator.pushNamed(context, MedicineReminder.routeName);
+                              Navigator.pushNamed(
+                                  context, MedicineReminder.routeName);
                             },
                           ),
-                          Padding(
+                          const Padding(
                             padding: EdgeInsets.only(top: 8.0),
                             child: Text('Medicine Intake Reminder'),
                           )
@@ -200,7 +199,7 @@ class _HomePageState extends State<HomePage> {
 //                  children: <Widget>[
 //                    Expanded(
 //                      child: Column(
- //                       children: <Widget>[
+                //                       children: <Widget>[
 //                          InkWell(
 //                            splashColor: Colors.redAccent,
 //                            child: CardButton(
@@ -242,7 +241,7 @@ class _HomePageState extends State<HomePage> {
 //                            padding: EdgeInsets.only(top: 8.0),
 //                            child: Text('Check your Heart rate'),
 //                          ),
-                          /*InkWell(
+                /*InkWell(
                             splashColor: Colors.redAccent,
                             child: CardButton(
                               height: height * 0.2,
@@ -319,7 +318,7 @@ class _HomePageState extends State<HomePage> {
                               Navigator.pushNamed(context, NotePage.routeName);
                             },
                           ),
-                          Padding(
+                          const Padding(
                             padding: EdgeInsets.only(top: 8.0),
                             child: Text('Notes'),
                           ),
@@ -342,11 +341,11 @@ class _HomePageState extends State<HomePage> {
                             onTap: () {
                               Navigator.push(context,
                                   MaterialPageRoute(builder: (_) {
-                                    return TrackerHome();
-                                  }));
+                                return const TrackerHome();
+                              }));
                             },
                           ),
-                          Padding(
+                          const Padding(
                             padding: EdgeInsets.only(top: 8.0),
                             child: Text('Health Tracker'),
                           )
@@ -358,19 +357,19 @@ class _HomePageState extends State<HomePage> {
                 SizedBox(
                   height: height * (5 / 100),
                 ),
-                SizedBox(
+                const SizedBox(
                   height: 30,
                 )
               ],
             ),
           )),
-      bottomNavigationBar: MyBottomNavBar(),
+      bottomNavigationBar: const MyBottomNavBar(),
     );
   }
 
   void getCurrentUser() async {
     try {
-      final user = await auth.currentUser;
+      final User? user = auth.currentUser;
       if (user != null) {
         loggedInUser = user;
       }

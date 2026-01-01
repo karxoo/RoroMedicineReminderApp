@@ -1,19 +1,18 @@
 import 'package:flutter/material.dart';
 import '../screens/main/home/homePage.dart';
 import '../screens/main/more.dart';
-import '../screens/main/progress.dart';
 import '../screens/main/treatment.dart';
 import '../shared/constants.dart';
 
 class MyBottomNavBar extends StatelessWidget {
   const MyBottomNavBar({
-    Key key,
+    Key? key,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.only(
+      padding: const EdgeInsets.only(
         left: kDefaultPadding * 2,
         right: kDefaultPadding * 2,
       ),
@@ -34,7 +33,7 @@ class MyBottomNavBar extends StatelessWidget {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                    builder: (context) => HomePage()),
+                    builder: (context) => const HomePage()),
               );
             },
           ),
@@ -55,7 +54,7 @@ class MyBottomNavBar extends StatelessWidget {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                    builder: (context) => Treatment()),
+                    builder: (context) => const Treatment()),
               );
             },
           ),
@@ -65,7 +64,7 @@ class MyBottomNavBar extends StatelessWidget {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                    builder: (context) => More()),
+                    builder: (context) => const More()),
               );
             },
           ),

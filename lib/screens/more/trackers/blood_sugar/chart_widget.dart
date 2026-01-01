@@ -1,6 +1,4 @@
-import 'package:charts_flutter/flutter.dart' as charts;
 import 'package:cloud_firestore/cloud_firestore.dart';
-
 import 'package:flutter/material.dart';
 
 import '../../../../models/tracker.dart';
@@ -8,18 +6,17 @@ import '../../../../models/tracker.dart';
 class BloodSugarChart extends StatefulWidget {
   final bool animate;
   final String userID;
-  BloodSugarChart({
-    this.animate,
-    this.userID,
-  });
+  const BloodSugarChart({Key? key, 
+    required this.animate,
+    required this.userID,
+  }) : super(key: key);
 
   @override
   _BloodSugarChartState createState() => _BloodSugarChartState();
 }
 
 class _BloodSugarChartState extends State<BloodSugarChart> {
-  BloodSugarTracker bloodSugar;
-  List<charts.Series> seriesList;
+  late BloodSugarTracker bloodSugar;
 
   @override
   void initState() {
@@ -32,18 +29,20 @@ class _BloodSugarChartState extends State<BloodSugarChart> {
     return FutureBuilder(
         future: _createSampleData(),
         builder: (context, snapshot) {
-          if (snapshot.hasData) {
-            return charts.TimeSeriesChart(
-              snapshot.data,
-              animate: widget.animate,
-              dateTimeFactory: const charts.LocalDateTimeFactory(),
-            );
-          } else
-            return Center(child: CircularProgressIndicator());
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          // Placeholder: real chart removed to resolve dependency conflicts.
+          return Container(
+            height: 200,
+            color: Colors.transparent,
+            alignment: Alignment.center,
+            child: const Text('Chart unavailable (charts_flutter removed)'),
+          );
         });
   }
 
-  Future<List<charts.Series<BloodSugar, DateTime>>> _createSampleData() async {
+  Future<List> _createSampleData() async {
     bloodSugar = BloodSugarTracker();
     QuerySnapshot snapshot = await FirebaseFirestore.instance
         .collection('tracker')
@@ -52,16 +51,6 @@ class _BloodSugarChartState extends State<BloodSugarChart> {
         .get();
 
     List list = bloodSugar.loadData(snapshot);
-
-    return [
-      charts.Series<BloodSugar, DateTime>(
-        id: 'Blood Sugar Tracking',
-        colorFn: (_, __) => charts.MaterialPalette.blue.shadeDefault,
-        domainFn: (BloodSugar b, _) =>
-            DateTime(b.dateTime.year, b.dateTime.month, b.dateTime.day),
-        measureFn: (BloodSugar b, _) => b.bloodSugar,
-        data: list,
-      )
-    ];
+    return list;
   }
 }

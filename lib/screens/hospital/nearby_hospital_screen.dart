@@ -12,6 +12,8 @@ LocationManager.Location location = LocationManager.Location();
 
 class NearbyHospitalScreen extends StatefulWidget {
   static const String routeName = 'Nearby_Hospital_screen';
+
+  const NearbyHospitalScreen({Key? key}) : super(key: key);
   @override
   State<StatefulWidget> createState() {
     return NearbyHospitalScreenState();
@@ -20,7 +22,7 @@ class NearbyHospitalScreen extends StatefulWidget {
 
 class NearbyHospitalScreenState extends State<NearbyHospitalScreen> {
   bool showSpinner = true;
-  HospitalData hospitalData;
+  late HospitalData hospitalData;
   @override
   initState() {
     super.initState();
@@ -28,19 +30,19 @@ class NearbyHospitalScreenState extends State<NearbyHospitalScreen> {
     hospitalData.getNearbyHospital();
   }
 
-  double lat, tempLon;
-  String locationUrl;
+  late double lat, tempLon;
+  late String locationUrl;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      drawer: AppDrawer(),
-      appBar: ROROAppBar(),
-      body: FutureBuilder(
+      drawer: const AppDrawer(),
+      appBar: const ROROAppBar(),
+      body: FutureBuilder<HospitalData>(
         future: hospitalData.getNearbyHospital(),
         builder: (context, snapshot) {
-          if (!snapshot.hasData) {
-            return Center(
+          if (snapshot.hasData) {
+            return const Center(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -53,7 +55,7 @@ class NearbyHospitalScreenState extends State<NearbyHospitalScreen> {
                     height: 20,
                   ),
                   Padding(
-                    padding: const EdgeInsets.all(8.0),
+                    padding: EdgeInsets.all(8.0),
                     child: Text('Fetching data . Please wait ..'),
                   ),
                   Text(' It may take a few moments .'),
@@ -61,10 +63,11 @@ class NearbyHospitalScreenState extends State<NearbyHospitalScreen> {
               ),
             );
           } else {
+      final data = snapshot.data!;
             return Column(
               children: <Widget>[
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
+                const Padding(
+                  padding: EdgeInsets.all(8.0),
                   child: Text(
                     'Nearby Hospitals',
                     style: TextStyle(
@@ -75,58 +78,50 @@ class NearbyHospitalScreenState extends State<NearbyHospitalScreen> {
                 ),
                 Flexible(
                   child: ListView.builder(
-                      itemCount: snapshot.data.hospitalList.length,
+                      itemCount: data.hospitalList.length,
                       itemBuilder: (context, index) {
                         if (index % 2 == 0) {
-                          var hosLon = snapshot.data.hospitalList[index]
-                              .hospitalLocationLongitude
-                              .toString();
-                          var hosLat = snapshot
-                              .data.hospitalList[index].hospitalLocationLatitude
-                              .toString();
+                          final hospital = data.hospitalList[index];
+            final hosLon = hospital.hospitalLocationLongitude.toString();
+            final hosLat = hospital.hospitalLocationLatitude.toString();
 
                           return Column(
                             children: <Widget>[
                               Card(
-                                margin: EdgeInsets.all(15),
+                                margin: const EdgeInsets.all(15),
                                 color: Colors.white,
                                 elevation: 2.5,
                                 child: ListTile(
-                                  leading: CircleAvatar(
+                                  leading: const CircleAvatar(
                                     backgroundColor: Colors.transparent,
                                     child: Icon(Icons.local_hospital,
                                         size: 40, color: Colors.red),
                                   ),
                                   subtitle: Padding(
-                                    padding: EdgeInsets.all(10),
-                                    child: Text(snapshot
-                                            .data
-                                            .hospitalList[index]
-                                            .hospitalDistance
-                                            .toString() +
-                                        ' KM'),
+                                    padding: const EdgeInsets.all(10),
+                                    child: Text('${                                           
+                                            hospital.hospitalDistance} KM'),
                                   ),
-                                  title: snapshot.data.hospitalList[index]
-                                              .hospitalName !=
+                                  title: hospital.hospitalName !=
                                           null
                                       ? Text(
-                                          snapshot.data.hospitalList[index]
-                                              .hospitalName,
-                                          style: TextStyle(
+                                          hospital.hospitalName,
+                                          style: const TextStyle(
                                               fontSize: 18,
                                               color: Colors.blueGrey),
                                         )
-                                      : Text(''),
+                                      : const Text(''),
                                   onTap: () {
                                     launchUrl(Uri.parse(
-                                        'https://www.google.com/maps/dir/${snapshot.data.userLocation.latitude},${snapshot.data.userLocation.longitude}/$hosLat,$hosLon'));
+                                        'https://www.google.com/maps/dir/${data.userLocation.latitude},${data.userLocation.longitude}/$hosLat,$hosLon'));
                                   },
                                 ),
                               )
                             ],
                           );
-                        } else
-                          return SizedBox();
+                        } else {
+                          return const SizedBox();
+                        }
                       }),
                 ),
               ],
@@ -134,7 +129,7 @@ class NearbyHospitalScreenState extends State<NearbyHospitalScreen> {
           }
         },
       ),
-      bottomNavigationBar: MyBottomNavBar(),
+      bottomNavigationBar: const MyBottomNavBar(),
     );
   }
 }

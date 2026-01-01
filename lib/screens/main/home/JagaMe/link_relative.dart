@@ -7,20 +7,21 @@ import '../../../../models/JagaMe.dart';
 import '../../../../models/user.dart';
 import '../../../../widgets/app_default.dart';
 
-
 class LinkRelative extends StatefulWidget {
+  const LinkRelative({Key? key}) : super(key: key);
+
   @override
   _LinkRelativeState createState() => _LinkRelativeState();
 }
 
 class _LinkRelativeState extends State<LinkRelative> {
-  String userId;
-  UserProfile userProfile;
+  String userId = "";
+  UserProfile userProfile = UserProfile("");
   bool relativesFound = true;
   getCurrentUser() async {
-    User user = await FirebaseAuth.instance.currentUser;
+    User? user = FirebaseAuth.instance.currentUser;
     setState(() {
-      userId = user.uid;
+      userId = user?.uid ?? "";
     });
   }
 
@@ -34,9 +35,9 @@ class _LinkRelativeState extends State<LinkRelative> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      drawer: AppDrawer(),
-      appBar: ROROAppBar(),
-      body: StreamBuilder(
+      drawer: const AppDrawer(),
+      appBar: const ROROAppBar(),
+      body: StreamBuilder<QuerySnapshot>(
           stream: FirebaseFirestore.instance
               .collection('profile')
               .doc(userId)
@@ -45,7 +46,7 @@ class _LinkRelativeState extends State<LinkRelative> {
           builder: (context, snapshot) {
             if (snapshot.hasData) {
               List<Widget> relativeCards = [];
-              var data = snapshot.data.docs;
+              var data = snapshot.data!.docs;
               if (data != null) {
                 if (data.length > 0) relativesFound = true;
                 userProfile.getAllRelatives(data);
@@ -53,15 +54,16 @@ class _LinkRelativeState extends State<LinkRelative> {
                   relativeCards.add(LinkCard(
                     relative: relative,
                     userID: userId,
-                    documentID: relative.documentID,
+                    documentID: relative?.documentID ?? ''
+,
                     data: relative.toMap(),
-                    recipients: [relative.phoneNumber],
+                    recipients: [relative.phoneNumber ?? ''],
                   ));
                 }
                 return ListView(
                   children: <Widget>[
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
+                    const Padding(
+                      padding: EdgeInsets.all(8.0),
                       child: Text(
                         'Link Relatives',
                         textAlign: TextAlign.center,
@@ -71,8 +73,8 @@ class _LinkRelativeState extends State<LinkRelative> {
                     Column(
                       children: relativeCards,
                     ),
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
+                    const Padding(
+                      padding: EdgeInsets.all(8.0),
                       child: Text(
                           'Showing linked here does not mean that your accounts are linked . Please make sure that relative account is linked using the code sent . '),
                     )
@@ -80,26 +82,27 @@ class _LinkRelativeState extends State<LinkRelative> {
                 );
               } else {
                 relativesFound = false;
-                return Center(
+                return const Center(
                   child: Text('No relative Added.'),
                 );
               }
-            } else
-              return CircularProgressIndicator();
+            } else {
+              return const CircularProgressIndicator();
+            }
           }),
-      bottomNavigationBar: MyBottomNavBar(),
+      bottomNavigationBar: const MyBottomNavBar(),
     );
   }
 }
 
 class LinkCard extends StatelessWidget {
   const LinkCard({
-    Key key,
-    @required this.relative,
-    this.userID,
-    this.documentID,
-    this.data,
-    this.recipients,
+    Key? key,
+    required this.relative,
+    required this.userID,
+    required this.documentID,
+    required this.data,
+    required this.recipients,
   }) : super(key: key);
 
   final Relative relative;
@@ -113,61 +116,55 @@ class LinkCard extends StatelessWidget {
     String buttonText = 'Link';
     Color buttonColor = Colors.orangeAccent;
     bool linked = false;
-    if (relative.uid == '' || relative.uid.isEmpty || relative.uid == null) {
-      linked = false;
-    } else {
-      linked = true;
-      buttonColor = Colors.blueGrey;
-      buttonText = 'Linked';
-    }
+    linked = !(relative.uid?.isEmpty ?? true);
+    buttonColor = linked ? Colors.blueGrey : Colors.grey;
+    buttonText = linked ? 'Linked' : 'Link';
     return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-      margin: EdgeInsets.all(8),
-      child: ListTile(
-        title: Text(relative.name),
-        subtitle: Text(relative.phoneNumber),
-        trailing: ElevatedButton.icon(
-            onPressed: !linked
-                ? () async {
-                    data['uid'] = userID;
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+        margin: const EdgeInsets.all(8),
+        child: ListTile(
+            title: Text(relative?.name ?? ''),
+            subtitle: Text(relative?.phoneNumber ?? ''),
+            trailing: ElevatedButton.icon(
+               icon: const Icon(Icons.link), // required
+                label: Text(buttonText),      // required
+                onPressed: !linked
+                    ? () async {
+                        data['uid'] = userID;
 
-                    recipients.add(relative.phoneNumber);
-                    await _sendSMS(
-                        'Message from RORO : Please copy the below code to link your account.\n'
-                                'Code : ' +
-                            userID,
-                        recipients);
-                    await FirebaseFirestore.instance
-                        .collection('profile')
-                        .doc(userID)
-                        .collection('relatives')
-                        .doc(documentID)
-                        .update(data);
-                  }
-                : () async {
-                    data['uid'] = '';
-                    await FirebaseFirestore.instance
-                        .collection('profile')
-                        .doc(userID)
-                        .collection('relatives')
-                        .doc(documentID)
-                        .update(data);
-                  },
-            style: TextButton.styleFrom(
-                primary: Color(0xffff9987),
-                shape: new RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-    )))
-    );
+                        recipients.add(relative?.phoneNumber ?? '');
+                        await _sendSMS(
+                            'Message from RORO : Please copy the below code to link your account.\nCode : $userID',
+                            recipients);
+                        await FirebaseFirestore.instance
+                            .collection('profile')
+                            .doc(userID)
+                            .collection('relatives')
+                            .doc(documentID)
+                            .update(data);
+                      }
+                    : () async {
+                        data['uid'] = '';
+                        await FirebaseFirestore.instance
+                            .collection('profile')
+                            .doc(userID)
+                            .collection('relatives')
+                            .doc(documentID)
+                            .update(data);
+                      },
+                style: TextButton.styleFrom(
+                  foregroundColor: const Color(0xffff9987), shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ))));
   }
 
   _sendSMS(String message, List<String> recipients) async {
-    String _result = await sendSMS(message: message, recipients: recipients)
+    String result = await sendSMS(message: message, recipients: recipients)
         .catchError((onError) {
       print(onError);
     });
 
-    print(_result);
+    print(result);
   }
 }

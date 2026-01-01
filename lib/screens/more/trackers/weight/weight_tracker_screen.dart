@@ -8,22 +8,24 @@ import '../../../../components/navBar.dart';
 import '../../../../models/tracker.dart';
 
 class WeightTrackerScreen extends StatefulWidget {
+  const WeightTrackerScreen({Key? key}) : super(key: key);
+
   @override
   _WeightTrackerScreenState createState() => _WeightTrackerScreenState();
 }
 
 class _WeightTrackerScreenState extends State<WeightTrackerScreen> {
   getCurrentUser() async {
-    User user = await FirebaseAuth.instance.currentUser;
+    User? user = FirebaseAuth.instance.currentUser;
     setState(() {
-      userId = user.uid;
+      userId = user!.uid;
     });
   }
 
-  QuerySnapshot snapshot;
-  String userId;
-  double averageWeight;
-  WeightTracker weightTracker;
+  late QuerySnapshot snapshot;
+  late String userId;
+  late double averageWeight;
+  late WeightTracker weightTracker;
   getDocumentList() async {
     weightTracker = WeightTracker();
     snapshot = await FirebaseFirestore.instance
@@ -36,9 +38,11 @@ class _WeightTrackerScreenState extends State<WeightTrackerScreen> {
 
     List<Weight> list = weightTracker.loadData(snapshot);
     for (var s in list) {
-      totalWeight += s.weight;
+      totalWeight += (s.weight as num?) ?? 0.0;
     }
-   setState(() {   averageWeight = totalWeight / list.length; });
+    setState(() {
+      averageWeight = totalWeight / list.length;
+    });
 
     return snapshot;
   }
@@ -53,13 +57,13 @@ class _WeightTrackerScreenState extends State<WeightTrackerScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        child: Column(
+          child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: <Widget>[
           Center(
             child: Container(
-              margin: EdgeInsets.fromLTRB(20, 8, 20, 0),
-              child: Text(
+              margin: const EdgeInsets.fromLTRB(20, 8, 20, 0),
+              child: const Text(
                 'Weight Tracker',
                 style: TextStyle(
                   fontSize: 25,
@@ -68,52 +72,52 @@ class _WeightTrackerScreenState extends State<WeightTrackerScreen> {
               ),
             ),
           ),
-          FutureBuilder(
-              future: getDocumentList(),
+          StreamBuilder<QuerySnapshot>(
+  stream: FirebaseFirestore.instance.collection('weights').snapshots(),
               builder: (context, snapshot) {
                 if (snapshot.hasData) {
                   return ListView(
-                      shrinkWrap: true,
+                    shrinkWrap: true,
                     children: <Widget>[
-                       Container(
-                          margin: EdgeInsets.all(15),
-                          constraints: BoxConstraints(
-                            //minWidth: MediaQuery.of(context).size.width ,
-                            maxHeight: MediaQuery.of(context).size.height / 1.7,
-                            maxWidth: MediaQuery.of(context).size.width *
-                                (snapshot.data.docs.length / 3),
-                          ),
-                          child: Card(
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10)),
-                            child: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: WeightChart(
-                                animate: true,
-                                userID: userId,
-                              ),
+                      Container(
+                        margin: const EdgeInsets.all(15),
+                        constraints: BoxConstraints(
+                          //minWidth: MediaQuery.of(context).size.width ,
+                          maxHeight: MediaQuery.of(context).size.height / 1.7,
+                          maxWidth: MediaQuery.of(context).size.width *
+                              (snapshot.data!.docs.length / 3),
+                        ),
+                        child: Card(
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10)),
+                          margin: const EdgeInsets.all(8),
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: WeightChart(
+                              animate: true,
+                              userID: userId,
                             ),
-                            margin: EdgeInsets.all(8),
                           ),
                         ),
-
+                      ),
                       Card(
-                        margin: EdgeInsets.only(left: 8, right: 8),
+                        margin: const EdgeInsets.only(left: 8, right: 8),
                         child: ListTile(
-                          subtitle: Text('Average Weight'),
+                          subtitle: const Text('Average Weight'),
                           title: Text(averageWeight.toStringAsFixed(2)),
                         ),
                       )
                     ],
                   );
-                } else
-                  return SizedBox();
+                } else {
+                  return const SizedBox();
+                }
               }),
         ],
       )),
-      appBar: ROROAppBar(),
-      drawer: AppDrawer(),
-      bottomNavigationBar: MyBottomNavBar(),
+      appBar: const ROROAppBar(),
+      drawer: const AppDrawer(),
+      bottomNavigationBar: const MyBottomNavBar(),
     );
   }
 }

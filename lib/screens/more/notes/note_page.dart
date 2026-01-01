@@ -14,17 +14,28 @@ import '../../../widgets/home_screen_widgets.dart';
 
 class NotePage extends StatefulWidget {
   static const String routeName = 'Note_screen';
+
+  const NotePage({Key? key}) : super(key: key);
   @override
   _NotePageState createState() => _NotePageState();
 }
 
 class _NotePageState extends State<NotePage> {
-  CollectionReference ref = FirebaseFirestore.instance
-      .collection('users')
-      .doc(FirebaseAuth.instance.currentUser.uid)
-      .collection('notes');
+  CollectionReference? ref;
 
-  List<Color> myColors = [
+  @override
+  void initState() {
+    super.initState();
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      ref = FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .collection('notes');
+    }
+  }
+
+  List<Color?> myColors = [
     Colors.yellow[200],
     Colors.red[200],
     Colors.green[200],
@@ -40,16 +51,39 @@ class _NotePageState extends State<NotePage> {
   Widget build(BuildContext context) {
     double height = MediaQuery.of(context).size.height;
     double width = MediaQuery.of(context).size.width;
+    if (ref == null) {
+      return Scaffold(
+        appBar: const ROROAppBar(),
+        drawer: const AppDrawer(),
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Text('You are not signed in.'),
+              const SizedBox(height: 12),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.pushNamed(context, '/SignInPage');
+                },
+                child: const Text('Sign In'),
+              )
+            ],
+          ),
+        ),
+        bottomNavigationBar: const MyBottomNavBar(),
+      );
+    }
+
     return Scaffold(
-      appBar: ROROAppBar(),
-      drawer: AppDrawer(),
+      appBar: const ROROAppBar(),
+      drawer: const AppDrawer(),
       body: FutureBuilder<QuerySnapshot>(
-        future: ref.get(),
+        future: ref?.get(),
         builder: (context, snapshot) {
           if (snapshot.hasData) {
-            if (snapshot.data.docs.length == 0) {
+            final docs = snapshot.data!.docs;
+            if (docs.isEmpty) {
               return Column(
-
                 children: <Widget>[
                   Expanded(
                     child: Column(
@@ -69,23 +103,23 @@ class _NotePageState extends State<NotePage> {
                           onTap: () {
                             Navigator.push(context,
                                 MaterialPageRoute(builder: (context) {
-                                  return AddNote();
-                                  //return ReminderDetail();
-                                }));
+                              return const AddNote();
+                              //return ReminderDetail();
+                            }));
                           },
                         ),
-                        Center(
-                            //margin: EdgeInsets.only(bottom: 10, left: 10, right: 10),
-                            child: Text('You have no saved notes! \nClick to add one.',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontFamily: 'Mulish',
-                                fontWeight: FontWeight.w600,
-                                color: Colors.black,
-                              ),
+                        const Center(
+                          //margin: EdgeInsets.only(bottom: 10, left: 10, right: 10),
+                          child: Text(
+                            'You have no saved notes! \nClick to add one.',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontFamily: 'Mulish',
+                              fontWeight: FontWeight.w600,
+                              color: Colors.black,
                             ),
+                          ),
                         ),
-
                       ],
                     ),
                   ),
@@ -94,30 +128,28 @@ class _NotePageState extends State<NotePage> {
             }
 
             return ListView.builder(
-              itemCount: snapshot.data.docs.length,
+              itemCount: docs.length,
               itemBuilder: (context, index) {
-                Random random = new Random();
-                Color bg = myColors[random.nextInt(4)];
-                Map data = snapshot.data.docs[index].data();
-                DateTime mydateTime = data['created'].toDate();
-                String formattedTime =
-                    DateFormat.yMMMd().add_jm().format(mydateTime);
+                Random random = Random();
+                final bg = myColors[random.nextInt(myColors.length)] ?? Colors.white;
+                final data = docs[index].data() as Map<String, dynamic>;
+                final mydateTime = (data['created'] as dynamic).toDate();
+                final formattedTime = DateFormat.yMMMd().add_jm().format(mydateTime);
 
                 return InkWell(
                   onTap: () {
                     Navigator.of(context)
                         .push(
                       MaterialPageRoute(
-                        builder: (context) =>
-                            ViewNote(
-                              data,
-                              formattedTime,
-                              snapshot.data.docs[index].reference,
-                            ),
+                        builder: (context) => ViewNote(
+                          data,
+                          formattedTime,
+                          docs[index].reference,
+                        ),
                       ),
                     )
                         .then((value) {
-                      setState(() {});
+                      if (mounted) setState(() {});
                     });
                   },
                   child: Card(
@@ -129,7 +161,7 @@ class _NotePageState extends State<NotePage> {
                         children: [
                           Text(
                             "${data['title']}",
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontSize: 24.0,
                               fontFamily: "Mulish",
                               fontWeight: FontWeight.bold,
@@ -141,15 +173,13 @@ class _NotePageState extends State<NotePage> {
                             alignment: Alignment.centerRight,
                             child: Text(
                               formattedTime,
-                              style: TextStyle(
+                              style: const TextStyle(
                                 fontSize: 20.0,
                                 fontFamily: "Mulish",
                                 color: Colors.black87,
                               ),
                             ),
-
                           ),
-
                         ],
                       ),
                     ),
@@ -158,13 +188,13 @@ class _NotePageState extends State<NotePage> {
               },
             );
           } else {
-            return Center(
+            return const Center(
               child: Text("Loading..."),
             );
           }
         },
       ),
-      bottomNavigationBar: MyBottomNavBar(),
+      bottomNavigationBar: const MyBottomNavBar(),
     );
   }
 }

@@ -1,6 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:roro_medicine_reminder/screens/more/trackers/health_tracker.dart';
 import 'package:roro_medicine_reminder/screens/more/trackers/weight/weight_tracker_screen.dart';
@@ -10,14 +9,16 @@ import '../../../../components/navBar.dart';
 import '../../../../models/tracker.dart';
 
 class AddWeightScreen extends StatefulWidget {
+  const AddWeightScreen({Key? key}) : super(key: key);
+
   @override
   _AddWeightScreenState createState() => _AddWeightScreenState();
 }
 
 class _AddWeightScreenState extends State<AddWeightScreen> {
   final _trackerKey = GlobalKey<FormState>();
-  TextEditingController weight, notes;
-  WeightTracker weightTracker;
+  late TextEditingController weight, notes;
+  late WeightTracker weightTracker;
 
   @override
   void initState() {
@@ -37,8 +38,8 @@ class _AddWeightScreenState extends State<AddWeightScreen> {
           children: <Widget>[
             Center(
               child: Container(
-                margin: EdgeInsets.fromLTRB(20, 30, 20, 0),
-                child: Text(
+                margin: const EdgeInsets.fromLTRB(20, 30, 20, 0),
+                child: const Text(
                   'Add Weight Data',
                   style: TextStyle(
                     fontSize: 25,
@@ -49,7 +50,7 @@ class _AddWeightScreenState extends State<AddWeightScreen> {
                 ),
               ),
             ),
-            SizedBox(
+            const SizedBox(
               height: 30,
             ),
             Form(
@@ -57,7 +58,7 @@ class _AddWeightScreenState extends State<AddWeightScreen> {
               child: Column(
                 children: <Widget>[
                   Container(
-                    margin: EdgeInsets.all(15),
+                    margin: const EdgeInsets.all(15),
                     child: TextFormField(
                       keyboardType: TextInputType.number,
                       controller: weight,
@@ -73,28 +74,28 @@ class _AddWeightScreenState extends State<AddWeightScreen> {
                             borderRadius: BorderRadius.circular(30.0)),
                       ),
                       onChanged: (v) {
-                        _trackerKey.currentState.validate();
+                        _trackerKey.currentState?.validate();
                       },
                       validator: (value) {
-                        if (value.isEmpty) {
+                        if (value == null || value.isEmpty) {
                           return 'Please enter weight';
-                        } else {
-                          if (!isNumeric(value)) {
-                            return 'Enter numeric value';
-                          }
-                          if (int.parse(value) < 0 || int.parse(value) > 200) {
-                            return 'Enter Valid value';
-                          }
-                          return null;
                         }
+                        if (!isNumeric(value)) {
+                          return 'Enter numeric value';
+                        }
+                        final intVal = int.tryParse(value) ?? -1;
+                        if (intVal < 0 || intVal > 200) {
+                          return 'Enter Valid value';
+                        }
+                        return null;
                       },
                     ),
                   ),
                   Container(
-                    margin: EdgeInsets.all(15),
+                    margin: const EdgeInsets.all(15),
                     child: TextFormField(
                       onChanged: (v) {
-                        _trackerKey.currentState.validate();
+                        _trackerKey.currentState?.validate();
                       },
                       controller: notes,
                       decoration: InputDecoration(
@@ -109,7 +110,7 @@ class _AddWeightScreenState extends State<AddWeightScreen> {
                             borderRadius: BorderRadius.circular(30.0)),
                       ),
                       validator: (value) {
-                        if (value.isEmpty) {
+                        if (value == null || value.isEmpty) {
                           return 'Please enter value';
                         }
 
@@ -120,7 +121,7 @@ class _AddWeightScreenState extends State<AddWeightScreen> {
                 ],
               ),
             ),
-            SizedBox(
+            const SizedBox(
               height: 15,
             ),
             Row(
@@ -129,35 +130,47 @@ class _AddWeightScreenState extends State<AddWeightScreen> {
                 children: <Widget>[
                   ElevatedButton(
                     onPressed: () async {
-                      _trackerKey.currentState.validate();
+                      _trackerKey.currentState?.validate();
+                      final navigator = Navigator.of(context);
                       await saveData();
-                      Navigator.pop(context);
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (_) => WeightTrackerScreen()));
+                      if (!mounted) return;
+                      navigator.pop();
+                      navigator.push(MaterialPageRoute(
+                          builder: (_) => const WeightTrackerScreen()));
                     },
                     style: ElevatedButton.styleFrom(
                         elevation: 2,
-                        primary: Color(0xffff9987),
-                        padding:
-                            EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                        backgroundColor: const Color(0xffff9987),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 40, vertical: 15),
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(20))),
-                    child: Text("Add Data",
+                    child: const Text("Add Data",
                         style: TextStyle(fontFamily: 'Mulish', fontSize: 18)),
                   ),
-                  SizedBox(
+                  const SizedBox(
                     width: 25,
                   ),
                   ElevatedButton(
                     onPressed: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => TrackerHome()),
+                        MaterialPageRoute(
+                            builder: (context) => const TrackerHome()),
                       );
                     },
-                    child: Text(
+                    style: ElevatedButton.styleFrom(
+                      elevation: 2,
+                      backgroundColor: const Color(0xffff9987),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                          side: BorderSide(
+                            color: Colors.redAccent[100]!,
+                          )),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 40, vertical: 15),
+                    ),
+                    child: const Text(
                       'Cancel',
                       style: TextStyle(
                           fontSize: 18,
@@ -165,33 +178,22 @@ class _AddWeightScreenState extends State<AddWeightScreen> {
                           fontWeight: FontWeight.bold,
                           color: Colors.white),
                     ),
-                    style: ElevatedButton.styleFrom(
-                      elevation: 2,
-                      primary: Color(0xffff9987),
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20),
-                          side: BorderSide(
-                            color: Colors.redAccent[100],
-                          )),
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 40, vertical: 15),
-                    ),
                   )
                 ]),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
+            const Padding(
+              padding: EdgeInsets.all(8.0),
               child: Text(''),
             )
           ],
         ),
       ),
-      appBar: ROROAppBar(),
-      drawer: AppDrawer(),
-      bottomNavigationBar: MyBottomNavBar(),
+      appBar: const ROROAppBar(),
+      drawer: const AppDrawer(),
+      bottomNavigationBar: const MyBottomNavBar(),
     );
   }
 
-  saveData() async {
+  Future<void> saveData() async {
     weightTracker.weightData = Weight(
         weight: int.parse(weight.text),
         notes: notes.text,
@@ -203,19 +205,16 @@ class _AddWeightScreenState extends State<AddWeightScreen> {
         .add(weightTracker.toMap());
   }
 
-  getCurrentUser() async {
-    User user = await FirebaseAuth.instance.currentUser;
+  Future<void> getCurrentUser() async {
+    User? user = FirebaseAuth.instance.currentUser;
     setState(() {
-      userId = user.uid;
+      userId = user?.uid ?? '';
     });
   }
 
-  String userId;
+  String userId = '';
 }
 
 bool isNumeric(String s) {
-  if (s == null) {
-    return false;
-  }
   return int.tryParse(s) != null;
 }

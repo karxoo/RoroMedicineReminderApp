@@ -6,7 +6,7 @@ class NotificationService with ChangeNotifier {
   var flutterLocalNotificationsPlugin;
 
   NotificationService() {
-    flutterLocalNotificationsPlugin = new FlutterLocalNotificationsPlugin();
+    flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
     initialize();
   }
 
@@ -17,7 +17,7 @@ class NotificationService with ChangeNotifier {
   void initialize()  {
     // initialise the plugin. app_icon needs to be a added as a drawable resource to the Android head project
     var initializationSettingsAndroid =
-        new AndroidInitializationSettings('@mipmap/ic_launcher');
+        const AndroidInitializationSettings('@mipmap/ic_launcher');
     //var initializationSettingsIOS = IOSInitializationSettings(
     //onDidReceiveLocalNotification: onDidReceiveLocalNotification);
 
@@ -32,19 +32,19 @@ class NotificationService with ChangeNotifier {
 
   void showNotificationDaily(
       int id, String title, String body, int hour, int minute) async {
-    var time = new Time(hour, minute, 0);
+    var time = Time(hour, minute, 0);
     await flutterLocalNotificationsPlugin.showDailyAtTime(
         id, title, body, time, getPlatformChannelSpecfics());
     print('Notification Succesfully Scheduled at ${time.toString()}');
     notifyListeners();
   }
 
-  getPlatformChannelSpecfics() {
-    var androidPlatformChannelSpecifics = AndroidNotificationDetails(
+  NotificationDetails getPlatformChannelSpecfics() {
+    var androidPlatformChannelSpecifics = const AndroidNotificationDetails(
         'your channel id', 'your channel name',
         importance: Importance.max,
         priority: Priority.high,
-        ticker:'Medicine reminder'
+        ticker:'Medicine reminder',
         playSound: true,
         sound:RawResourceAndroidNotificationSound('notification_sound'),
 
@@ -55,39 +55,38 @@ class NotificationService with ChangeNotifier {
 
     return platformChannelSpecifics;
   }
-  scheduleAppoinmentNotification(
-      {@required int id,
-        @required String title,
-        @required String body,
-        @required DateTime dateTime}) async {
+  Future<void> scheduleAppoinmentNotification(
+      {required int id,
+        required String title,
+        required String body,
+        required DateTime dateTime}) async {
+    await flutterLocalNotificationsPlugin.schedule(id, title, body,
+        dateTime, getPlatformChannelSpecfics());
+  }
+
+  Future<void> scheduleNotification(
+      {required int id,
+        required String title,
+        required String body,
+        required DateTime dateTime}) async {
     var scheduledNotificationDateTime = dateTime;
+
     await flutterLocalNotificationsPlugin.schedule(id, title, body,
         scheduledNotificationDateTime, getPlatformChannelSpecfics());
   }
 
-  scheduleNotification(
-      {@required int id,
-        @required String title,
-        @required String body,
-        @required DateTime dateTime}) async {
-    var scheduledNotificationDateTime = dateTime;
-
-    await flutterLocalNotificationsPlugin.schedule(id, title, body,
-        scheduledNotificationDateTime, getPlatformChannelSpecfics());
-  }
-
-  periodicNotification(
-      {@required int id,
-        @required String title,
-        @required String body,
-        @required DateTime dateTime}) async {
+  Future<void> periodicNotification(
+      {required int id,
+        required String title,
+        required String body,
+        required DateTime dateTime}) async {
 
     await flutterLocalNotificationsPlugin.periodicallyShow(0, 'repeating title',
         'repeating body', RepeatInterval.everyMinute, getPlatformChannelSpecfics());
   }
 
   dailyNotification() async {
-    var time = Time(10, 0, 0);
+    var time = const Time(10, 0, 0);
 
 
     await flutterLocalNotificationsPlugin.showDailyAtTime(
@@ -99,17 +98,17 @@ class NotificationService with ChangeNotifier {
   }
 
   dailyMedicineNotification(
-      {@required int id,
-        @required String title,
-        @required String body,
-        @required Time time}) async {
+      {required int id,
+        required String title,
+        required String body,
+        required Time time}) async {
 
     await flutterLocalNotificationsPlugin.showDailyAtTime(
         id, title, body, time, getPlatformChannelSpecfics());
   }
 
   weeklyNotification() async {
-    var time = Time(10, 0, 0);
+    var time = const Time(10, 0, 0);
 
     await flutterLocalNotificationsPlugin.showWeeklyAtDayAndTime(
         0,

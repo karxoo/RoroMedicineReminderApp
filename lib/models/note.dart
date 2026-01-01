@@ -1,10 +1,10 @@
 class Note {
-  int _id;
-  String _title;
-  String _description;
-  String _dateCreated;
-  String _date;
-  int _priority;
+  int? _id;
+  String? _title;
+  String? _description;
+  String? _dateCreated;
+  String? _date;
+  int? _priority;
 
   Note(this._title, this._date, this._dateCreated, this._priority,
       [this._description]);
@@ -12,47 +12,50 @@ class Note {
   Note.withId(this._id, this._title, this._dateCreated, this._priority,
       [this._description]);
 
-  int get id => _id;
+  int? get id => _id;
 
-  String get title => _title;
+  String? get title => _title;
 
-  String get description => _description;
+  String? get description => _description;
 
-  int get priority => _priority;
+  int? get priority => _priority;
 
-  String get dateCreated => _dateCreated;
+  String? get dateCreated => _dateCreated;
 
-  String get date => _date;
+  String? get date => _date;
 
-  set title(String newTitle) {
+  set title(String? newTitle) {
+    if (newTitle == null) return;
     if (newTitle.length <= 255) {
-      this._title = newTitle;
+      _title = newTitle;
     }
   }
 
-  set description(String newDescription) {
+  set description(String? newDescription) {
+    if (newDescription == null) return;
     if (newDescription.length <= 255) {
-      this._description = newDescription;
+      _description = newDescription;
     }
   }
 
-  set priority(int newPriority) {
+  set priority(int? newPriority) {
+    if (newPriority == null) return;
     if (newPriority >= 1 && newPriority <= 2) {
-      this._priority = newPriority;
+      _priority = newPriority;
     }
   }
 
-  set date(String newDate) {
-    this._date = newDate;
+  set date(String? newDate) {
+    _date = newDate;
   }
 
-  set dateCreated(String newDateCreated) {
-    this._dateCreated = newDateCreated;
+  set dateCreated(String? newDateCreated) {
+    _dateCreated = newDateCreated;
   }
 
   // Convert a Note object into a Map object
   Map<String, dynamic> toMap() {
-    var map = Map<String, dynamic>();
+    var map = <String, dynamic>{};
     if (id != null) {
       map['id'] = _id;
     }
@@ -66,11 +69,11 @@ class Note {
 
   // Extract a Note object from a Map object
   Note.fromMapObject(Map<String, dynamic> map) {
-    this._id = map['id'];
-    this._title = map['title'];
-    this._description = map['description'];
-    this._priority = map['priority'];
-    this._dateCreated = map['dateCreated'];
-    this._date = map['date'];
+    _id = map['id'] as int?;
+    _title = map['title'] as String?;
+    _description = map['description'] as String?;
+    _priority = map['priority'] as int?;
+    _dateCreated = map['dateCreated'] as String?;
+    _date = map['date'] as String?;
   }
 }

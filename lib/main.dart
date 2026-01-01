@@ -4,8 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:provider/provider.dart';
 import 'package:roro_medicine_reminder/resources/service_locator.dart';
-
-
 import 'package:roro_medicine_reminder/screens/authenticate/signin.dart';
 import 'package:roro_medicine_reminder/screens/document/add_documents_screen.dart';
 import 'package:roro_medicine_reminder/screens/document/view_documents_screen.dart';
@@ -33,8 +31,6 @@ import 'package:roro_medicine_reminder/services/notifications.dart';
 import 'models/appoinment.dart';
 import 'models/reminder.dart';
 
-
-
 Future<void> main() async {
   setupLocator();
   FlutterDownloader.initialize(debug: false);
@@ -45,6 +41,8 @@ Future<void> main() async {
 
 class MyApp extends StatelessWidget {
   var fsconnect = FirebaseFirestore.instance;
+
+  MyApp({Key? key}) : super(key: key);
 
   myget() async {
     var d = await fsconnect.collection("students").get();
@@ -57,19 +55,18 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Reminder reminder;
+    Reminder? reminder;
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(
           create: (context) => AuthClass(),
         ),
-
-
         ChangeNotifierProvider(
           create: (context) => NotificationService(),
         ),
-        StreamProvider<User>.value(
+        StreamProvider<User?>.value(
           value: FirebaseAuth.instance.authStateChanges(),
+          initialData: null,
         ),
       ],
       child: Consumer<AuthClass>(
@@ -81,44 +78,54 @@ class MyApp extends StatelessWidget {
             visualDensity: VisualDensity.adaptivePlatformDensity,
           ),
           home: auth.isAuth
-              ? HomePage()
+              ? const HomePage()
               : FutureBuilder(
-              future: auth.tryAutoLogIn(),
-              builder: (context, authResult) =>
-              authResult.connectionState == ConnectionState.waiting
-                  ? OnboardingScreen()
-                  : OnboardingScreen()),
+                  future: auth.tryAutoLogIn(),
+                  builder: (context, authResult) =>
+                      authResult.connectionState == ConnectionState.waiting
+                          ? const OnboardingScreen()
+                          : const OnboardingScreen()),
           routes: {
-
-
-            Progress.routeName: (ctx) => Progress(),
-            Inventory.routeName: (ctx) => Inventory(),
-
-            SignInPage.routeName: (ctx) => SignInPage(),
-            ProfileScreen.routeName: (ctx) => ProfileScreen(),
-            ProfileEdit.routeName: (ctx) => ProfileEdit(),
-            AddDocuments.routeName: (ctx) => AddDocuments(),
-            ViewDocuments.routeName: (context) => ViewDocuments(),
-            AppoinmentReminder.routeName: (ctx) => AppoinmentReminder(),
+            Progress.routeName: (ctx) => const Progress(),
+            Inventory.routeName: (ctx) => const Inventory(),
+            SignInPage.routeName: (ctx) => const SignInPage(),
+            ProfileScreen.routeName: (ctx) => const ProfileScreen(),
+            ProfileEdit.routeName: (ctx) => const ProfileEdit(),
+            AddDocuments.routeName: (ctx) => const AddDocuments(),
+            ViewDocuments.routeName: (context) => const ViewDocuments(),
+            AppoinmentReminder.routeName: (ctx) => const AppoinmentReminder(),
             AppoinmentDetail.routeName: (ctx) => AppoinmentDetail(
-              Appoinment('', '', '', '', 999999, false),
-              '',
-            ),
+                  Appoinment('', '', '', '', 999999, false),
+                  '',
+                ),
             AppoinmentDecision.routeName: (context) =>
                 AppoinmentDecision(Appoinment('', '', '', '', 999999, false)),
-            MedicineReminder.routeName: (ctx) => MedicineReminder(),
-            ContactScreen.routeName: (ctx) => ContactScreen(),
-            NotePage.routeName: (ctx) => NotePage(),
-            ReminderDetail.routeName: (ctx) => ReminderDetail(reminder, ''),
-            NearbyHospitalScreen.routeName: (ctx) => NearbyHospitalScreen(),
-            InitialSetupScreen.routeName: (ctx) => InitialSetupScreen(),
-            EditRelativesScreen.routeName: (ctx) => EditRelativesScreen(''),
-
+            MedicineReminder.routeName: (ctx) =>
+                MedicineReminder(reminder: reminder!),
+            ContactScreen.routeName: (ctx) => const ContactScreen(),
+            NotePage.routeName: (ctx) => const NotePage(),
+            ReminderDetail.routeName: (ctx) => ReminderDetail(
+                  reminder ??
+                      Reminder(
+                        '', // _name
+                        '', // _type
+                        '', // _time1
+                        '', // _time2
+                        '', // _time3
+                        0, // _times
+                        0, // _notificationID
+                        <String, dynamic>{}, // _intakeHistory
+                      ),
+                  '',
+                ),
+            NearbyHospitalScreen.routeName: (ctx) =>
+                const NearbyHospitalScreen(),
+            InitialSetupScreen.routeName: (ctx) => const InitialSetupScreen(),
+            EditRelativesScreen.routeName: (ctx) =>
+                const EditRelativesScreen(''),
           },
         ),
       ),
-
     );
-
   }
 }

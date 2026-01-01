@@ -17,6 +17,8 @@ import '../../../../components/navBar.dart';
 class ProfileScreen extends StatefulWidget {
   static const routeName = 'Dependent_Profile_Screen';
 
+  const ProfileScreen({Key? key}) : super(key: key);
+
   @override
   _ProfileScreenState createState() => _ProfileScreenState();
 }
@@ -31,9 +33,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return 'Created';
   }
 
-  String userId, imageUrl = '';
-  User loggedInUser;
-  File imageFile;
+  String userId = '';
+  String imageUrl = '';
+  User? loggedInUser;
+  File? imageFile;
 
   @override
   void initState() {
@@ -42,18 +45,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   getCurrentUser() async {
-    User user = await FirebaseAuth.instance.currentUser;
+    final user = FirebaseAuth.instance.currentUser;
     setState(() {
-      userId = user.uid;
+      userId = user?.uid ?? '';
+      loggedInUser = user;
     });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      drawer: AppDrawer(),
+      drawer: const AppDrawer(),
       appBar: AppBar(
-        title: Row(
+        title: const Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             Text(
@@ -67,7 +71,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         actions: <Widget>[
           GestureDetector(
             onTap: () {},
-            child: CircleAvatar(
+            child: const CircleAvatar(
               radius: 20,
               backgroundColor: Colors.blueGrey,
               child: Icon(
@@ -85,28 +89,33 @@ class _ProfileScreenState extends State<ProfileScreen> {
               .doc(userId)
               .snapshots(),
           builder: (context, snapshot) {
-            if (snapshot != null && snapshot.hasData) {
+            if (snapshot.hasData && snapshot.data != null) {
+              final doc = snapshot.data as DocumentSnapshot;
+              final data = doc.data() as Map<String, dynamic>?;
               UserProfile userProfile = UserProfile(userId);
-              userProfile.setData(snapshot.data.data());
+              userProfile.setData(data ?? <String, dynamic>{});
+              final pictureUrl = userProfile.picture ?? '';
               return ListView(
                 children: <Widget>[
-                  SizedBox(
+                  const SizedBox(
                     height: 8,
                   ),
                   Center(
                     child: Stack(
                       children: <Widget>[
                         Container(
-                            width: 170,
-                            height: 170,
-                            decoration: BoxDecoration(
-                                border:
-                                    Border.all(width: 5, color: Colors.white),
-                                borderRadius: BorderRadius.circular(2000),
-                                shape: BoxShape.rectangle,
-                                image: DecorationImage(
-                                    fit: BoxFit.fill,
-                                    image: NetworkImage(userProfile.picture)))),
+                          width: 170,
+                          height: 170,
+                          decoration: BoxDecoration(
+                            border:
+                              Border.all(width: 5, color: Colors.white),
+                            borderRadius: BorderRadius.circular(2000),
+                            shape: BoxShape.rectangle,
+                            image: pictureUrl.isNotEmpty
+                              ? DecorationImage(
+                                fit: BoxFit.fill,
+                                image: NetworkImage(pictureUrl))
+                              : null)),
                         Positioned(
                           bottom: 0,
                           right: 0,
@@ -128,65 +137,65 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ],
                     ),
                   ),
-                  SizedBox(
+                  const SizedBox(
                     height: 15,
                   ),
                   ProfileTextBox(
                     name: 'userName',
-                    value: userProfile.userName,
+                    value: userProfile?.userName ?? '',
                     title: 'name',
                   ),
                   ProfileTextBox(
                     name: 'age',
-                    value: userProfile.age,
+                    value: userProfile?.age ?? '',
                     title: 'age',
                   ),
                   ProfileTextBox(
                     name: 'gender',
-                    value: userProfile.gender,
+                    value: userProfile?.gender ?? '',
                     title: 'gender',
                   ),
                   ProfileTextBox(
                     name: 'height',
-                    value: userProfile.height,
+                    value: userProfile?.height ?? '',
                     title: 'height',
                   ),
                   ProfileTextBox(
                     name: 'weight',
-                    value: userProfile.weight,
+                    value: userProfile?.weight ?? '',
                     title: 'weight',
                   ),
                   ProfileTextBox(
                     name: 'bloodGroup',
-                    value: userProfile.bloodGroup,
+                    value: userProfile?.bloodGroup ?? '',
                     title: 'blood group',
                   ),
                   ProfileTextBox(
                     name: 'bloodPressure',
-                    value: userProfile.bloodPressure,
+                    value: userProfile?.bloodPressure ?? '',
                     title: 'blood pressure',
                   ),
                   ProfileTextBox(
                     name: 'bloodSugar',
-                    value: userProfile.bloodSugar,
+                    value: userProfile?.bloodSugar ?? '',
                     title: 'blood sugar',
                   ),
                   ProfileTextBox(
                     name: 'allergies',
-                    value: userProfile.allergies,
+                    value: userProfile?.allergies ?? '',
                     title: 'allergies',
                   ),
                   ProfileTextBox(
                     name: 'email',
-                    value: userProfile.email,
+                    value: userProfile?.email ?? '',
                     title: 'email address',
                   ),
                   ProfileTextBox(
                     name: 'phoneNumber',
-                    value: userProfile.phoneNumber,
+                    value: userProfile?.phoneNumber ?? '',
                     title: 'phone number',
                   ),
-                  SizedBox(
+                  const SizedBox(
                     height: 25.0,
                   ),
                   Row(
@@ -195,30 +204,29 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       children: <Widget>[
                         ElevatedButton(
                           onPressed: () async {
-                            await updateData;
+                            updateData;
                             Navigator.pushNamed(
                                 context, ProfileScreen.routeName);
-                            print('Changed');
+                            debugPrint('Changed');
                           },
                           style: ElevatedButton.styleFrom(
-                            elevation: 2,
-                            primary: Color(0xffff9987),
+                            elevation: 2, backgroundColor: const Color(0xffff9987),
                             shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(20),
                                 side: BorderSide(
-                                  color: Colors.redAccent[100],
+                                  color: Colors.redAccent[100]!,
                                 )),
-                            padding: EdgeInsets.symmetric(
+                            padding: const EdgeInsets.symmetric(
                                 horizontal: 40, vertical: 10),
                           ),
-                          child: Text("Update Data",
+                          child: const Text("Update Data",
                               style: TextStyle(
                                   fontSize: 15,
                                   fontFamily: 'Mulish',
                                   fontWeight: FontWeight.bold,
                                   color: Colors.white)),
                         ),
-                        SizedBox(
+                        const SizedBox(
                           width: 25,
                         ),
                         ElevatedButton(
@@ -226,10 +234,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) => HomePage()),
+                                  builder: (context) => const HomePage()),
                             );
                           },
-                          child: Text(
+                          style: ElevatedButton.styleFrom(
+                            elevation: 2, backgroundColor: const Color(0xffff9987),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20),
+                                side: BorderSide(
+                                  color: Colors.redAccent[100]!,
+                                )),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 40, vertical: 10),
+                          ),
+                          child: const Text(
                             'Cancel',
                             style: TextStyle(
                                 fontSize: 15,
@@ -237,31 +255,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 fontWeight: FontWeight.bold,
                                 color: Colors.white),
                           ),
-                          style: ElevatedButton.styleFrom(
-                            elevation: 2,
-                            primary: Color(0xffff9987),
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(20),
-                                side: BorderSide(
-                                  color: Colors.redAccent[100],
-                                )),
-                            padding: EdgeInsets.symmetric(
-                                horizontal: 40, vertical: 10),
-                          ),
                         )
                       ]),
                 ],
               );
             } else {
               return Container(
-                child: SpinKitWanderingCubes(
+                child: const SpinKitWanderingCubes(
                   color: Colors.blueGrey,
                   size: 100.0,
                 ),
               );
             }
           }),
-      bottomNavigationBar: MyBottomNavBar(),
+      bottomNavigationBar: const MyBottomNavBar(),
     );
   }
 
@@ -275,21 +282,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Future getImage() async {
     final picker = ImagePicker();
     final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile == null) return;
     setState(() {
       imageFile = File(pickedFile.path);
     });
-    if (imageFile != null) {
-      setState(() {
+    setState(() {
 //        isLoading = true;
-      });
-      await uploadFile(userId);
+    });
+    await uploadFile(userId);
     }
-  }
 
   Future uploadFile(String name) async {
     String fileName = name;
     Reference reference = FirebaseStorage.instance.ref().child(fileName);
-    UploadTask uploadTask = reference.putFile(imageFile);
+    UploadTask uploadTask = reference.putFile(imageFile!);
     TaskSnapshot storageTaskSnapshot = await uploadTask;
     storageTaskSnapshot.ref.getDownloadURL().then((downloadUrl) {
       imageUrl = downloadUrl;
@@ -305,7 +311,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       showDialog(
           context: context,
           builder: (context) {
-            return Dialog(
+            return const Dialog(
               child: Text('Not an Image.'),
             );
           });

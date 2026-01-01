@@ -8,6 +8,8 @@ import '../../../../components/navBar.dart';
 import '../../../../models/tracker.dart';
 
 class BloodPressureTrackerScreen extends StatefulWidget {
+  const BloodPressureTrackerScreen({Key? key}) : super(key: key);
+
   @override
   _BloodPressureTrackerScreenState createState() =>
       _BloodPressureTrackerScreenState();
@@ -16,16 +18,16 @@ class BloodPressureTrackerScreen extends StatefulWidget {
 class _BloodPressureTrackerScreenState
     extends State<BloodPressureTrackerScreen> {
   getCurrentUser() async {
-    User user = await FirebaseAuth.instance.currentUser;
+    User? user = FirebaseAuth.instance.currentUser;
     setState(() {
-      userId = user.uid;
+      userId = user?.uid ?? "";
     });
   }
 
-  QuerySnapshot snapshot;
-  String userId;
-  double averageDiastolic, averageSystolic, averagePulse;
-  BloodPressureTracker bloodPressure;
+  late QuerySnapshot snapshot;
+  late String userId;
+  late double averageDiastolic, averageSystolic, averagePulse;
+  late BloodPressureTracker bloodPressure;
   getDocumentList() async {
     bloodPressure = BloodPressureTracker();
     snapshot = await FirebaseFirestore.instance
@@ -38,19 +40,21 @@ class _BloodPressureTrackerScreenState
 
     List<BloodPressure> list = bloodPressure.loadData(snapshot);
     for (var s in list) {
-      totalDiastolic += s.diastolic;
-      totalSystolic += s.systolic;
-      totalPulse += s.pulse;
+      totalDiastolic += s.diastolic ?? 0.00;
+      totalSystolic += s.systolic ?? 0.00;
+      totalPulse += s.pulse ?? 0.00;
     }
 
-    setState(() { averageDiastolic = totalDiastolic / list.length;
-    averageSystolic = totalSystolic / list.length;
-    averagePulse = totalPulse / list.length;});
+    setState(() {
+      averageDiastolic = totalDiastolic / list.length;
+      averageSystolic = totalSystolic / list.length;
+      averagePulse = totalPulse / list.length;
+    });
 
     return snapshot;
   }
 
-  PageController _controller;
+  late PageController _controller;
 
   @override
   void initState() {
@@ -73,16 +77,16 @@ class _BloodPressureTrackerScreenState
       body: PageView(
         controller: _controller,
         children: <Widget>[
-          FutureBuilder(
-              future: getDocumentList(),
-              builder: (context, snapshot) {
+         StreamBuilder<QuerySnapshot>(
+  stream: FirebaseFirestore.instance.collection('bloodPressure').snapshots(),
+  builder: (context, snapshot) {
                 if (snapshot.hasData) {
                   return Column(
                     children: <Widget>[
                       Center(
                         child: Container(
-                          margin: EdgeInsets.fromLTRB(20, 8, 20, 0),
-                          child: Text(
+                          margin: const EdgeInsets.fromLTRB(20, 8, 20, 0),
+                          child: const Text(
                             'Diastolic ',
                             style: TextStyle(
                               fontSize: 18,
@@ -91,18 +95,18 @@ class _BloodPressureTrackerScreenState
                           ),
                         ),
                       ),
-                      ListView(
-                        shrinkWrap: true,
-                      children: <Widget>[ Container(
-                          margin: EdgeInsets.all(15),
+                      ListView(shrinkWrap: true, children: <Widget>[
+                        Container(
+                          margin: const EdgeInsets.all(15),
                           constraints: BoxConstraints(
                             maxHeight: MediaQuery.of(context).size.height / 1.7,
                             maxWidth: MediaQuery.of(context).size.width *
-                                (snapshot.data.docs.length / 2.5),
+                                (snapshot.data!.docs.length / 2.5),
                           ),
                           child: Card(
                             shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(10)),
+                            margin: const EdgeInsets.all(8),
                             child: Padding(
                               padding: const EdgeInsets.all(8.0),
                               child: BloodPressureChart(
@@ -111,32 +115,32 @@ class _BloodPressureTrackerScreenState
                                 type: 'diastolic',
                               ),
                             ),
-                            margin: EdgeInsets.all(8),
                           ),
                         ),
                       ]),
                       Card(
-                        margin: EdgeInsets.only(left: 8, right: 8),
+                        margin: const EdgeInsets.only(left: 8, right: 8),
                         child: ListTile(
-                          subtitle: Text('Average Diastolic '),
+                          subtitle: const Text('Average Diastolic '),
                           title: Text(averageDiastolic.toStringAsFixed(2)),
                         ),
                       )
                     ],
                   );
-                } else
-                  return SizedBox();
+                } else {
+                  return const SizedBox();
+                }
               }),
-          FutureBuilder(
-              future: getDocumentList(),
-              builder: (context, snapshot) {
+          StreamBuilder<QuerySnapshot>(
+  stream: FirebaseFirestore.instance.collection('bloodPressure').snapshots(),
+  builder: (context, snapshot) {
                 if (snapshot.hasData) {
                   return Column(
                     children: <Widget>[
                       Center(
                         child: Container(
-                          margin: EdgeInsets.fromLTRB(20, 8, 20, 0),
-                          child: Text(
+                          margin: const EdgeInsets.fromLTRB(20, 8, 20, 0),
+                          child: const Text(
                             'Systolic',
                             style: TextStyle(
                               fontSize: 18,
@@ -145,18 +149,18 @@ class _BloodPressureTrackerScreenState
                           ),
                         ),
                       ),
-                      ListView(
-                          shrinkWrap: true,
-                      children: <Widget>[ Container(
-                          margin: EdgeInsets.all(15),
+                      ListView(shrinkWrap: true, children: <Widget>[
+                        Container(
+                          margin: const EdgeInsets.all(15),
                           constraints: BoxConstraints(
                             maxHeight: MediaQuery.of(context).size.height / 1.7,
                             maxWidth: MediaQuery.of(context).size.width *
-                                (snapshot.data.docs.length / 2.5),
+                                (snapshot.data!.docs.length / 2.5),
                           ),
                           child: Card(
                             shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(10)),
+                            margin: const EdgeInsets.all(8),
                             child: Padding(
                               padding: const EdgeInsets.all(8.0),
                               child: BloodPressureChart(
@@ -165,32 +169,32 @@ class _BloodPressureTrackerScreenState
                                 type: 'systolic',
                               ),
                             ),
-                            margin: EdgeInsets.all(8),
                           ),
                         ),
                       ]),
                       Card(
-                        margin: EdgeInsets.only(left: 8, right: 8),
+                        margin: const EdgeInsets.only(left: 8, right: 8),
                         child: ListTile(
-                          subtitle: Text('Average Systolic'),
+                          subtitle: const Text('Average Systolic'),
                           title: Text(averageSystolic.toStringAsFixed(2)),
                         ),
                       )
                     ],
                   );
-                } else
-                  return SizedBox();
+                } else {
+                  return const SizedBox();
+                }
               }),
-          FutureBuilder(
-              future: getDocumentList(),
-              builder: (context, snapshot) {
+         StreamBuilder<QuerySnapshot>(
+  stream: FirebaseFirestore.instance.collection('bloodPressure').snapshots(),
+  builder: (context, snapshot) {
                 if (snapshot.hasData) {
                   return Column(
                     children: <Widget>[
                       Center(
                         child: Container(
-                          margin: EdgeInsets.fromLTRB(20, 8, 20, 0),
-                          child: Text(
+                          margin: const EdgeInsets.fromLTRB(20, 8, 20, 0),
+                          child: const Text(
                             'Pulse',
                             style: TextStyle(
                               fontSize: 18,
@@ -199,18 +203,18 @@ class _BloodPressureTrackerScreenState
                           ),
                         ),
                       ),
-                      ListView(
-                        shrinkWrap: true,
-                      children: <Widget>[ Container(
-                          margin: EdgeInsets.all(15),
+                      ListView(shrinkWrap: true, children: <Widget>[
+                        Container(
+                          margin: const EdgeInsets.all(15),
                           constraints: BoxConstraints(
                             maxHeight: MediaQuery.of(context).size.height / 1.7,
                             maxWidth: MediaQuery.of(context).size.width *
-                                (snapshot.data.docs.length / 2.5),
+                                (snapshot.data!.docs.length / 2.5),
                           ),
                           child: Card(
                             shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(10)),
+                            margin: const EdgeInsets.all(8),
                             child: Padding(
                               padding: const EdgeInsets.all(8.0),
                               child: BloodPressureChart(
@@ -219,27 +223,27 @@ class _BloodPressureTrackerScreenState
                                 type: 'pulse',
                               ),
                             ),
-                            margin: EdgeInsets.all(8),
                           ),
                         ),
                       ]),
                       Card(
-                        margin: EdgeInsets.only(left: 8, right: 8),
+                        margin: const EdgeInsets.only(left: 8, right: 8),
                         child: ListTile(
-                          subtitle: Text('Average Pulse'),
+                          subtitle: const Text('Average Pulse'),
                           title: Text(averageSystolic.toStringAsFixed(2)),
                         ),
                       )
                     ],
                   );
-                } else
-                  return SizedBox();
+                } else {
+                  return const SizedBox();
+                }
               })
         ],
       ),
-      appBar: ROROAppBar(),
-      drawer: AppDrawer(),
-      bottomNavigationBar: MyBottomNavBar(),
+      appBar: const ROROAppBar(),
+      drawer: const AppDrawer(),
+      bottomNavigationBar: const MyBottomNavBar(),
     );
   }
 }

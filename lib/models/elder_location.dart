@@ -3,8 +3,8 @@ import '../services/constants.dart';
 import '../services/network.dart';
 
 class ElderLocation {
-  String address, url;
-  UserLocation location;
+  late String address, url;
+  late UserLocation location;
   ElderLocation();
   getLocationData() async {
     location = UserLocation(longitude: 0, latitude: 0);
@@ -18,8 +18,8 @@ class ElderLocation {
     await networkHelper.getData().then((value) {
       data = value;
     });
-    this.url = data['results'][0]['annotations']['OSM']['url'];
-    this.address = data['results'][0]['formatted'];
+    url = data['results'][0]['annotations']['OSM']['url'];
+    address = data['results'][0]['formatted'];
     return this;
   }
 }
