@@ -2,21 +2,11 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>roro_medicine_reminder</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <style>
-    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; line-height: 1.6; margin: 2rem; color: #1f2937; }
-    h1, h2 { color: #111827; }
-    code, pre { background: #f3f4f6; padding: 0.2rem 0.4rem; border-radius: 4px; }
-    a { color: #2563eb; text-decoration: none; }
-    a:hover { text-decoration: underline; }
-    ul { margin-left: 1.25rem; }
-    .section { margin-top: 2rem; }
-  </style>
+ 
 </head>
 <body>
   <header>
-    <h1># roro_medicine_reminder</h1>
+    <h1>Roro Medicine Reminder</h1>
     <p>
       It is a Final Year Project completed for a Bachelor’s Degree. The mobile app helps patients keep track of
       health-related routines such as appointments and medicine reminders. It is built with the Google Flutter framework,
@@ -53,3 +43,4 @@
   </section>
 </body>
 </html>
+
