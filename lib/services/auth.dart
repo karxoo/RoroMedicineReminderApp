@@ -42,7 +42,7 @@ class AuthClass extends ChangeNotifier {
 
   final storage = const FlutterSecureStorage();
 
-    Stream<String?> get onAuthStateChanged =>
+  Stream<String?> get onAuthStateChanged =>
       _auth.authStateChanges().map((User? user) => user?.uid);
 
   Future<void> inputData() async {
@@ -101,7 +101,7 @@ class AuthClass extends ChangeNotifier {
         }
       }
 
-        storeTokenAndData(userCredential);
+      storeTokenAndData(userCredential);
       navigator.pushAndRemoveUntil(
           MaterialPageRoute(builder: (builder) => const HomePage()),
           (route) => false);
@@ -225,21 +225,21 @@ class AuthClass extends ChangeNotifier {
       return false;
     }
     final userDataString = prefs.getString('userData');
-if (userDataString == null) {
-  return false; // No saved session
-}
+    if (userDataString == null) {
+      return false; // No saved session
+    }
 
-final extractedData = json.decode(userDataString) as Map<String, dynamic>;
+    final extractedData = json.decode(userDataString) as Map<String, dynamic>;
 
-if (!extractedData.containsKey('expiryDate')) {
-  return false; // Missing expiry date
-}
+    if (!extractedData.containsKey('expiryDate')) {
+      return false; // Missing expiry date
+    }
 
-final userExpiryDate = DateTime.tryParse(extractedData['expiryDate']);
-if (userExpiryDate == null || userExpiryDate.isBefore(DateTime.now())) {
-  return false; // Expired or invalid date
-}
-return true; // Session still valid
+    final userExpiryDate = DateTime.tryParse(extractedData['expiryDate']);
+    if (userExpiryDate == null || userExpiryDate.isBefore(DateTime.now())) {
+      return false; // Expired or invalid date
+    }
+    return true; // Session still valid
   }
 
   Future<void> logout() async {
@@ -275,11 +275,14 @@ return true; // Session still valid
       String phoneNumber, BuildContext context, Function setData) async {
     final messenger = ScaffoldMessenger.of(context);
     verificationCompleted(PhoneAuthCredential phoneAuthCredential) async {
-      messenger.showSnackBar(const SnackBar(content: Text("Verification Completed")));
+      messenger.showSnackBar(
+          const SnackBar(content: Text("Verification Completed")));
     }
+
     verificationFailed(FirebaseAuthException exception) {
       messenger.showSnackBar(SnackBar(content: Text(exception.toString())));
     }
+
     codeSent(String verificationID, [int? forceResendingtoken]) {
       messenger.showSnackBar(const SnackBar(
           content: Text("Verification Code sent on the phone number")));
@@ -289,6 +292,7 @@ return true; // Session still valid
     codeAutoRetrievalTimeout(String verificationID) {
       messenger.showSnackBar(const SnackBar(content: Text("Time out")));
     }
+
     try {
       await _auth.verifyPhoneNumber(
           timeout: const Duration(seconds: 60),

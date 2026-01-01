@@ -27,9 +27,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Future<String> addProfile() async {
     CollectionReference profile =
         FirebaseFirestore.instance.collection('profile');
-    var profiles = await profile.add({
-
-    });
+    var profiles = await profile.add({});
     return 'Created';
   }
 
@@ -104,18 +102,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     child: Stack(
                       children: <Widget>[
                         Container(
-                          width: 170,
-                          height: 170,
-                          decoration: BoxDecoration(
-                            border:
-                              Border.all(width: 5, color: Colors.white),
-                            borderRadius: BorderRadius.circular(2000),
-                            shape: BoxShape.rectangle,
-                            image: pictureUrl.isNotEmpty
-                              ? DecorationImage(
-                                fit: BoxFit.fill,
-                                image: NetworkImage(pictureUrl))
-                              : null)),
+                            width: 170,
+                            height: 170,
+                            decoration: BoxDecoration(
+                                border:
+                                    Border.all(width: 5, color: Colors.white),
+                                borderRadius: BorderRadius.circular(2000),
+                                shape: BoxShape.rectangle,
+                                image: pictureUrl.isNotEmpty
+                                    ? DecorationImage(
+                                        fit: BoxFit.fill,
+                                        image: NetworkImage(pictureUrl))
+                                    : null)),
                         Positioned(
                           bottom: 0,
                           right: 0,
@@ -210,7 +208,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             debugPrint('Changed');
                           },
                           style: ElevatedButton.styleFrom(
-                            elevation: 2, backgroundColor: const Color(0xffff9987),
+                            elevation: 2,
+                            backgroundColor: const Color(0xffff9987),
                             shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(20),
                                 side: BorderSide(
@@ -238,7 +237,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             );
                           },
                           style: ElevatedButton.styleFrom(
-                            elevation: 2, backgroundColor: const Color(0xffff9987),
+                            elevation: 2,
+                            backgroundColor: const Color(0xffff9987),
                             shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(20),
                                 side: BorderSide(
@@ -290,7 +290,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 //        isLoading = true;
     });
     await uploadFile(userId);
-    }
+  }
 
   Future uploadFile(String name) async {
     String fileName = name;

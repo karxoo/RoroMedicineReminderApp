@@ -152,13 +152,15 @@ class TrackerCard extends StatelessWidget {
   final bool isTracking, isHidden;
 
   const TrackerCard(
-      {Key? key, this.title = "",
+      {Key? key,
+      this.title = "",
       required this.isHidden,
       required this.onAdd,
       required this.onHide,
       required this.subTitle,
       required this.onView,
-      required this.isTracking}) : super(key: key);
+      required this.isTracking})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -222,7 +224,8 @@ class TrackerCard extends StatelessWidget {
                       ? ElevatedButton(
                           onPressed: onView,
                           style: ElevatedButton.styleFrom(
-                            elevation: 2, backgroundColor: const Color(0xffff9987),
+                            elevation: 2,
+                            backgroundColor: const Color(0xffff9987),
                             shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(20),
                                 side: BorderSide(
@@ -243,7 +246,8 @@ class TrackerCard extends StatelessWidget {
                       : ElevatedButton(
                           onPressed: onHide,
                           style: ElevatedButton.styleFrom(
-                            elevation: 2, backgroundColor: const Color(0xffff9987),
+                            elevation: 2,
+                            backgroundColor: const Color(0xffff9987),
                             shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(20),
                                 side: BorderSide(
@@ -267,14 +271,15 @@ class TrackerCard extends StatelessWidget {
                   ElevatedButton(
                     onPressed: onAdd,
                     style: ElevatedButton.styleFrom(
-                      elevation: 2, backgroundColor: const Color(0xffff9987),
+                      elevation: 2,
+                      backgroundColor: const Color(0xffff9987),
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(20),
                           side: BorderSide(
                             color: Colors.redAccent[100]!,
                           )),
-                      padding:
-                          const EdgeInsets.symmetric(horizontal: 40, vertical: 10),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 40, vertical: 10),
                     ),
                     child: const Text("Add Data",
                         style: TextStyle(

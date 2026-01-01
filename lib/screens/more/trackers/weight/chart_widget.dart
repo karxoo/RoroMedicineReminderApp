@@ -6,7 +6,8 @@ import '../../../../models/tracker.dart';
 class WeightChart extends StatefulWidget {
   final bool animate;
   final String userID;
-  const WeightChart({Key? key,
+  const WeightChart({
+    Key? key,
     required this.animate,
     required this.userID,
   }) : super(key: key);

@@ -14,7 +14,11 @@ class OnboardingScreen extends StatefulWidget {
 class _OnboardingScreenState extends State<OnboardingScreen> {
   final _controller = PageController();
   int _currentPage = 0;
-  List<Color> colors = [const Color(0xffe3f1f4), const Color(0xffe3f1f4), const Color(0xffe3f1f4)];
+  List<Color> colors = [
+    const Color(0xffe3f1f4),
+    const Color(0xffe3f1f4),
+    const Color(0xffe3f1f4)
+  ];
 
   AnimatedContainer _buildDots({required int index}) {
     return AnimatedContainer(

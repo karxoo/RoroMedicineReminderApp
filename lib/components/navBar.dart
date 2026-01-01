@@ -32,8 +32,7 @@ class MyBottomNavBar extends StatelessWidget {
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(
-                    builder: (context) => const HomePage()),
+                MaterialPageRoute(builder: (context) => const HomePage()),
               );
             },
           ),
@@ -49,12 +48,12 @@ class MyBottomNavBar extends StatelessWidget {
             },
           ),*/
           IconButton(
-            icon: const Icon(Icons.medical_services_sharp, color: Colors.blueGrey),
+            icon: const Icon(Icons.medical_services_sharp,
+                color: Colors.blueGrey),
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(
-                    builder: (context) => const Treatment()),
+                MaterialPageRoute(builder: (context) => const Treatment()),
               );
             },
           ),
@@ -63,8 +62,7 @@ class MyBottomNavBar extends StatelessWidget {
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(
-                    builder: (context) => const More()),
+                MaterialPageRoute(builder: (context) => const More()),
               );
             },
           ),

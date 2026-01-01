@@ -6,7 +6,8 @@ import '../../../../models/tracker.dart';
 class BloodSugarChart extends StatefulWidget {
   final bool animate;
   final String userID;
-  const BloodSugarChart({Key? key, 
+  const BloodSugarChart({
+    Key? key,
     required this.animate,
     required this.userID,
   }) : super(key: key);

@@ -176,23 +176,25 @@ class _AppoinmentReminderState extends State<AppoinmentReminder> {
 
   List<Widget> getPastAppoinmentWidget(BuildContext context) {
     pastAppoinment.sort((a, b) {
-  // Safely handle nulls when sorting
-  final aDate = a.dateAndTime != null ? DateTime.parse(a.dateAndTime!) : DateTime(1900);
-  final bDate = b.dateAndTime != null ? DateTime.parse(b.dateAndTime!) : DateTime(1900);
-  return bDate.compareTo(aDate);
-});
-
+      // Safely handle nulls when sorting
+      final aDate = a.dateAndTime != null
+          ? DateTime.parse(a.dateAndTime!)
+          : DateTime(1900);
+      final bDate = b.dateAndTime != null
+          ? DateTime.parse(b.dateAndTime!)
+          : DateTime(1900);
+      return bDate.compareTo(aDate);
+    });
 
     List<Widget> pastAppoinmentWidgetList = [];
 
     for (Appoinment tempAppoinment in pastAppoinment) {
       String date, time;
 
-if (tempAppoinment.dateAndTime == null) {
-    // Skip appointments without a date
-    continue;
-  }
-
+      if (tempAppoinment.dateAndTime == null) {
+        // Skip appointments without a date
+        continue;
+      }
 
       dateTime = DateTime.parse(tempAppoinment.dateAndTime!);
 
@@ -224,10 +226,13 @@ if (tempAppoinment.dateAndTime == null) {
 
   List<Widget> getUpcomingAppoinmentWidget(BuildContext context) {
     upcomingAppoinment.sort((a, b) {
-      final aDate = a.dateAndTime != null ? DateTime.parse(a.dateAndTime!) : DateTime(1900);
-    final bDate = b.dateAndTime != null ? DateTime.parse(b.dateAndTime!) : DateTime(1900);
-    return bDate.compareTo(aDate);
-
+      final aDate = a.dateAndTime != null
+          ? DateTime.parse(a.dateAndTime!)
+          : DateTime(1900);
+      final bDate = b.dateAndTime != null
+          ? DateTime.parse(b.dateAndTime!)
+          : DateTime(1900);
+      return bDate.compareTo(aDate);
     });
     List<Widget> upcomingAppoinmentWidgetList = [];
 
@@ -263,11 +268,15 @@ if (tempAppoinment.dateAndTime == null) {
   }
 
   List<Widget> getTodayAppoinmentWidget(BuildContext context) {
-  todayAppoinment.sort((a, b) {
-  final aDate = a.dateAndTime != null ? DateTime.parse(a.dateAndTime!) : DateTime(1900);
-  final bDate = b.dateAndTime != null ? DateTime.parse(b.dateAndTime!) : DateTime(1900);
-  return bDate.compareTo(aDate);
-});
+    todayAppoinment.sort((a, b) {
+      final aDate = a.dateAndTime != null
+          ? DateTime.parse(a.dateAndTime!)
+          : DateTime(1900);
+      final bDate = b.dateAndTime != null
+          ? DateTime.parse(b.dateAndTime!)
+          : DateTime(1900);
+      return bDate.compareTo(aDate);
+    });
 
     List<Widget> todayAppoinmentWidgetList = [];
     Color color = Colors.green;
@@ -439,11 +448,9 @@ if (tempAppoinment.dateAndTime == null) {
 
   void _delete(BuildContext context, Appoinment appoinment) async {
     int result = await databaseHelper.deleteAppoinment(appoinment.id ?? 0);
-  if (result != 0) {
-    updateListView();
-  }
-
-
+    if (result != 0) {
+      updateListView();
+    }
   }
 
   void navigateToDetail(Appoinment appoinment, String name) async {

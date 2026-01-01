@@ -30,12 +30,14 @@ import 'package:roro_medicine_reminder/services/notifications.dart';
 
 import 'models/appoinment.dart';
 import 'models/reminder.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 Future<void> main() async {
   setupLocator();
   FlutterDownloader.initialize(debug: false);
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+  await dotenv.load();
   runApp(MyApp());
 }
 

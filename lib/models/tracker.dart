@@ -34,7 +34,8 @@ class SleepTracker {
 
   fromMap(Map<String, dynamic> map) {
     Sleep sleepTracker = Sleep();
-    sleepTracker.dateTime = DateTime.tryParse(map['dateAndTime'] ?? '') ?? DateTime.now();
+    sleepTracker.dateTime =
+        DateTime.tryParse(map['dateAndTime'] ?? '') ?? DateTime.now();
     sleepTracker.hours = int.tryParse(map['hours']?.toString() ?? '') ?? 0;
     sleepTracker.minutes = int.tryParse(map['minutes']?.toString() ?? '') ?? 0;
     sleepTracker.notes = map['notes']?.toString() ?? '';
@@ -78,7 +79,8 @@ class WeightTracker {
 
   fromMap(Map<String, dynamic> map) {
     Weight weightTracker = Weight();
-    weightTracker.dateTime = DateTime.tryParse(map['dateAndTime'] ?? '') ?? DateTime.now();
+    weightTracker.dateTime =
+        DateTime.tryParse(map['dateAndTime'] ?? '') ?? DateTime.now();
     weightTracker.weight = int.tryParse(map['weight']?.toString() ?? '') ?? 0;
     weightTracker.notes = map['notes']?.toString() ?? '';
     return weightTracker;
@@ -119,8 +121,10 @@ class BloodSugarTracker {
 
   fromMap(Map<String, dynamic> map) {
     BloodSugar bloodSugar = BloodSugar();
-    bloodSugar.dateTime = DateTime.tryParse(map['dateAndTime'] ?? '') ?? DateTime.now();
-    bloodSugar.bloodSugar = int.tryParse(map['blood_sugar']?.toString() ?? '') ?? 0;
+    bloodSugar.dateTime =
+        DateTime.tryParse(map['dateAndTime'] ?? '') ?? DateTime.now();
+    bloodSugar.bloodSugar =
+        int.tryParse(map['blood_sugar']?.toString() ?? '') ?? 0;
     bloodSugar.notes = map['notes']?.toString() ?? '';
     return bloodSugar;
   }
@@ -141,7 +145,8 @@ class BloodPressure {
   String? notes;
   DateTime? dateTime;
 
-  BloodPressure({this.systolic, this.diastolic, this.pulse, this.notes, this.dateTime});
+  BloodPressure(
+      {this.systolic, this.diastolic, this.pulse, this.notes, this.dateTime});
 }
 
 class BloodPressureTracker {
@@ -162,9 +167,12 @@ class BloodPressureTracker {
 
   fromMap(Map<String, dynamic> map) {
     BloodPressure bloodPressure = BloodPressure();
-    bloodPressure.dateTime = DateTime.tryParse(map['dateAndTime'] ?? '') ?? DateTime.now();
-    bloodPressure.diastolic = int.tryParse(map['diastolic']?.toString() ?? '') ?? 0;
-    bloodPressure.systolic = int.tryParse(map['systolic']?.toString() ?? '') ?? 0;
+    bloodPressure.dateTime =
+        DateTime.tryParse(map['dateAndTime'] ?? '') ?? DateTime.now();
+    bloodPressure.diastolic =
+        int.tryParse(map['diastolic']?.toString() ?? '') ?? 0;
+    bloodPressure.systolic =
+        int.tryParse(map['systolic']?.toString() ?? '') ?? 0;
     bloodPressure.pulse = int.tryParse(map['pulse']?.toString() ?? '') ?? 0;
     bloodPressure.notes = map['notes']?.toString() ?? '';
     return bloodPressure;
@@ -174,7 +182,7 @@ class BloodPressureTracker {
     List<DocumentSnapshot> documents = snapshot.docs;
     List<BloodPressure> bloodPressureList = [];
     for (var data in documents) {
-       Map<String, dynamic> map = data.data() as Map<String, dynamic>;
+      Map<String, dynamic> map = data.data() as Map<String, dynamic>;
       bloodPressureList.add(fromMap(map));
     }
     return bloodPressureList;

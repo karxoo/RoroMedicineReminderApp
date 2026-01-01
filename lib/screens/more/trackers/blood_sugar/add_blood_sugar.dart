@@ -136,9 +136,10 @@ class _AddBloodSugarScreenState extends State<AddBloodSugarScreen> {
                           builder: (_) => const BloodSugarTrackerScreen()));
                     },
                     style: ElevatedButton.styleFrom(
-                        elevation: 2, backgroundColor: const Color(0xffff9987),
-                        padding:
-                            const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                        elevation: 2,
+                        backgroundColor: const Color(0xffff9987),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 40, vertical: 15),
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(20))),
                     child: const Text("Add Data",
@@ -151,18 +152,20 @@ class _AddBloodSugarScreenState extends State<AddBloodSugarScreen> {
                     onPressed: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => const TrackerHome()),
+                        MaterialPageRoute(
+                            builder: (context) => const TrackerHome()),
                       );
                     },
                     style: ElevatedButton.styleFrom(
-                      elevation: 2, backgroundColor: const Color(0xffff9987),
+                      elevation: 2,
+                      backgroundColor: const Color(0xffff9987),
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(20),
                           side: BorderSide(
                             color: Colors.redAccent[100]!,
                           )),
-                      padding:
-                          const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 40, vertical: 15),
                     ),
                     child: const Text(
                       'Cancel',

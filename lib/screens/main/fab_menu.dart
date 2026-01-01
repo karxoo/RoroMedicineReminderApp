@@ -4,10 +4,10 @@ import 'package:flutter/material.dart';
 @immutable
 class ExpandableFab extends StatefulWidget {
   const ExpandableFab({
-   Key? key,
-  required this.initialOpen,
-  required this.distance,
-  required this.children,
+    Key? key,
+    required this.initialOpen,
+    required this.distance,
+    required this.children,
   }) : super(key: key);
 
   final bool initialOpen;
@@ -18,9 +18,10 @@ class ExpandableFab extends StatefulWidget {
   _ExpandableFabState createState() => _ExpandableFabState();
 }
 
-class _ExpandableFabState extends State<ExpandableFab> with SingleTickerProviderStateMixin {
-    late AnimationController _controller;
-    late Animation<double> _expandAnimation;
+class _ExpandableFabState extends State<ExpandableFab>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _expandAnimation;
   bool _open = false;
 
   @override
@@ -100,8 +101,8 @@ class _ExpandableFabState extends State<ExpandableFab> with SingleTickerProvider
     final count = widget.children.length;
     final step = 90.0 / (count - 1);
     for (var i = 0, angleInDegrees = 0.0;
-    i < count;
-    i++, angleInDegrees += step) {
+        i < count;
+        i++, angleInDegrees += step) {
       children.add(
         _ExpandingActionButton(
           directionInDegrees: angleInDegrees,
@@ -148,7 +149,6 @@ class _ExpandingActionButton extends StatelessWidget {
     required this.maxDistance,
     required this.progress,
     required this.child,
-
   }) : super(key: key);
 
   final double directionInDegrees;
@@ -202,12 +202,11 @@ class ActionButton extends StatelessWidget {
       clipBehavior: Clip.antiAlias,
       color: Colors.blueGrey[50],
       elevation: 4.0,
-        child: IconButton(
-          tooltip: tooltip,
-          onPressed: onPressed,
-          icon: icon,
-        ),
-
+      child: IconButton(
+        tooltip: tooltip,
+        onPressed: onPressed,
+        icon: icon,
+      ),
     );
   }
 }

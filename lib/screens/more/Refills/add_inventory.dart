@@ -134,12 +134,14 @@ class _AddInventoryScreenState extends State<AddInventoryScreen> {
                       await saveData();
                       if (!mounted) return;
                       navigator.pop();
-                      navigator.push(MaterialPageRoute(builder: (_) => const BloodSugarTrackerScreen()));
+                      navigator.push(MaterialPageRoute(
+                          builder: (_) => const BloodSugarTrackerScreen()));
                     },
                     style: ElevatedButton.styleFrom(
-                        elevation: 2, backgroundColor: const Color(0xffff9987),
-                        padding:
-                            const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                        elevation: 2,
+                        backgroundColor: const Color(0xffff9987),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 40, vertical: 15),
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(20))),
                     child: const Text("Add Data",
@@ -157,14 +159,15 @@ class _AddInventoryScreenState extends State<AddInventoryScreen> {
                       );
                     },
                     style: ElevatedButton.styleFrom(
-                      elevation: 2, backgroundColor: const Color(0xffff9987),
+                      elevation: 2,
+                      backgroundColor: const Color(0xffff9987),
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(20),
                           side: BorderSide(
                             color: Colors.redAccent[100]!,
                           )),
-                      padding:
-                          const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 40, vertical: 15),
                     ),
                     child: const Text(
                       'Cancel',
@@ -207,8 +210,6 @@ class _AddInventoryScreenState extends State<AddInventoryScreen> {
       userId = user?.uid ?? '';
     });
   }
-
-  
 }
 
 bool isNumeric(String s) {

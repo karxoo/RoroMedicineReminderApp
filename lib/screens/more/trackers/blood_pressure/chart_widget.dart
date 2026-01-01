@@ -6,7 +6,8 @@ import '../../../../models/tracker.dart';
 class BloodPressureChart extends StatefulWidget {
   final bool animate;
   final String userID, type;
-  const BloodPressureChart({Key? key, 
+  const BloodPressureChart({
+    Key? key,
     required this.animate,
     required this.userID,
     required this.type,

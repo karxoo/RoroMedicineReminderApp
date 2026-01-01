@@ -63,16 +63,16 @@ class DatabaseHelper {
   void _createDb(Database db, int newVersion) async {
     await db.execute(
         'CREATE TABLE $reminderTable($remColId INTEGER PRIMARY KEY AUTOINCREMENT, $remColIntakeHistory TEXT ,$remColNotificationID INTEGER, $remColName TEXT, '
-            '$remColType TEXT, $remColTimes INTEGER, $remColTime1 TEXT,$remColTime2 TEXT,$remColTime3 TEXT)');
+        '$remColType TEXT, $remColTimes INTEGER, $remColTime1 TEXT,$remColTime2 TEXT,$remColTime3 TEXT)');
 
     await db.execute(
         'CREATE TABLE $appoinmentTable($appoinmentColId INTEGER PRIMARY KEY AUTOINCREMENT, $appoinmentColDone INTEGER NOT NULL,'
-            '$appoinmentColNotificationID INTEGER ,$appoinmentColName TEXT, '
-            '$appoinmentColPlace TEXT, $appoinmentColAddress TEXT, $appoinmentColDateTime TEXT)');
+        '$appoinmentColNotificationID INTEGER ,$appoinmentColName TEXT, '
+        '$appoinmentColPlace TEXT, $appoinmentColAddress TEXT, $appoinmentColDateTime TEXT)');
 
     await db.execute(
         'CREATE TABLE $noteTable($colId INTEGER PRIMARY KEY AUTOINCREMENT, $colTitle TEXT, '
-            '$colDescription TEXT,$colDateCreated TEXT , $colPriority INTEGER, $colDate TEXT)');
+        '$colDescription TEXT,$colDateCreated TEXT , $colPriority INTEGER, $colDate TEXT)');
   }
 
   // Fetch Operation: Get all note objects from database
@@ -151,7 +151,7 @@ class DatabaseHelper {
   Future<int> deleteNote(int id) async {
     var db = await database;
     int result =
-    await db.rawDelete('DELETE FROM $noteTable WHERE $colId = $id');
+        await db.rawDelete('DELETE FROM $noteTable WHERE $colId = $id');
     return result;
   }
 
@@ -159,7 +159,7 @@ class DatabaseHelper {
   Future<int> deleteReminder(int id) async {
     var db = await database;
     int result =
-    await db.rawDelete('DELETE FROM $reminderTable WHERE $remColId = $id');
+        await db.rawDelete('DELETE FROM $reminderTable WHERE $remColId = $id');
     return result;
   }
 
@@ -175,7 +175,7 @@ class DatabaseHelper {
   Future<int> getCount() async {
     Database db = await database;
     List<Map<String, dynamic>> x =
-    await db.rawQuery('SELECT COUNT (*) from $noteTable');
+        await db.rawQuery('SELECT COUNT (*) from $noteTable');
     int? result = Sqflite.firstIntValue(x);
     return result ?? 0;
   }
@@ -184,7 +184,7 @@ class DatabaseHelper {
   Future<int> getRemCount() async {
     Database db = await database;
     List<Map<String, dynamic>> x =
-    await db.rawQuery('SELECT COUNT (*) from $reminderTable');
+        await db.rawQuery('SELECT COUNT (*) from $reminderTable');
     int? result = Sqflite.firstIntValue(x);
     return result ?? 0;
   }
@@ -193,7 +193,7 @@ class DatabaseHelper {
   Future<int> getAppoinmentCount() async {
     Database db = await database;
     List<Map<String, dynamic>> x =
-    await db.rawQuery('SELECT COUNT (*) from $appoinmentTable');
+        await db.rawQuery('SELECT COUNT (*) from $appoinmentTable');
     int? result = Sqflite.firstIntValue(x);
     return result ?? 0;
   }
@@ -216,7 +216,7 @@ class DatabaseHelper {
   // Get the 'Map List' [ List<Map> ] and convert it to 'Reminder List' [ List<Reminder> ]
   Future<List<Reminder>> getRemList() async {
     var reminderMapList =
-    await getReminderMapList(); // Get 'Map List' from database
+        await getReminderMapList(); // Get 'Map List' from database
     int count =
         reminderMapList.length; // Count the number of map entries in db table
 
@@ -232,7 +232,7 @@ class DatabaseHelper {
   // Get the 'Map List' [ List<Map> ] and convert it to 'Appoinment List' [ List<Appoinment> ]
   Future<List<Appoinment>> getAppoinmentList() async {
     var appoinmentMapList =
-    await getAppoinmentMapList(); // Get 'Map List' from database
+        await getAppoinmentMapList(); // Get 'Map List' from database
     int count =
         appoinmentMapList.length; // Count the number of map entries in db table
 

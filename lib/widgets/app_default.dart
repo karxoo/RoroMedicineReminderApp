@@ -85,7 +85,8 @@ class _AppDrawerState extends State<AppDrawer> {
                         fontFamily: "Mulish")),
                 onTap: () => Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => const LinkRelative()),
+                      MaterialPageRoute(
+                          builder: (context) => const LinkRelative()),
                     )),
             ListTile(
               leading: const Icon(
@@ -110,7 +111,8 @@ class _AppDrawerState extends State<AppDrawer> {
                               final navigator = Navigator.of(context);
                               await authClass.signOut();
                               navigator.pushAndRemoveUntil(
-                                  MaterialPageRoute(builder: (builder) => MyApp()),
+                                  MaterialPageRoute(
+                                      builder: (builder) => MyApp()),
                                   (route) => false);
                             },
                           ),
@@ -137,10 +139,9 @@ class ListButtons extends StatelessWidget {
   final icon;
   final onTap;
 
-  const ListButtons({Key? key, 
-  this.text = "", 
-  required this.icon, 
-  required this.onTap}) : super(key: key);
+  const ListButtons(
+      {Key? key, this.text = "", required this.icon, required this.onTap})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -182,13 +183,14 @@ class FormItem extends StatelessWidget {
   final controller;
 
   const FormItem(
-      {Key? key, 
+      {Key? key,
       this.hintText = "",
       this.helperText = "",
       required this.onChanged,
       required this.icon,
       this.isNumber = false,
-      this.controller}) : super(key: key);
+      this.controller})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -255,11 +257,11 @@ class ROROAppBar extends StatelessWidget implements PreferredSizeWidget {
               child: const CircleAvatar(
                 radius: 20,
                 backgroundColor: Colors.blueGrey,
-             child: Icon(
-      Icons.perm_identity,
-      size: 30,
-      color: Colors.white,
-    ),
+                child: Icon(
+                  Icons.perm_identity,
+                  size: 30,
+                  color: Colors.white,
+                ),
               ),
             ),
           ],

@@ -8,6 +8,7 @@ import 'package:roro_medicine_reminder/widgets/app_default.dart';
 import '../../../components/navBar.dart';
 import '../../../models/reminder.dart';
 import '../../../services/database_helper.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class MedicineDecisionScreen extends StatefulWidget {
   static const String routeName = 'Medicine_decision_screen';
@@ -19,27 +20,35 @@ class MedicineDecisionScreen extends StatefulWidget {
 
 class _MedicineDecisionScreenState extends State<MedicineDecisionScreen> {
   Future<void> sendSms() async {
-    var cred =
-        'AC07a649c710761cf3a0e6b96048accf58:60cfd08bcc74ea581187a048dfd653cb';
+    final accountSid = dotenv.env['TWILIO_ACCOUNT_SID'];
+    final authToken = dotenv.env['TWILIO_AUTH_TOKEN'];
+    final fromNumber = dotenv.env['TWILIO_FROM'];
 
-    var bytes = utf8.encode(cred);
+    if (accountSid == null || authToken == null || fromNumber == null) {
+      debugPrint('Twilio credentials not found');
+      return;
+    }
 
-    var base64Str = base64.encode(bytes);
+    final cred = '$accountSid:$authToken';
+    final base64Str = base64.encode(utf8.encode(cred));
 
-    var url =
-        'https://api.twilio.com/2010-04-01/Accounts/AC07a649c710761cf3a0e6b96048accf58/Messages.json';
+    final url =
+        'https://api.twilio.com/2010-04-01/Accounts/$accountSid/Messages.json';
 
-    var response = await http.post(Uri.parse(url),
-        headers: {
-      'Authorization': 'Basic $base64Str'
-    }, body: {
-      'From': '+12567403927',
-      'To': '+918078214942',
-      'Body': 'Just forgot to take medicine now'
-    });
+    final response = await http.post(
+      Uri.parse(url),
+      headers: {
+        'Authorization': 'Basic $base64Str',
+      },
+      body: {
+        'From': fromNumber,
+        'To': '+918078214942',
+        'Body': 'Just missed their appointment!',
+      },
+    );
 
-    print('Response status: ${response.statusCode}');
-    print('Response body: ${response.body}');
+    debugPrint('Response status: ${response.statusCode}');
+    debugPrint('Response body: ${response.body}');
   }
 
   DatabaseHelper databaseHelper = DatabaseHelper();
@@ -47,7 +56,7 @@ class _MedicineDecisionScreenState extends State<MedicineDecisionScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: const ROROAppBar(),
-      drawer:const AppDrawer(),
+      drawer: const AppDrawer(),
       body: Container(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -81,12 +90,11 @@ class _MedicineDecisionScreenState extends State<MedicineDecisionScreen> {
                       String dateString =
                           (DateFormat('yyyy-MM-dd hh:mm').format(now));
 
-                    r.intakeHistory ??= {}; // initialize if null
+                      r.intakeHistory ??= {}; // initialize if null
 
-r.intakeHistory![dateString] = {
-  TimeOfDay.now().toString(): true,
-};
-
+                      r.intakeHistory![dateString] = {
+                        TimeOfDay.now().toString(): true,
+                      };
 
                       databaseHelper.updateReminder(r);
                       setState(() {});
@@ -111,11 +119,11 @@ r.intakeHistory![dateString] = {
                       String dateString =
                           (DateFormat('yyyy-MM-dd hh:mm').format(now));
 
-                     r.intakeHistory ??= {}; // initialize if null
+                      r.intakeHistory ??= {}; // initialize if null
 
-r.intakeHistory![dateString] = {
-  TimeOfDay.now().toString(): true,
-};
+                      r.intakeHistory![dateString] = {
+                        TimeOfDay.now().toString(): true,
+                      };
 
                       print(r.intakeHistory);
                       databaseHelper.updateReminder(r);

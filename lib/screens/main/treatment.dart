@@ -4,6 +4,7 @@ import '../../services/auth.dart';
 import '../../widgets/app_default.dart';
 import '../reminder/measurement/measurement_screen.dart';
 import '../reminder/medicine/medicine_reminder.dart';
+import '../../models/reminder.dart';
 import 'fab_menu.dart';
 
 class Treatment extends StatefulWidget {
@@ -45,8 +46,19 @@ class _TreatmentState extends State<Treatment> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                    builder: (context) =>
-                        MedicineReminder(reminder: reminder!)),
+                  builder: (context) => MedicineReminder(
+                    reminder: Reminder(
+                      "Vitamin C",
+                      "Tablet",
+                      "08:00",
+                      null,
+                      null,
+                      1,
+                      101,
+                      {},
+                    ),
+                  ),
+                ),
               );
             },
             icon: const Icon(Icons.medication_liquid_outlined,

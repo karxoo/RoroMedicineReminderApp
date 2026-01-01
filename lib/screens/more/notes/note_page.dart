@@ -131,10 +131,12 @@ class _NotePageState extends State<NotePage> {
               itemCount: docs.length,
               itemBuilder: (context, index) {
                 Random random = Random();
-                final bg = myColors[random.nextInt(myColors.length)] ?? Colors.white;
+                final bg =
+                    myColors[random.nextInt(myColors.length)] ?? Colors.white;
                 final data = docs[index].data() as Map<String, dynamic>;
                 final mydateTime = (data['created'] as dynamic).toDate();
-                final formattedTime = DateFormat.yMMMd().add_jm().format(mydateTime);
+                final formattedTime =
+                    DateFormat.yMMMd().add_jm().format(mydateTime);
 
                 return InkWell(
                   onTap: () {
